@@ -4,32 +4,74 @@
  */
 
 var express = require('express')
-  , routes = require('./routes');
+  , routes = require('./routes')
+  , http = require('http')
+  , https = require('https')
+  , crypto = require('crypto')
+  , fs = require('fs')
+  , path = require('path')
+  , Parse = require('parse-api').Parse;
 
-var app = module.exports = express.createServer();
 
-// Configuration
+var app = express();
+
+/* Parse.initialize("NxEj8t7POeTJEnm3CizoU1MQZlNexcQpHTxgWhwa", "zDQumpFrbesh4326BgzY9YR1D9jzIWQDdUJsIaNF"); */
+var MASTER_KEY = '2bCmZB3F7qE8VebWUNHUzi1OzZnLivenQmiSGT4M';
+var APP_ID = 'NxEj8t7POeTJEnm3CizoU1MQZlNexcQpHTxgWhwa';
+
+var parseApp = new Parse(APP_ID, MASTER_KEY);
+    
+// add a Foo object, { foo: 'bar' }
+parseApp.insert('Foo', { foo: 'bar' }, function (err, response) {
+  console.log('parse response: ' + JSON.stringify(response) + ', error: ' + err);
+  var id = response.id;
+  console.log('response object id: ' + id);
+});    
+
+parseApp.find('Foo', { foo: 'bar' }, function (err, response) {
+  console.log(response);
+});
 
 app.configure(function(){
+  app.set('port',  process.env.PORT ||  3000);
+  app.set('portHttps',  process.env.PORT ||  3443);
   app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
+  app.set('view engine', 'ejs');
+  app.use(express.favicon());
+  app.use(express.logger('dev'));
   app.use(express.bodyParser());
   app.use(express.methodOverride());
+  app.use(express.cookieParser('your secret here'));
+  app.use(express.session());
   app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
+  app.use(require('stylus').middleware(__dirname + '/public'));
+  app.use(express.static(path.join(__dirname, 'public')));
 });
 
 app.configure('development', function(){
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-});
-
-app.configure('production', function(){
   app.use(express.errorHandler());
 });
 
-// Routes
-
 app.get('/', routes.index);
+app.get('/test', routes.test);
+app.get('/example', routes.example);
 
-app.listen(3000);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+console.log('routes: ' + JSON.stringify(app.routes));
+
+var privateKey = fs.readFileSync('cert/key.pem').toString();
+var certificate = fs.readFileSync('cert/certificate.pem').toString();  
+
+// to enable https
+var httpsOptions = {key: privateKey, cert: certificate};
+
+//var app = module.exports = express.createServer({key: privateKey, cert: certificate});
+
+//console.log("app config: " + app.toString());	
+
+http.createServer(app).listen(app.get('port'), function(){
+  console.log("Express server listening on port " + app.get('port'));
+});
+
+https.createServer( httpsOptions, app).listen(app.get('portHttps'), function(){
+  console.log("Express https server listening on port " + app.get('portHttps'));
+});
