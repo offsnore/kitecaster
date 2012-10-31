@@ -1,6 +1,6 @@
 
 /**
- * Module dependencies.
+ * Module dependencies. test 1 2
  */
 
 var express = require('express')
@@ -15,18 +15,20 @@ var express = require('express')
 
 var app = express();
 
-/* Parse.initialize("NxEj8t7POeTJEnm3CizoU1MQZlNexcQpHTxgWhwa", "zDQumpFrbesh4326BgzY9YR1D9jzIWQDdUJsIaNF"); */
+
 var MASTER_KEY = '2bCmZB3F7qE8VebWUNHUzi1OzZnLivenQmiSGT4M';
 var APP_ID = 'NxEj8t7POeTJEnm3CizoU1MQZlNexcQpHTxgWhwa';
 
 var parseApp = new Parse(APP_ID, MASTER_KEY);
     
 // add a Foo object, { foo: 'bar' }
+/*
 parseApp.insert('Foo', { foo: 'bar' }, function (err, response) {
   console.log('parse response: ' + JSON.stringify(response) + ', error: ' + err);
   var id = response.id;
   console.log('response object id: ' + id);
 });    
+*/
 
 parseApp.find('Foo', { foo: 'bar' }, function (err, response) {
   console.log(response);
