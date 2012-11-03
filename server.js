@@ -6,7 +6,6 @@
 var express = require('express')
   , routes = require('./routes')
   , http = require('http')
-  , https = require('https')
   , crypto = require('crypto')
   , fs = require('fs')
   , path = require('path')
@@ -35,8 +34,7 @@ parseApp.find('Foo', { foo: 'bar' }, function (err, response) {
 });
 
 app.configure(function(){
-  app.set('port',  process.env.PORT ||  8080);
-  app.set('portHttps',  process.env.PORT ||  8443);
+  app.set('port',  process.env.PORT ||  8000);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
   app.use(express.favicon());
@@ -60,20 +58,6 @@ app.get('/example', routes.example);
 
 console.log('routes: ' + JSON.stringify(app.routes));
 
-var privateKey = fs.readFileSync('cert/key.pem').toString();
-var certificate = fs.readFileSync('cert/certificate.pem').toString();  
-
-// to enable https
-var httpsOptions = {key: privateKey, cert: certificate};
-
-//var app = module.exports = express.createServer({key: privateKey, cert: certificate});
-
-//console.log("app config: " + app.toString());	
-
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
-});
-
-https.createServer( httpsOptions, app).listen(app.get('portHttps'), function(){
-  console.log("Express https server listening on port " + app.get('portHttps'));
 });
