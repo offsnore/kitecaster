@@ -1,11 +1,13 @@
 
 /**
- * Module dependencies. test 1 2
+ * Module dependencies. 
  */
+
 
 var express = require('express')
   , routes = require('./routes')
   , http = require('http')
+  , https = require('https')
   , crypto = require('crypto')
   , fs = require('fs')
   , path = require('path')
@@ -57,6 +59,11 @@ app.get('/test', routes.test);
 app.get('/example', routes.example);
 
 console.log('routes: ' + JSON.stringify(app.routes));
+
+
+//var app = module.exports = express.createServer({key: privateKey, cert: certificate});
+
+//console.log("app config: " + app.toString());	
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
