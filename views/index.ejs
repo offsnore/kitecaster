@@ -57,14 +57,12 @@
       <!-- Main hero unit for a primary marketing message or call to action -->
       <div class="hero-unit">
         <h1>kitecaster is coming</h1>
-        <p>Ready to go kiting? We want to help you find the best spot and get you kiting quicker. Are you in?</p>
-         <!--<form class="navbar-form pull-right">
-			 <input class="span2" type="text" placeholder="Email">
-            <a id="btnSignupUpdates" class="btn btn-primary btn-large">Stay in touch </a> -->
-        <p>We'd rather be kiting. How about you? We'll tell you where, on your schedule.
+        <!--<p>Ready to go kiting? We want to help you find the best spot and get you kiting quicker. Are you in?</p>-->
+        <p>We'd rather be kiting. How about you? We want to help you find your best chances for a great session. Full stoke.
          <form class="navbar-form pull-right">
 			 <input id="inputEmail" class="span2" type="textbox" placeholder="Email">
             <a id="btnSignupUpdates" class="btn btn-primary btn-large">Stay Informed</a> 
+            <div id="emailError" style=".text-error">that's not going to work as email!</div>
             <!--&raquo; -->
         </form>
 
@@ -85,6 +83,7 @@
     <script src="../js/lib/jquery.js"></script>
     <script src="../js/lib/parse-1.1.6.js"></script>
     <script src="../js/lib/bootstrap.js"></script>
+    <script src="../js/util/utils.js"></script>
     <script src="../assets/js/bootstrap-transition.js"></script>  
     <script src="../assets/js/bootstrap-transition.js"></script>
     <script src="../assets/js/bootstrap-alert.js"></script>
@@ -104,6 +103,11 @@
     	$(document).ready(function(){
 	   		$("#btnSignupUpdates").click(function(event){
 	   			var emailVal = $('#inputEmail').val();
+	   			alert('email? ' + IsEmail(emailVal));
+	   			
+	   			if (!IsEmail(emailVal)) {
+		   			return;
+	   			}
 				var EmailObject = Parse.Object.extend("EmailObject");
 				var emailObject = new EmailObject();
 				emailObject.save({email: emailVal}, {
