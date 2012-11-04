@@ -27,12 +27,12 @@ parseApp.insert('Foo', { foo: 'bar' }, function (err, response) {
   var id = response.id;
   console.log('response object id: ' + id);
 });    
-*/
+
 
 parseApp.find('Foo', { foo: 'bar' }, function (err, response) {
   console.log(response);
 });
-
+*/
 app.configure(function(){
   app.set('port', 3000);
   app.set('views', __dirname + '/views');
