@@ -104,7 +104,6 @@
     	$(document).ready(function(){
 	   		$("#btnSignupUpdates").click(function(event){
 	   			var emailVal = $('#inputEmail').val();
-	   			alert('hello ' + emailVal);
 				var EmailObject = Parse.Object.extend("EmailObject");
 				var emailObject = new EmailObject();
 				emailObject.save({email: emailVal}, {
