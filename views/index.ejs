@@ -103,8 +103,6 @@
     	$(document).ready(function(){
 	   		$("#btnSignupUpdates").click(function(event){
 	   			var emailVal = $('#inputEmail').val();
-	   			alert('email? ' + IsEmail(emailVal));
-	   			
 	   			if (!IsEmail(emailVal)) {
 		   			return;
 	   			}
@@ -113,6 +111,7 @@
 				emailObject.save({email: emailVal}, {
 			      success: function(object) {
 			        $(".success").show();
+				alert('Thanks! We'll let you know when we're ready! (and not ever spam)');
 			      },
 			      error: function(model, error) {
 			        $(".error").show();
