@@ -58,11 +58,19 @@
       <div class="hero-unit">
         <h1>kitecaster is coming</h1>
         <!--<p>Ready to go kiting? We want to help you find the best spot and get you kiting quicker. Are you in?</p>-->
+<<<<<<< HEAD
         <p>We'd rather be kiting. How about you? We want to help you find your best chances of a great session. 
          <form class="navbar-form pull-right">
 			 <input id="inputEmail" class="span2" type="textbox" placeholder="Email">
             <a id="btnSignupUpdates" class="btn btn-primary btn-large">Stay Informed</a> 
             <!--<div id="emailError" style=".text-error.hidden">that's not going to work as email!</div>-->
+=======
+        <p>We'd rather be kiting. How about you? Let us help you find your best chances of a great session. 
+         <form class="navbar-form pull-right">
+			 <input id="inputEmail" class="span2" type="textbox" placeholder="Email">
+            <a id="btnSignupUpdates" class="btn btn-primary btn-large">Stay in Touch</a> 
+            <div id="emailError" style="">that's not going to work as email!</div>
+>>>>>>> 0b00d7a4a221c9348ffb1531c6209763296bf403
             <!--&raquo; -->
         </form>
 
@@ -78,8 +86,6 @@
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../assets/js/jquery.js"></script>
-    <script src="../assets/js/bootstrap.js"></script>
     <script src="../js/lib/jquery.js"></script>
     <script src="../js/lib/parse-1.1.6.js"></script>
     <script src="../js/lib/bootstrap.js"></script>
@@ -104,8 +110,10 @@
 	   		$("#btnSignupUpdates").click(function(event){
 	   			var emailVal = $('#inputEmail').val();
 	   			if (!IsEmail(emailVal)) {
+	   				alert('invalid email');
 		   			return;
 	   			}
+	   			else {
 				var EmailObject = Parse.Object.extend("EmailObject");
 				var emailObject = new EmailObject();
 				emailObject.save({email: emailVal}, {
@@ -117,6 +125,7 @@
 			        $(".error").show();
 			      }
 			    });				
+			   }
 	   		}); 
 	   	});
     </script>
