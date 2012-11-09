@@ -10,7 +10,7 @@
 
     <!-- Le styles -->
     <link href="../css/bootstrap.css" rel="stylesheet">
-    <link href="../css/style.css" rel="stylesheet">
+    <link href="../css/styles.css" rel="stylesheet">
     <style type="text/css">
       body {
         padding-top: 60px;
@@ -101,7 +101,6 @@
     	Parse.initialize("NxEj8t7POeTJEnm3CizoU1MQZlNexcQpHTxgWhwa", "zDQumpFrbesh4326BgzY9YR1D9jzIWQDdUJsIaNF");
 
     	$(document).ready(function(){
-	 //$('#nav-bar').hide();
          $("#clickStatus").hide();
             
 	   		$("#btnSignupUpdates").click(function(event){
@@ -111,6 +110,7 @@
    	   			$("#clickStatus").addClass('warning-message');
    	   			$("#clickStatus").text("That's not going to work as email!");
    	   		   $("#clickStatus").fadeIn();
+   	   		   $("#clickStatus").fadeOut(4000);
 		   			return;
 	   			}
 	   			else {
@@ -122,7 +122,9 @@
 			        $("#clickStatus").text("Thanks! We'll be in touch (and no spam)!");
 			        $("#clickStatus").addClass('ok-message');
    	   			$("#clickStatus").removeClass('warning-message');
-			        $("#clickStatus").fadeIn();			      },
+			        $("#clickStatus").fadeIn();			      
+			        $("#clickStatus").fadeOut(4000);
+			      },
 			      error: function(model, error) {
 			        $(".error").show();
 			      }
