@@ -11,9 +11,12 @@ a {
 
 .warning-message {
    color: rgba(113,35,35,0.59);
+   font-style: !important;
 }
 
 .ok-message { 
-   color: rgba(49,170,58,0.79)
+   color: rgba(49,170,58,0.79);
+   font-style: !important;
+
 }
 
