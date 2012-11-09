@@ -10,13 +10,13 @@ a {
 }
 
 .warning-message {
-   color: rgba(113,35,35,0.59);
-   font-style: !important;
+   color: #942314;
+   font-weight: bold;
 }
 
 .ok-message { 
-   color: rgba(49,170,58,0.79);
-   font-style: !important;
+   color:#12b628;
+   font-weight: bold;
 
 }
 
