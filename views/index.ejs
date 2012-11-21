@@ -99,9 +99,17 @@
     <script src="../assets/js/bootstrap-typeahead.js"></script>
     <script>
     	Parse.initialize("NxEj8t7POeTJEnm3CizoU1MQZlNexcQpHTxgWhwa", "zDQumpFrbesh4326BgzY9YR1D9jzIWQDdUJsIaNF");
-
+    	
+    	var handleKeyPress = function(e,form){
+       	    alert('handled key press');
+          	 var key=e.keyCode || e.which;
+          	 if (key==13){
+             	 form.submit();
+             	 }
+            };
     	$(document).ready(function(){
-         $("#clickStatus").hide();
+       	
+            $(document).onkeypress=handleKeyPress;
             
 	   		$("#btnSignupUpdates").click(function(event){
 	   			var emailVal = $('#inputEmail').val();
@@ -109,7 +117,7 @@
      	   			$("#clickStatus").removeClass('ok-message');
    	   			$("#clickStatus").addClass('warning-message');
    	   			$("#clickStatus").text("That's not going to work as email!");
-   	   		   $("#clickStatus").fadeIn();
+   	   		   $("#clickStatus").fadeIn();x
    	   		   $("#clickStatus").fadeOut(4000);
 		   			return;
 	   			}
@@ -117,7 +125,7 @@
 	   			
 				var EmailObject = Parse.Object.extend("EmailObject");
 				var emailObject = new EmailObject();
-				emailObject.save({email: emailVal}, {
+				emailObject.save({email: emailVal, validated: false}, {
 			      success: function(object) {
 			        $("#clickStatus").text("Thanks! We'll be in touch (and no spam)!");
 			        $("#clickStatus").addClass('ok-message');
