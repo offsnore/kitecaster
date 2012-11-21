@@ -14,3 +14,12 @@ exports.test = function(req, res){
 exports.example = function(req, res){
   res.render('example', { title: 'Exampe Full Bootstrap page' });
 };
+
+exports.email = function(req, res){
+   console.log('foobar');
+};
+
+exports.spot = function(req, res) {
+   console.log('spot api called'); 
+};
+

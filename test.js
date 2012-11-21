@@ -11,7 +11,8 @@ var express = require('express')
   , http = require('http')
   , fs = require('fs')
   , path = require('path')
-  , Parse = require('parse-api').Parse;
+  , Parse = require('parse-api').Parse
+  , mongoose = require('mongoose');
 
 
 var app = express();
@@ -57,6 +58,12 @@ app.configure('development', function(){
 app.get('/', routes.index);
 app.get('/test', routes.test);
 app.get('/example', routes.example);
+app.get('/api', function (req, res){
+   res.send('kitecaster API is running');
+});
+app.get('/api/email', routes.email);
+
+
 
 console.log('routes: ' + JSON.stringify(app.routes));
 

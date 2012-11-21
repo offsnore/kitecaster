@@ -5,7 +5,7 @@
 
 
 var express = require('express')
-  , routes = require('./routes')
+  , routes = require('./routes') 
   , http = require('http')
   , crypto = require('crypto')
   , fs = require('fs')
@@ -30,7 +30,7 @@ parseApp.insert('Foo', { foo: 'bar' }, function (err, response) {
 });    
 */
 
-parseApp.find('Foo', { foo: 'bar' }, function (err, response) {
+parseApp.find('EmailObject', {}, function (err, response) {
   console.log(response);
 });
 
@@ -50,12 +50,50 @@ app.configure(function(){
 });
 
 app.configure('development', function(){
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+});
+
+app.configure('production', function(){
   app.use(express.errorHandler());
 });
 
+/*
+   URL Mappings
+*/ 
+
 app.get('/', routes.index);
-app.get('/test', routes.test);
+app.get('/api', function (req, res){
+   res.send('kitecaster API is running');
+});
 app.get('/example', routes.example);
+
+/**
+   SPOT API
+**/
+
+app.get('/spot', function(req, res) {
+   res.send('list all spots API'); 
+});
+
+app.get('/spot/:id', function(req, res) {
+   res.send('get spot id API: ' + req.params.id);
+});
+
+app.post('/spot', function(req, res) {
+   res.send('add spot API');
+});
+
+app.put('/spot/:id', function(req, res){
+   res.send('update spot id: ' + req.params.id);
+});
+
+
+
+
+
+
+
+
 
 console.log('routes: ' + JSON.stringify(app.routes));
 
