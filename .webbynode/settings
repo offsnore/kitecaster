@@ -1,3 +1,4 @@
 nodejs_proxy=Y
 nodejs_port=8000
 engine=nodejs
+addons=(redis memcached mongodb beanstalkd)
