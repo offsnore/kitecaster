@@ -21,5 +21,6 @@ exports.email = function(req, res){
 
 exports.spot = function(req, res) {
    console.log('spot api called'); 
+   res.send('spot API called');
 };
 
