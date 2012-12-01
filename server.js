@@ -10,16 +10,25 @@ var express = require('express')
   , crypto = require('crypto')
   , fs = require('fs')
   , path = require('path')
-  , Parse = require('parse-api').Parse;
-
+  , Parse = require('parse-api').Parse
+  , restify = require('restify')
+  , nconf = require('nconf')
+  ;
 
 var app = express();
 
+//
+  // Setup nconf to use (in-order):
+  //   1. Command-line arguments
+  //   2. Environment variables
+  //   3. A file located at 'path/to/config.json'
+  //
+nconf.argv()
+       .env()
+       .file({ file:'settings.json' });
 
-var MASTER_KEY = '2bCmZB3F7qE8VebWUNHUzi1OzZnLivenQmiSGT4M';
-var APP_ID = 'NxEj8t7POeTJEnm3CizoU1MQZlNexcQpHTxgWhwa';
-
-var parseApp = new Parse(APP_ID, MASTER_KEY);
+console.log('appId: ' + nconf.get('parse.appId'));
+var parseApp = new Parse(nconf.get('parse.appId'), nconf.get('parse.master'));
     
 // add a Foo object, { foo: 'bar' }
 /*
@@ -35,7 +44,7 @@ parseApp.find('EmailObject', {}, function (err, response) {
 });
 
 app.configure(function(){
-  app.set('port',  process.env.PORT ||  8000);
+  app.set('port',  app.settings.env.PORT ||  8000);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
   app.use(express.favicon());
@@ -67,30 +76,8 @@ app.get('/api', function (req, res){
 });
 app.get('/example', routes.example);
 
-/**
-   SPOT API
-**/
 
-app.get('/spot', function(req, res) {
-   res.send('list all spots API'); 
-});
-
-app.get('/spot/:id', function(req, res) {
-   res.send('get spot id API: ' + req.params.id);
-});
-
-app.post('/spot', function(req, res) {
-   res.send('add spot API');
-});
-
-app.put('/spot/:id', function(req, res){
-   res.send('update spot id: ' + req.params.id);
-});
-
-
-
-
-
+/* Start API Apps */
 
 
 
