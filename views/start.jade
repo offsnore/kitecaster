@@ -1,6 +1,17 @@
 extends layout
+
+block head
+  script(src='js/lib/underscore.js')
+  script(src='js/lib/jquery.js')
+
+
 block content
-  h1=title
-  p Welcome to #{title}
-  body
-    #{body}
+  #kitecasterapp
+    .title
+        h1 Kitecaster Beta
+      .content
+    #credits     
+    
+
+
+ 

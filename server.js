@@ -59,8 +59,10 @@ app.configure(function(){
   app.engine('html', require('ejs').renderFile);
 });
 
-
-
+app.use(function(req, res, next){
+     res.locals._ = require('underscore');
+        next();
+      });
 
 app.configure('development', function(){
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));

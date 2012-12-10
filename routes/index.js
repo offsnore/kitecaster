@@ -23,7 +23,7 @@ exports.spot = function(req, res) {
 
 exports.start = function(req, res) {
    console.log('start url called'); 
-   res.render('start', { title: 'Beta Start Page', body: 'You ready for this?' });
+   res.render('start', { title: 'kitecaster - beta', body: 'You ready for this?', scripts: ['js/lib/jquery.js', 'js/lib/underscore.js'] });
 };
 
 exports.test = function(req, res){
