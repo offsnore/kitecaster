@@ -26,7 +26,7 @@
     <![endif]-->
 
     <!-- Le fav and touch icons -->
-    <!--<link rel="shortcut icon" href="../assets/ico/favicon.ico">-->
+    <link rel="shortcut icon" href="../images/f15icon.ico">
     <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
@@ -59,8 +59,7 @@
       <!-- Main hero unit for a primary marketing message or call to action -->
       <div class="hero-unit">
         <h1>kitecaster is coming</h1>
-        <!--<p>Ready to go kiting? We want to help you find the best spot and get you kiting quicker. Are you in?</p>-->
-        <p>We'd rather be kiting. How about you? We want to help you find your best chances of a great session. 
+        <p>We'd rather be kiting. How about you? Let us help find your next great session! 
          <form class="navbar-form pull-right">
 			 <input id="inputEmail" class="span2" type="textbox" placeholder="Email">
             <a id="btnSignupUpdates" class="btn btn-primary btn-large">Stay in Touch</a> 
@@ -84,19 +83,6 @@
     <script src="../js/lib/parse-1.1.6.js"></script> 
     <script src="../js/lib/bootstrap.js"></script>
     <script src="../js/util/utils.js"></script>
-    <script src="../assets/js/bootstrap-transition.js"></script>  
-    <script src="../assets/js/bootstrap-transition.js"></script>
-    <script src="../assets/js/bootstrap-alert.js"></script>
-    <script src="../assets/js/bootstrap-modal.js"></script>
-    <script src="../assets/js/bootstrap-dropdown.js"></script>
-    <script src="../assets/js/bootstrap-scrollspy.js"></script>
-    <script src="../assets/js/bootstrap-tab.js"></script>
-    <script src="../assets/js/bootstrap-tooltip.js"></script>
-    <script src="../assets/js/bootstrap-popover.js"></script>
-    <script src="../assets/js/bootstrap-button.js"></script>
-    <script src="../assets/js/bootstrap-collapse.js"></script>
-    <script src="../assets/js/bootstrap-carousel.js"></script>
-    <script src="../assets/js/bootstrap-typeahead.js"></script>
     <script>
     	Parse.initialize("NxEj8t7POeTJEnm3CizoU1MQZlNexcQpHTxgWhwa", "zDQumpFrbesh4326BgzY9YR1D9jzIWQDdUJsIaNF");
     	
@@ -150,6 +136,14 @@
           ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
           var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
       })();
+      </script>
+      <script src="../js/lib/socket.io.js"></script>
+      <script>
+        var socket = io.connect('http://localhost:8000');
+        socket.on('news', function (data) {
+          console.log(data);
+          socket.emit('my other event', { my: 'data' });
+        });
       </script>
    </body>
 </html>

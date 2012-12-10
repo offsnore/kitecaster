@@ -16,7 +16,6 @@ var express = require('express')
   ;
 
 var app = express();
-
 //
   // Setup nconf to use (in-order):
   //   1. Command-line arguments
@@ -27,8 +26,9 @@ nconf.argv()
        .env()
        .file({ file:'settings.json' });
 
-console.log('appId: ' + nconf.get('parse.appId'));
-var parseApp = new Parse(nconf.get('parse.appId'), nconf.get('parse.master'));
+console.log('appId: ' + nconf.get('parse:appId'));
+var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
+
     
 // add a Foo object, { foo: 'bar' }
 /*
@@ -46,7 +46,7 @@ parseApp.find('EmailObject', {}, function (err, response) {
 app.configure(function(){
   app.set('port',  app.settings.env.PORT ||  8000);
   app.set('views', __dirname + '/views');
-  app.set('view engine', 'ejs');
+  app.set('view engine', 'jade');
   app.use(express.favicon());
   app.use(express.logger('dev'));
   app.use(express.bodyParser());
@@ -56,7 +56,11 @@ app.configure(function(){
   app.use(app.router);
   app.use(require('stylus').middleware(__dirname + '/public'));
   app.use(express.static(path.join(__dirname, 'public')));
+  app.engine('html', require('ejs').renderFile);
 });
+
+
+
 
 app.configure('development', function(){
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
@@ -70,21 +74,37 @@ app.configure('production', function(){
    URL Mappings
 */ 
 
-app.get('/', routes.index);
+
 app.get('/api', function (req, res){
    res.send('kitecaster API is running');
 });
 app.get('/example', routes.example);
+app.get('/foo', function(req, res) {
+   res.render( 'index', {title: 'foo', body:'bar'});
+});
+app.get('/start', routes.start);
+
 
 
 /* Start API Apps */
 
+console.log('routes: ', JSON.stringify(app.routes));
+
+var server = http.createServer(app).listen(app.get('port'), function(){
+        console.log("Express server listening on port " + app.get('port'));
+           })
+   , io = require('socket.io').listen(server);
 
 
-
-console.log('routes: ' + JSON.stringify(app.routes));
-
-http.createServer(app).listen(app.get('port'), function(){
-  console.log("Express server listening on port " + app.get('port'));
+io.sockets.on('connection', function (socket) {
+   console.log('client connected');
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
 });
+
+
+
+
 
