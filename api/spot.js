@@ -1,10 +1,29 @@
-var restify = require('restify');
-    
+var restify = require('restify'),
+   nconf = require('nconf');
+
+nconf.argv()
+       .env()
+       .file({ file: '../settings.json' });   
+   
 var DEFAULT_PORT = 8080;
-var Settings = require('./Settings');
+
 /* Parse Setup */
 var Parse = require('parse-api').Parse;
-var app = new Parse(Settings.Parse.appId, Settings.Parse.master);
+var app = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
+
+var restPort = DEFAULT_PORT;
+
+if (nconf.get('api:spot:port'))
+   restPort = nconf.get('api:spot:port');
+
+process.argv.forEach(function (val, index, array) {
+  console.log(index + ': ' + val);
+  if (val === '-p')
+   {
+      restPort = array[index+1] || DEFAULT_PORT;
+   }
+});
+
 
 
 function respond(req, res, next) {
@@ -18,16 +37,6 @@ server.head('/hello/:name', respond);
 
 
 
-
-var restPort = DEFAULT_PORT;
-
-process.argv.forEach(function (val, index, array) {
-  console.log(index + ': ' + val);
-  if (val === '-p')
-   {
-      restPort = array[index+1];
-   }
-});
 
 server.listen(restPort, function() {
   console.log('%s listening at %s', server.name, server.url);
