@@ -4240,6 +4240,7 @@ input[type="submit"].btn.btn-mini {
 .navbar-form {
   margin-bottom: 0;
   *zoom: 1;
+  
 }
 
 .navbar-form:before,
@@ -5728,7 +5729,7 @@ a.badge:hover {
 .hero-unit {
   padding: 60px;
   margin-bottom: 30px;
-  background-color: #eeeeee;
+  background: rgba(238, 238, 238, 0.8);
   -webkit-border-radius: 6px;
      -moz-border-radius: 6px;
           border-radius: 6px;
@@ -5740,6 +5741,7 @@ a.badge:hover {
   line-height: 1;
   letter-spacing: -1px;
   color: inherit;
+  opacity: 1.0;
 }
 
 .hero-unit p {
@@ -5747,6 +5749,7 @@ a.badge:hover {
   font-weight: 200;
   line-height: 30px;
   color: inherit;
+  opacity: 1.0;
 }
 
 .pull-right {
