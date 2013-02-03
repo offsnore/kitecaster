@@ -9,6 +9,8 @@
     "express": "3.0.0rc3",
     "ejs": "*",
      "jade": "*",
-    "stylus": "*"
+    "stylus": "*",
+    "restify": "*",
+    "kaiseki": "*"
   }
 }

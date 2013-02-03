@@ -1,0 +1,364 @@
+{"level":"info","message":"test","timestamp":"2013-02-02T17:19:37.880Z"}
+{"level":"error","message":"error","timestamp":"2013-02-02T17:19:37.881Z"}
+{"level":"info","message":"test","timestamp":"2013-02-02T17:22:20.664Z"}
+{"level":"error","message":"error","timestamp":"2013-02-02T17:22:20.665Z"}
+{"level":"info","message":"test","timestamp":"2013-02-02T17:22:35.737Z"}
+{"level":"error","message":"error","timestamp":"2013-02-02T17:22:35.738Z"}
+{"level":"info","message":"test","timestamp":"2013-02-03T01:58:53.945Z"}
+{"level":"error","message":"error","timestamp":"2013-02-03T01:58:53.946Z"}
+{"level":"info","message":"test","timestamp":"2013-02-03T03:37:18.104Z"}
+{"level":"error","message":"error","timestamp":"2013-02-03T03:37:18.105Z"}
+{"level":"info","message":"test","timestamp":"2013-02-03T03:37:34.158Z"}
+{"level":"error","message":"error","timestamp":"2013-02-03T03:37:34.160Z"}
+{"level":"info","message":"test","timestamp":"2013-02-03T03:38:02.296Z"}
+{"level":"error","message":"error","timestamp":"2013-02-03T03:38:02.297Z"}
+{"level":"info","message":"test","timestamp":"2013-02-03T03:38:57.558Z"}
+{"level":"error","message":"error","timestamp":"2013-02-03T03:38:57.559Z"}
+{"level":"info","message":"test","timestamp":"2013-02-03T03:39:24.675Z"}
+{"level":"error","message":"error","timestamp":"2013-02-03T03:39:24.676Z"}
+{"level":"info","message":"test","timestamp":"2013-02-03T03:40:39.018Z"}
+{"level":"error","message":"error","timestamp":"2013-02-03T03:40:39.019Z"}
+{"level":"info","message":"test","timestamp":"2013-02-03T03:43:59.975Z"}
+{"level":"error","message":"error","timestamp":"2013-02-03T03:43:59.977Z"}
+{"level":"info","message":"test","timestamp":"2013-02-03T03:44:21.062Z"}
+{"level":"error","message":"error","timestamp":"2013-02-03T03:44:21.063Z"}
+{"level":"debug","message":"query: [object Object]","timestamp":"2013-02-03T03:54:52.647Z"}
+{"level":"debug","message":"query: 38,-75","timestamp":"2013-02-03T03:55:13.929Z"}
+{"level":"debug","message":"geoloc: 38,-75","timestamp":"2013-02-03T03:55:13.929Z"}
+{"level":"debug","message":"query: 38,-75","timestamp":"2013-02-03T03:57:41.484Z"}
+{"level":"debug","message":"geoloc: 38,-75","timestamp":"2013-02-03T03:57:41.485Z"}
+{"level":"debug","message":"lat: 38","timestamp":"2013-02-03T03:57:41.485Z"}
+{"level":"debug","message":"lon: -75","timestamp":"2013-02-03T03:57:41.485Z"}
+{"level":"debug","message":"query: 38,-75","timestamp":"2013-02-03T04:02:22.093Z"}
+{"level":"debug","message":"geoloc: 38,-75","timestamp":"2013-02-03T04:02:22.094Z"}
+{"level":"debug","message":"lat: 38","timestamp":"2013-02-03T04:02:22.094Z"}
+{"level":"debug","message":"lon: -75","timestamp":"2013-02-03T04:02:22.094Z"}
+{"level":"debug","message":"query: 38.123,-75.123","timestamp":"2013-02-03T04:02:39.226Z"}
+{"level":"debug","message":"geoloc: 38.123,-75.123","timestamp":"2013-02-03T04:02:39.226Z"}
+{"level":"debug","message":"lat: 38.123","timestamp":"2013-02-03T04:02:39.227Z"}
+{"level":"debug","message":"lon: -75.123","timestamp":"2013-02-03T04:02:39.227Z"}
+{"level":"debug","message":"query: 38.123,-75.123","timestamp":"2013-02-03T04:03:14.676Z"}
+{"level":"debug","message":"geoloc: 38.123,-75.123","timestamp":"2013-02-03T04:03:14.677Z"}
+{"level":"debug","message":"lat: 38.123","timestamp":"2013-02-03T04:03:14.677Z"}
+{"level":"debug","message":"lon: -75.123","timestamp":"2013-02-03T04:03:14.677Z"}
+{"level":"debug","message":"query: 38.123,-75.123","timestamp":"2013-02-03T04:03:34.487Z"}
+{"level":"debug","message":"geoloc: 38.123,-75.123","timestamp":"2013-02-03T04:03:34.488Z"}
+{"level":"debug","message":"lat: 38.123","timestamp":"2013-02-03T04:03:34.488Z"}
+{"level":"debug","message":"lon: -75.123","timestamp":"2013-02-03T04:03:34.488Z"}
+{"level":"debug","message":"query: 38.123,-75.123","timestamp":"2013-02-03T04:04:28.397Z"}
+{"level":"debug","message":"geoloc: 38.123,-75.123","timestamp":"2013-02-03T04:04:28.398Z"}
+{"level":"debug","message":"lat: 38.123","timestamp":"2013-02-03T04:04:28.398Z"}
+{"level":"debug","message":"lon: -75.123","timestamp":"2013-02-03T04:04:28.398Z"}
+{"level":"debug","message":"query: 38.123,-75.123","timestamp":"2013-02-03T04:05:24.725Z"}
+{"level":"debug","message":"geoloc: 38.123,-75.123","timestamp":"2013-02-03T04:05:24.726Z"}
+{"level":"debug","message":"lat: 38.123","timestamp":"2013-02-03T04:05:24.726Z"}
+{"level":"debug","message":"lon: -75.123","timestamp":"2013-02-03T04:05:24.726Z"}
+{"level":"debug","message":"query: 38.123,-75.123","timestamp":"2013-02-03T04:05:44.266Z"}
+{"level":"debug","message":"geoloc: 38.123,-75.123","timestamp":"2013-02-03T04:05:44.267Z"}
+{"level":"debug","message":"lat: 38.123","timestamp":"2013-02-03T04:05:44.267Z"}
+{"level":"debug","message":"lon: -75.123","timestamp":"2013-02-03T04:05:44.267Z"}
+{"level":"debug","message":"query: 38.123,-75.123","timestamp":"2013-02-03T04:06:00.523Z"}
+{"level":"debug","message":"geoloc: 38.123,-75.123","timestamp":"2013-02-03T04:06:00.524Z"}
+{"level":"debug","message":"lat: 38.123","timestamp":"2013-02-03T04:06:00.524Z"}
+{"level":"debug","message":"lon: -75.123","timestamp":"2013-02-03T04:06:00.524Z"}
+{"level":"debug","message":"query: 38.123,-75.123","timestamp":"2013-02-03T04:06:44.210Z"}
+{"level":"debug","message":"geoloc: 38.123,-75.123","timestamp":"2013-02-03T04:06:44.211Z"}
+{"level":"debug","message":"lat: 38.123","timestamp":"2013-02-03T04:06:44.212Z"}
+{"level":"debug","message":"lon: -75.123","timestamp":"2013-02-03T04:06:44.212Z"}
+{"level":"debug","message":"query: 38.123,-75.123","timestamp":"2013-02-03T04:10:45.655Z"}
+{"level":"debug","message":"geoloc: 38.123,-75.123","timestamp":"2013-02-03T04:10:45.656Z"}
+{"level":"debug","message":"lat: 38.123","timestamp":"2013-02-03T04:10:45.656Z"}
+{"level":"debug","message":"lon: -75.123","timestamp":"2013-02-03T04:10:45.656Z"}
+{"level":"debug","message":"query: 38.123,-75.123","timestamp":"2013-02-03T04:11:10.203Z"}
+{"level":"debug","message":"geoloc: 38.123,-75.123","timestamp":"2013-02-03T04:11:10.204Z"}
+{"level":"debug","message":"lat: 38.123","timestamp":"2013-02-03T04:11:10.204Z"}
+{"level":"debug","message":"lon: -75.123","timestamp":"2013-02-03T04:11:10.204Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:15:30.572Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:15:30.573Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:15:30.573Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:15:56.806Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:15:56.808Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:15:56.808Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:16:07.189Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:16:07.190Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:16:07.190Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:18:46.892Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:18:46.892Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:18:46.892Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:19:07.587Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:19:07.588Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:19:07.588Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:19:26.114Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:19:26.115Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:19:26.115Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:19:43.642Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:19:43.643Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:19:43.643Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:19:57.940Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:19:57.941Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:19:57.941Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:21:26.849Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:21:26.850Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:21:26.850Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:21:45.654Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:21:45.655Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:21:45.655Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:22:03.300Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:22:03.301Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:22:03.301Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:22:19.342Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:22:19.342Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:22:19.343Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:23:37.158Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:23:37.159Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:23:37.159Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:24:18.012Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:24:18.012Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:24:18.012Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:28:13.290Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:28:13.291Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:28:13.291Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:29:03.562Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:29:03.563Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:29:03.563Z"}
+{"level":"debug","message":"distance: 100 $maxDistanceInMiles","timestamp":"2013-02-03T04:29:03.563Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:29:29.581Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:29:29.582Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:29:29.582Z"}
+{"level":"debug","message":"distance: 100 $maxDistanceInMiles","timestamp":"2013-02-03T04:29:29.582Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:29:54.649Z"}
+{"level":"debug","message":"lat: undefined","timestamp":"2013-02-03T04:29:54.650Z"}
+{"level":"debug","message":"lon: undefined","timestamp":"2013-02-03T04:29:54.650Z"}
+{"level":"debug","message":"distance: 100 $maxDistanceInMiles","timestamp":"2013-02-03T04:29:54.650Z"}
+{"level":"debug","message":"query: 38,-75","timestamp":"2013-02-03T04:30:12.012Z"}
+{"level":"debug","message":"geoloc: 38,-75","timestamp":"2013-02-03T04:30:12.012Z"}
+{"level":"debug","message":"lat: 38","timestamp":"2013-02-03T04:30:12.012Z"}
+{"level":"debug","message":"lon: -75","timestamp":"2013-02-03T04:30:12.012Z"}
+{"level":"debug","message":"distance: 100 $maxDistanceInMiles","timestamp":"2013-02-03T04:30:12.012Z"}
+{"level":"debug","message":"query: 38.0,-75.0","timestamp":"2013-02-03T04:30:28.188Z"}
+{"level":"debug","message":"geoloc: 38.0,-75.0","timestamp":"2013-02-03T04:30:28.188Z"}
+{"level":"debug","message":"lat: 38.0","timestamp":"2013-02-03T04:30:28.188Z"}
+{"level":"debug","message":"lon: -75.0","timestamp":"2013-02-03T04:30:28.188Z"}
+{"level":"debug","message":"distance: 100 $maxDistanceInMiles","timestamp":"2013-02-03T04:30:28.188Z"}
+{"level":"debug","message":"query: 38.0,-75.0","timestamp":"2013-02-03T04:30:46.157Z"}
+{"level":"debug","message":"geoloc: 38.0,-75.0","timestamp":"2013-02-03T04:30:46.157Z"}
+{"level":"debug","message":"lat: 38.0","timestamp":"2013-02-03T04:30:46.157Z"}
+{"level":"debug","message":"lon: -75.0","timestamp":"2013-02-03T04:30:46.157Z"}
+{"level":"debug","message":"distance: 100 $maxDistanceInMiles","timestamp":"2013-02-03T04:30:46.157Z"}
+{"level":"debug","message":"query: 38.0,-75.0","timestamp":"2013-02-03T04:32:23.884Z"}
+{"level":"debug","message":"geoloc: 38.0,-75.0","timestamp":"2013-02-03T04:32:23.885Z"}
+{"level":"debug","message":"lat: 38.0","timestamp":"2013-02-03T04:32:23.885Z"}
+{"level":"debug","message":"lon: -75.0","timestamp":"2013-02-03T04:32:23.885Z"}
+{"level":"debug","message":"distance: 100 $maxDistanceInMiles","timestamp":"2013-02-03T04:32:23.885Z"}
+{"level":"debug","message":"query: 38.0,-75.0","timestamp":"2013-02-03T04:33:54.605Z"}
+{"level":"debug","message":"geoloc: 38.0,-75.0","timestamp":"2013-02-03T04:33:54.605Z"}
+{"level":"debug","message":"lat: 38.0","timestamp":"2013-02-03T04:33:54.605Z"}
+{"level":"debug","message":"lon: -75.0","timestamp":"2013-02-03T04:33:54.605Z"}
+{"level":"debug","message":"distance: 100 $maxDistanceInMiles","timestamp":"2013-02-03T04:33:54.606Z"}
+{"level":"debug","message":"query: 38.0,-75.0","timestamp":"2013-02-03T04:35:37.486Z"}
+{"level":"debug","message":"geoloc: 38.0,-75.0","timestamp":"2013-02-03T04:35:37.487Z"}
+{"level":"debug","message":"lat: 38.0","timestamp":"2013-02-03T04:35:37.487Z"}
+{"level":"debug","message":"lon: -75.0","timestamp":"2013-02-03T04:35:37.487Z"}
+{"level":"debug","message":"distance: 100 $maxDistanceInMiles","timestamp":"2013-02-03T04:35:37.487Z"}
+{"level":"debug","message":"query: 38.0,-75.0","timestamp":"2013-02-03T04:36:28.457Z"}
+{"level":"debug","message":"geoloc: 38.0,-75.0","timestamp":"2013-02-03T04:36:28.458Z"}
+{"level":"debug","message":"lat: string 38.0","timestamp":"2013-02-03T04:36:28.458Z"}
+{"level":"debug","message":"lon: string -75.0","timestamp":"2013-02-03T04:36:28.458Z"}
+{"level":"debug","message":"distance: 100 $maxDistanceInMiles","timestamp":"2013-02-03T04:36:28.458Z"}
+{"level":"debug","message":"query: 38.0,-75.0","timestamp":"2013-02-03T04:37:03.992Z"}
+{"level":"debug","message":"geoloc: 38.0,-75.0","timestamp":"2013-02-03T04:37:03.993Z"}
+{"level":"debug","message":"lat: string 38.0","timestamp":"2013-02-03T04:37:03.993Z"}
+{"level":"debug","message":"lon: string -75.0","timestamp":"2013-02-03T04:37:03.993Z"}
+{"level":"debug","message":"distance: 100 $maxDistanceInMiles","timestamp":"2013-02-03T04:37:03.993Z"}
+{"level":"debug","message":"query: 38.0,-75.0","timestamp":"2013-02-03T04:37:40.581Z"}
+{"level":"debug","message":"geoloc: 38.0,-75.0","timestamp":"2013-02-03T04:37:40.582Z"}
+{"level":"debug","message":"lat: number 38.0","timestamp":"2013-02-03T04:37:40.582Z"}
+{"level":"debug","message":"lon: string -75.0","timestamp":"2013-02-03T04:37:40.582Z"}
+{"level":"debug","message":"distance: 100 $maxDistanceInMiles","timestamp":"2013-02-03T04:37:40.582Z"}
+{"level":"debug","message":"query: 38.0,-75.0","timestamp":"2013-02-03T04:38:01.752Z"}
+{"level":"debug","message":"geoloc: 38.0,-75.0","timestamp":"2013-02-03T04:38:01.753Z"}
+{"level":"debug","message":"lat: number 38.0","timestamp":"2013-02-03T04:38:01.753Z"}
+{"level":"debug","message":"lon: string -75.0","timestamp":"2013-02-03T04:38:01.753Z"}
+{"level":"debug","message":"distance: 100 $maxDistanceInMiles","timestamp":"2013-02-03T04:38:01.753Z"}
+{"level":"debug","message":"query: 38.0,-75.0","timestamp":"2013-02-03T04:38:21.443Z"}
+{"level":"debug","message":"geoloc: 38.0,-75.0","timestamp":"2013-02-03T04:38:21.443Z"}
+{"level":"debug","message":"lat: number 38.0","timestamp":"2013-02-03T04:38:21.443Z"}
+{"level":"debug","message":"lon: string -75.0","timestamp":"2013-02-03T04:38:21.443Z"}
+{"level":"debug","message":"distance: 10 $maxDistanceInMiles","timestamp":"2013-02-03T04:38:21.443Z"}
+{"level":"debug","message":"query: 38.0,-70.0","timestamp":"2013-02-03T04:38:33.685Z"}
+{"level":"debug","message":"geoloc: 38.0,-70.0","timestamp":"2013-02-03T04:38:33.686Z"}
+{"level":"debug","message":"lat: number 38.0","timestamp":"2013-02-03T04:38:33.686Z"}
+{"level":"debug","message":"lon: string -70.0","timestamp":"2013-02-03T04:38:33.686Z"}
+{"level":"debug","message":"distance: 10 $maxDistanceInMiles","timestamp":"2013-02-03T04:38:33.686Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:38:58.197Z"}
+{"level":"debug","message":"lat: number undefined","timestamp":"2013-02-03T04:38:58.197Z"}
+{"level":"debug","message":"lon: undefined undefined","timestamp":"2013-02-03T04:38:58.197Z"}
+{"level":"debug","message":"distance: 10 $maxDistanceInMiles","timestamp":"2013-02-03T04:38:58.197Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:42:19.021Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:42:19.022Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:42:19.022Z"}
+{"level":"debug","message":"distance: 10 $maxDistanceInMiles","timestamp":"2013-02-03T04:42:19.022Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:42:25.445Z"}
+{"level":"debug","message":"lat: number 138.123","timestamp":"2013-02-03T04:42:25.445Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:42:25.445Z"}
+{"level":"debug","message":"distance: 10 $maxDistanceInMiles","timestamp":"2013-02-03T04:42:25.445Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:42:35.153Z"}
+{"level":"debug","message":"lat: number 68.123","timestamp":"2013-02-03T04:42:35.153Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:42:35.153Z"}
+{"level":"debug","message":"distance: 10 $maxDistanceInMiles","timestamp":"2013-02-03T04:42:35.153Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:43:46.443Z"}
+{"level":"debug","message":"lat: number 68.123","timestamp":"2013-02-03T04:43:46.443Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:43:46.443Z"}
+{"level":"debug","message":"distance: 10000 $maxDistanceInMiles","timestamp":"2013-02-03T04:43:46.443Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:43:53.994Z"}
+{"level":"debug","message":"lat: number 68.123","timestamp":"2013-02-03T04:43:53.994Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:43:53.994Z"}
+{"level":"debug","message":"distance: 100000 $maxDistanceInMiles","timestamp":"2013-02-03T04:43:53.994Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:44:00.902Z"}
+{"level":"debug","message":"lat: number 68.123","timestamp":"2013-02-03T04:44:00.902Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:44:00.902Z"}
+{"level":"debug","message":"distance: undefined undefined","timestamp":"2013-02-03T04:44:00.902Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:45:41.464Z"}
+{"level":"debug","message":"lat: number 68.123","timestamp":"2013-02-03T04:45:41.465Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:45:41.465Z"}
+{"level":"debug","message":"distance: -1 undefined","timestamp":"2013-02-03T04:45:41.465Z"}
+{"level":"debug","message":"params after delete: {\"where\":{\"location\":{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":68.123,\"longitude\":-75.123},\"$maxDistanceInMiles\":100}}}","timestamp":"2013-02-03T04:45:41.465Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:47:10.285Z"}
+{"level":"debug","message":"lat: number 68.123","timestamp":"2013-02-03T04:47:10.286Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:47:10.286Z"}
+{"level":"debug","message":"distance: -1 undefined","timestamp":"2013-02-03T04:47:10.286Z"}
+{"level":"debug","message":"params after delete: {\"where\":{\"location\":{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":68.123,\"longitude\":-75.123},\"$maxDistanceInMiles\":100}}}","timestamp":"2013-02-03T04:47:10.286Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:47:28.395Z"}
+{"level":"debug","message":"lat: number 68.123","timestamp":"2013-02-03T04:47:28.396Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:47:28.396Z"}
+{"level":"debug","message":"distance: -1 undefined","timestamp":"2013-02-03T04:47:28.396Z"}
+{"level":"debug","message":"params after delete: {\"where\":{\"location\":{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":68.123,\"longitude\":-75.123},\"$maxDistanceInMiles\":-1}}}","timestamp":"2013-02-03T04:47:28.396Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:47:35.462Z"}
+{"level":"debug","message":"lat: number 68.123","timestamp":"2013-02-03T04:47:35.463Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:47:35.463Z"}
+{"level":"debug","message":"distance: -1 undefined","timestamp":"2013-02-03T04:47:35.463Z"}
+{"level":"debug","message":"params after delete: {\"where\":{\"location\":{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":68.123,\"longitude\":-75.123},\"$maxDistanceInMiles\":-1}}}","timestamp":"2013-02-03T04:47:35.463Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:47:47.713Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:47:47.713Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:47:47.713Z"}
+{"level":"debug","message":"distance: -1 undefined","timestamp":"2013-02-03T04:47:47.713Z"}
+{"level":"debug","message":"params after delete: {\"where\":{\"location\":{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":38.123,\"longitude\":-75.123},\"$maxDistanceInMiles\":-1}}}","timestamp":"2013-02-03T04:47:47.714Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:48:02.133Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:48:02.134Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:48:02.134Z"}
+{"level":"debug","message":"distance: -1 undefined","timestamp":"2013-02-03T04:48:02.134Z"}
+{"level":"debug","message":"params after delete: {\"where\":{\"location\":{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":38.123,\"longitude\":-75.123},\"$maxDistanceInMiles\":0}}}","timestamp":"2013-02-03T04:48:02.134Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:48:09.702Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:48:09.702Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:48:09.703Z"}
+{"level":"debug","message":"distance: -1 undefined","timestamp":"2013-02-03T04:48:09.703Z"}
+{"level":"debug","message":"params after delete: {\"where\":{\"location\":{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":38.123,\"longitude\":-75.123},\"$maxDistanceInMiles\":0}}}","timestamp":"2013-02-03T04:48:09.703Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:48:13.431Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:48:13.432Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:48:13.432Z"}
+{"level":"debug","message":"distance: -1 undefined","timestamp":"2013-02-03T04:48:13.432Z"}
+{"level":"debug","message":"params after delete: {\"where\":{\"location\":{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":38.123,\"longitude\":-75.123},\"$maxDistanceInMiles\":10000}}}","timestamp":"2013-02-03T04:48:13.432Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:48:36.073Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:48:36.074Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:48:36.074Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T04:48:36.074Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:48:47.844Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:48:47.844Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:48:47.844Z"}
+{"level":"debug","message":"distance: 10 $maxDistanceInMiles","timestamp":"2013-02-03T04:48:47.845Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:48:59.860Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:48:59.861Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:48:59.861Z"}
+{"level":"debug","message":"distance: 10 $maxDistanceInMiles","timestamp":"2013-02-03T04:48:59.861Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:49:05.855Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:49:05.855Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:49:05.855Z"}
+{"level":"debug","message":"distance: 1 $maxDistanceInMiles","timestamp":"2013-02-03T04:49:05.855Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:49:21.076Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:49:21.076Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:49:21.076Z"}
+{"level":"debug","message":"distance: 10 $maxDistanceInMiles","timestamp":"2013-02-03T04:49:21.076Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:54:23.601Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:54:23.601Z"}
+{"level":"debug","message":"lon: string -75.123miles=-1","timestamp":"2013-02-03T04:54:23.601Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T04:54:23.601Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:54:32.229Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:54:32.229Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:54:32.229Z"}
+{"level":"debug","message":"distance: -1 $maxDistanceInMiles","timestamp":"2013-02-03T04:54:32.229Z"}
+{"level":"debug","message":"params after delete: {\"where\":{\"location\":{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":38.123,\"longitude\":-75.123},\"$maxDistanceInMiles\":-1}}}","timestamp":"2013-02-03T04:54:32.229Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:54:37.810Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:54:37.810Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:54:37.810Z"}
+{"level":"debug","message":"distance: 0 $maxDistanceInMiles","timestamp":"2013-02-03T04:54:37.810Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:54:41.691Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:54:41.691Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:54:41.691Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T04:54:41.691Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:54:52.851Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:54:52.851Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:54:52.851Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T04:54:52.851Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:56:07.950Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:56:07.950Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:56:07.950Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T04:56:07.950Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:59:10.915Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:59:10.916Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:59:10.916Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T04:59:10.916Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T04:59:19.318Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T04:59:19.318Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T04:59:19.318Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T04:59:19.318Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T05:00:04.969Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T05:00:04.970Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T05:00:04.970Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T05:00:04.970Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T05:00:29.153Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T05:00:29.154Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T05:00:29.155Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T05:00:29.155Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T05:00:45.809Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T05:00:45.810Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T05:00:45.810Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T05:00:45.810Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T05:02:00.386Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T05:02:00.386Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T05:02:00.386Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T05:02:00.386Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T05:02:08.633Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T05:02:08.633Z"}
+{"level":"debug","message":"lon: string -75.123","timestamp":"2013-02-03T05:02:08.633Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T05:02:08.633Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T05:02:28.981Z"}
+{"level":"debug","message":"lat: number undefined","timestamp":"2013-02-03T05:02:28.982Z"}
+{"level":"debug","message":"lon: undefined undefined","timestamp":"2013-02-03T05:02:28.982Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T05:02:28.982Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T05:10:32.014Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T05:10:32.015Z"}
+{"level":"debug","message":"lon: number -75.123","timestamp":"2013-02-03T05:10:32.015Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T05:10:32.015Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T05:10:41.338Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T05:10:41.338Z"}
+{"level":"debug","message":"lon: number -75.123","timestamp":"2013-02-03T05:10:41.338Z"}
+{"level":"debug","message":"distance: 30000 undefined","timestamp":"2013-02-03T05:10:41.338Z"}
+{"level":"debug","message":"query: undefined","timestamp":"2013-02-03T05:10:56.381Z"}
+{"level":"debug","message":"lat: number 38.123","timestamp":"2013-02-03T05:10:56.382Z"}
+{"level":"debug","message":"lon: number -75.123","timestamp":"2013-02-03T05:10:56.382Z"}
+{"level":"debug","message":"distance: 10 $maxDistanceInMiles","timestamp":"2013-02-03T05:10:56.382Z"}
+{"level":"debug","message":"keywords params: {\"where\":{\"keywords\":\"beach, sound\"}}","timestamp":"2013-02-03T05:29:11.008Z"}
+{"level":"debug","message":"keywords params: {\"where\":{\"keywords\":\"slicks,sound\"}}","timestamp":"2013-02-03T05:29:29.573Z"}
+{"level":"debug","message":"keywords params: {\"where\":{\"keywords\":\"slicks\"}}","timestamp":"2013-02-03T05:29:38.108Z"}
+{"level":"debug","message":"keywords params: \"{\\\"where\\\":{\\\"keywords\\\":[\\\"slicks\\\",\\\"foo\\\"]}}\"","timestamp":"2013-02-03T05:51:05.308Z"}
+{"level":"debug","message":"keywords params: {\"where\":{\"keywords\":[\"slicks\",\"foo\"]}}","timestamp":"2013-02-03T05:52:02.277Z"}
+{"level":"debug","message":"keywords params: {\"where\":{\"keywords\":[\"slicks\",\"foo\"]}}","timestamp":"2013-02-03T05:52:06.772Z"}
+{"level":"debug","message":"keywords params: {\"where\":{\"$or\":[{\"keywords\":\"sound\"},{\"keywords\":\"beach\"}]}}","timestamp":"2013-02-03T06:07:53.680Z"}
+{"level":"debug","message":"keywords params: {\"where\":{\"$or\":[{\"keywords\":\"sound\"},{\"keywords\":\"beach\"}]}}","timestamp":"2013-02-03T06:08:25.220Z"}
+{"level":"debug","message":"keywords params: {\"where\":{\"$and\":[{\"keywords\":\"sound\"},{\"keywords\":\"beach\"}]}}","timestamp":"2013-02-03T06:08:28.156Z"}
+{"level":"debug","message":"keywords params: {\"where\":[{\"keywords\":\"sound\"},{\"keywords\":\"beach\"}]}","timestamp":"2013-02-03T06:19:51.190Z"}
+{"level":"debug","message":"keywords params: {\"where\":{\"keywords\":\"beach\"}}","timestamp":"2013-02-03T06:22:53.730Z"}
+{"level":"debug","message":"keywords params: {\"where\":{\"keywords\":\"flats\"}}","timestamp":"2013-02-03T06:23:03.757Z"}
+{"level":"debug","message":"keywords params: {\"where\":{\"keywords\":\"march\"}}","timestamp":"2013-02-03T06:23:13.724Z"}
+{"level":"debug","message":"keywords params: {\"where\":{\"$or\":[{\"keywords\":\"sound\"},{\"keywords\":\"march\"}]}}","timestamp":"2013-02-03T06:25:51.381Z"}
+{"level":"debug","message":"keywords params: {\"where\":{\"keywords\":\"march\"}}","timestamp":"2013-02-03T06:25:59.211Z"}
