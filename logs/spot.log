@@ -895,3 +895,6 @@
 {"level":"debug","message":"redisKey: spot:search:","timestamp":"2013-03-03T05:26:17.128Z"}
 {"level":"debug","message":"keywords params: {\"limit\":1,\"where\":\"{\\\"keywords\\\":\\\"beach\\\"}\"}","timestamp":"2013-03-03T05:26:17.128Z"}
 {"level":"debug","message":"queryParams: {\"limit\":1,\"where\":\"{\\\"keywords\\\":\\\"beach\\\"}\"}","timestamp":"2013-03-03T05:26:17.128Z"}
+{"level":"debug","message":"redisKey: spot:search:","timestamp":"2013-03-03T05:31:37.910Z"}
+{"level":"debug","message":"keywords params: {\"limit\":1,\"where\":\"{ \\\"$or\\\":[{\\\"keywords\\\":\\\"slicks\\\"}]}\"}","timestamp":"2013-03-03T05:31:37.911Z"}
+{"level":"debug","message":"queryParams: {\"limit\":1,\"where\":\"{ \\\"$or\\\":[{\\\"keywords\\\":\\\"slicks\\\"}]}\"}","timestamp":"2013-03-03T05:31:37.911Z"}

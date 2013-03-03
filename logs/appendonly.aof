@@ -675,3 +675,15 @@ $3
 DEL
 $22
 spot:search::keywords:
+*3
+$3
+set
+$28
+spot:search::keywords:slicks
+$296
+[{"description":"Assateague","keywords":["sound","slicks","flats","marsh"],"location":{"__type":"GeoPoint","latitude":38.2235,"longitude":-75.149},"name":"AZT","wind_directions":["SW","W","S"],"createdAt":"2013-02-02T16:42:17.363Z","updatedAt":"2013-02-03T05:27:19.811Z","objectId":"ku7jifajbS"}]
+*2
+$3
+DEL
+$28
+spot:search::keywords:slicks
