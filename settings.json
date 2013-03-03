@@ -11,6 +11,13 @@
    "test" : {
       "socketio.port" : "9001"
       
+   },
+   "redis" : {
+      "expire":"true",
+      "expireTime":"0"
+   },
+   "spot" : {
+      "defaultLimit": "10"
    }
 
 }

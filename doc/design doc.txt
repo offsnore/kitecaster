@@ -1,0 +1,75 @@
+User
+
+/user/:id
+GET
+id - get user profile by ID
+g - search for ‘active’ user by location
+
+
+PUT
+/id - update user
+user_id / screen_name 
+optional
+discoverable_by_email
+geo_enabled
+protected
+time_zone
+
+POST 
+params:
+
+units - mph vs knots, meters for kites always
+
+Forecast
+
+passthrough to other APIs, but also add in logic for doing kiting forecast
+/forecast
+all GET
+history
+
+Spot
+
+/spot
+GET
+id - get spot by id
+optional
+geoloc - get spot closest to 
+q - search for spot by name/id
+cursor - results position
+
+PUT - spot update
+id 
+
+   
+
+POST
+
+
+
+Model
+
+/model
+
+Quiver
+
+GET
+/quiver/:id
+user - user id
+brand - company
+model
+size
+type
+range-lower
+range-upper
+Almanac
+
+/almanac
+
+----------
+locale - weather in diff locale/language?
+
+geoloc format:  37.781157,-122.398720,1mi
+-lat, long, radius
+
+
+Mapping JSON schemas, node module: https://github.com/tdegrunt/jsonschema
