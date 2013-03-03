@@ -12,7 +12,7 @@
     "kaiseki": "*",
     "colors": "*",
     "winston":"*",
-    "jsonschema","*"
+    "jsonschema","*",
     "nconf":"*"
   }
 }
