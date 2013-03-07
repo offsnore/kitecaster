@@ -13,7 +13,33 @@ var express = require('express')
   , Parse = require('parse-api').Parse
   , restify = require('restify')
   , nconf = require('nconf')
+  , winston = require('winston')
+  , colors = require('colors')
   ;
+  
+var logger = new (winston.Logger)({
+    transports: [
+      new winston.transports.Console({timestamp:true}),
+      new winston.transports.File({ timestamp:true, filename: 'logs/server.log' })
+    ],
+    exceptionHandlers: [
+            new winston.transports.Console({timestamp:true}),
+      new winston.transports.File({ timestamp:true, filename: 'logs/server-exceptions.log' })
+    ]
+  });
+  
+colors.setTheme({
+  silly: 'rainbow',
+  input: 'grey',
+  verbose: 'cyan',
+  prompt: 'grey',
+  info: 'green',
+  data: 'grey',
+  help: 'cyan',
+  warn: 'yellow', 
+  debug: 'blue',
+  error: 'red'
+});
 
 var app = express();
 //
@@ -26,21 +52,21 @@ nconf.argv()
        .env()
        .file({ file:'settings.json' });
 
-console.log('appId: ' + nconf.get('parse:appId'));
+logger.debug('appId: ' + nconf.get('parse:appId'));
 var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
 
     
 // add a Foo object, { foo: 'bar' }
 /*
 parseApp.insert('Foo', { foo: 'bar' }, function (err, response) {
-  console.log('parse response: ' + JSON.stringify(response) + ', error: ' + err);
+  logger.debug('parse response: ' + JSON.stringify(response) + ', error: ' + err);
   var id = response.id;
-  console.log('response object id: ' + id);
+  logger.debug('response object id: ' + id);
 });    
 */
 
 parseApp.find('EmailObject', {}, function (err, response) {
-  console.log(response);
+  logger.debug(response);
 });
 
 app.configure(function(){
@@ -90,19 +116,19 @@ app.get('/start', routes.start);
 
 /* Start API Apps */
 
-console.log('routes: ', JSON.stringify(app.routes));
+logger.debug('routes: ', JSON.stringify(app.routes));
 
 var server = http.createServer(app).listen(app.get('port'), function(){
-        console.log("Express server listening on port " + app.get('port'));
+        logger.debug("Express server listening on port " + app.get('port'));
            })
    , io = require('socket.io').listen(server);
 
 
 io.sockets.on('connection', function (socket) {
-   console.log('client connected');
+   logger.debug('client connected');
   socket.emit('news', { hello: 'world' });
   socket.on('my other event', function (data) {
-    console.log(data);
+    logger.debug(data);
   });
 });
 

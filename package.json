@@ -11,8 +11,12 @@
     "restify": "*",
     "kaiseki": "*",
     "colors": "*",
-    "winston":"*",
-    "jsonschema":"*",
-    "nconf":"*"
+    "winston": "*",
+    "jsonschema": "*",
+    "nconf": "*"
+  },
+  "subdomain": "evalcrux.kitecaster",
+  "engines": {
+    "node": "0.8.x"
   }
 }

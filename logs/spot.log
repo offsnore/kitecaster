@@ -898,3 +898,15 @@
 {"level":"debug","message":"redisKey: spot:search:","timestamp":"2013-03-03T05:31:37.910Z"}
 {"level":"debug","message":"keywords params: {\"limit\":1,\"where\":\"{ \\\"$or\\\":[{\\\"keywords\\\":\\\"slicks\\\"}]}\"}","timestamp":"2013-03-03T05:31:37.911Z"}
 {"level":"debug","message":"queryParams: {\"limit\":1,\"where\":\"{ \\\"$or\\\":[{\\\"keywords\\\":\\\"slicks\\\"}]}\"}","timestamp":"2013-03-03T05:31:37.911Z"}
+{"level":"debug","message":"redisKey: spot:search:","timestamp":"2013-03-04T05:23:28.126Z"}
+{"level":"debug","message":"keywords params: {\"limit\":1,\"where\":\"{ \\\"$or\\\":[{\\\"keywords\\\":\\\"slicks\\\"}]}\"}","timestamp":"2013-03-04T05:23:28.132Z"}
+{"level":"debug","message":"queryParams: {\"limit\":1,\"where\":\"{ \\\"$or\\\":[{\\\"keywords\\\":\\\"slicks\\\"}]}\"}","timestamp":"2013-03-04T05:23:28.132Z"}
+{"level":"debug","message":"redisKey: spot:search:","timestamp":"2013-03-04T05:23:36.238Z"}
+{"level":"debug","message":"keywords params: {\"limit\":10,\"where\":\"{ \\\"$or\\\":[{\\\"keywords\\\":\\\"slicks\\\"}]}\"}","timestamp":"2013-03-04T05:23:36.238Z"}
+{"level":"debug","message":"queryParams: {\"limit\":10,\"where\":\"{ \\\"$or\\\":[{\\\"keywords\\\":\\\"slicks\\\"}]}\"}","timestamp":"2013-03-04T05:23:36.238Z"}
+{"level":"debug","message":"redisKey: spot:search:","timestamp":"2013-03-04T05:28:20.202Z"}
+{"level":"debug","message":"keywords params: {\"limit\":10,\"where\":\"{ \\\"$or\\\":[{\\\"keywords\\\":\\\"slicks\\\"}]}\"}","timestamp":"2013-03-04T05:28:20.204Z"}
+{"level":"debug","message":"queryParams: {\"limit\":10,\"where\":\"{ \\\"$or\\\":[{\\\"keywords\\\":\\\"slicks\\\"}]}\"}","timestamp":"2013-03-04T05:28:20.204Z"}
+{"level":"debug","message":"redisKey: spot:search:","timestamp":"2013-03-07T03:53:01.374Z"}
+{"level":"debug","message":"keywords params: {\"limit\":10,\"where\":\"{ \\\"$or\\\":[{\\\"keywords\\\":\\\"slicks\\\"}]}\"}","timestamp":"2013-03-07T03:53:01.378Z"}
+{"level":"debug","message":"queryParams: {\"limit\":10,\"where\":\"{ \\\"$or\\\":[{\\\"keywords\\\":\\\"slicks\\\"}]}\"}","timestamp":"2013-03-07T03:53:01.378Z"}

@@ -2,12 +2,12 @@ var restify = require('restify'),
     nconf = require('nconf'),
     validate = require('jsonschema').validate,
     Parse = require('kaiseki'),
-    winston = require('winston'),
+    //winston = require('winston'),
     redis = require("redis"),
-    colors = require('colors'),
+    //colors = require('colors'),
     //jsonify = require("redis-jsonify"),
     client = redis.createClient();
-    
+    /*
 colors.setTheme({
   silly: 'rainbow',
   input: 'grey',
@@ -20,10 +20,13 @@ colors.setTheme({
   debug: 'blue',
   error: 'red'
 });
-    
+*/
+var logger = {}; logger.debug = console.log; logger.info = console.log;
+
+/*    
 var logger = new (winston.Logger)({
     transports: [
-      new winston.transports.Console(),
+      new winston.transports.Console(timestamp:true),
       new winston.transports.File({ filename: '../logs/spot.log' })
     ],
     exceptionHandlers: [
@@ -31,7 +34,7 @@ var logger = new (winston.Logger)({
     ]
   });
   
-  
+ */ 
 //logger.info('Spot restify client started'.help);
 
 nconf.argv()
@@ -105,7 +108,7 @@ server.listen(restPort, function() {
 server.get('/spot', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
    var lat, lon, distance = 30000, limit = 10, queryParams = {}, distanceFormat;
-   var redisKey = "spot:search:", redisExpireTime = 0, redisExpire = true;
+   var redisKey = "spot:search:", redisExpireTime = nconf.get('redis:expireTime') * 1000, redisExpire = true;
 
    if (queryParts.geoloc) {
       logger.debug('geoloc: '.red + queryParts.geoloc);
@@ -248,7 +251,7 @@ server.get('/spot', function(req, res) {
             //console.log('key set, check redis! reply: ' + replies);
             console.log('took ' + diff / 1000 + ' seconds');
             client.expire(redisKey, redisExpireTime, function (err, replies) {
-               console.log('expire set for ' + redisKey);
+               console.log('expire set for ' + redisKey + ' to ' + redisExpireTime + ' seconds.');
             });
             
          });  

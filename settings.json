@@ -14,7 +14,7 @@
    },
    "redis" : {
       "expire":"true",
-      "expireTime":"0"
+      "expireTime":"60"
    },
    "spot" : {
       "defaultLimit": "10"
