@@ -23,7 +23,7 @@ colors.setTheme({
 
 var logger = {}; logger.info = console.log; logger.debug = console.log; logger.error = console.err;
 
-logger.info("Stated model service".debug);
+logger.info("Started model service".debug);
 
 nconf.argv()
        .env()
@@ -37,14 +37,13 @@ var modelSchema = {
    "id": "/SimpleModel",
       "type":"object",
       "properties" : {
-         "name" : {"type":"string", "required": true},
+         "name" : {"type":"string", "required": false},
+         "private": {"type": "boolean", "default": false},
+         "units": {"type": "string", "default":"mph"},
+         "low_range": {"type": "object", "required": true},
+         "mid_range": {"type": "object", "required": true},
+         "high_range": {"type": "object", "required": true},
          "description" : {"type":"string"},
-         "wind_directions": {
-           "type": "array",
-           "items": {"type": "string"},
-           "required":true
-           
-         },
          "keywords": {
             "type": "array",
             "items" : {"type":"string"},
