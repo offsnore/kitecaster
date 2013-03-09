@@ -1748,3 +1748,8 @@ $3
 DEL
 $20
 spot:search:Hatteras
+*2
+$3
+DEL
+$30
+spot:search:keywords-beach,foo
