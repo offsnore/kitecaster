@@ -167,8 +167,13 @@ server.get('spot/api', function(req, res) {
 
 server.get('/spot', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
-   var lat, lon, distance = 30000, limit = 10, queryParams = {}, distanceFormat;
+   var lat, lon, distance = 30000, limit = 10,distanceFormat;
    var redisKey = "spot:search:";
+   var queryParams = {
+         //limit : limit,
+         count: true        
+         };
+   
    
    if (queryParts.api) {
       var apiStr = '@geoloc - tested\n@lat,@lon - tested\n@keywords [...,...] - tested\n@description =[] - tested \n@mode [filter,compound] - tested \n @limit  - number of results to return - tested \n@miles/km  \n@radians';
@@ -212,7 +217,7 @@ server.get('/spot', function(req, res) {
       distance =  Number(queryParts.radians);
       redisKey += "radians-" + distance + ":";
    }
-    
+     console.log('qP'.red + JSON.stringify(queryParams));
    // Search for name
    if (queryParts.name) {
    queryParams.where = {
@@ -228,6 +233,7 @@ server.get('/spot', function(req, res) {
       redisKey += queryParts.description;
    }
    else if (queryParts.keywords) {
+   console.log('qP'.red + JSON.stringify(queryParams));
       var mode = 'compound';
       redisKey += "keywords-";
       if (queryParts.mode && (queryParts.mode === "compound" || queryParts.mode === "filter")){
@@ -236,6 +242,7 @@ server.get('/spot', function(req, res) {
       } 
        
       var arr = queryParts.keywords.split(/,/);
+      console.log(queryParams.red);
       if (mode === "compound") {
          
          var params = "{ \"$or\":[";
@@ -275,6 +282,7 @@ server.get('/spot', function(req, res) {
       // query with parameters
       queryParams = {
          limit : limit,
+         count: true,
          where : {
            location: {
             "$nearSphere" : {
@@ -289,7 +297,7 @@ server.get('/spot', function(req, res) {
         }
       }
    }
-   
+   console.log('qP'.red + JSON.stringify(queryParams));
    
    
    if (distance == -1) {
@@ -349,8 +357,7 @@ server.get('/spot/:id', function(req, res) {
       }
       else if (reply === 0) {
          var queryParams = {
-            limit : 20,
-            where: {spotId : parseInt(req.params.id)   }
+            where: {spotId : parseInt(req.params.id)   },
          };
          logger.debug('queryParams: ' + JSON.stringify(queryParams));
          parse.getObjects('Spot', queryParams , function(err, response, body, success) {
@@ -510,17 +517,23 @@ function createSpot(spot) {
    Function to call parse, update existing Spot object
 **/
 function updateSpot(spot) {
-    if (!spot.spotId) {
+    if (!spot.objectId) {
        throw new Error("No ID in object");
     }
    console.log('spot to create: ' + JSON.stringify(spot));
    // remove Parse internal readonly fields before sending
-   delete spot.objectId;
+   /*
+delete spot.objectId;
    delete spot.createdAt;
    delete spot.updatedAt;
    
-   parse.createObject("Spot", spot, function(err, res, body, success) {
+*/
+   parse.updateObject("Spot", spot.objectId, spot, function(err, res, body, success) {
       console.log('object created = ', body);
+      var redisKey = 'spot:id:' + spot.spotId;
+      client.del(redisKey, function(error, reply) {
+         logger.debug('stale key deleted: ' + redisKey);
+      });
    });
 };
 

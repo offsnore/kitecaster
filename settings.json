@@ -13,7 +13,6 @@
       
    },
    "redis" : {
-      "expire":"true",
       "expireTime":"60"
    },
    "spot" : {

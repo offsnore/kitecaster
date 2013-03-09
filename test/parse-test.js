@@ -19,6 +19,7 @@ console.log('parse:restKey- ' + nconf.get('parse:restKey'));
 var parse = new Parse( nconf.get('parse:appId'),  nconf.get('parse:restKey'));   
 
 var queryParams = {
+   count: true,
    where: {spotId : 1,
          spotId: 2   }
 };
