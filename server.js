@@ -24,7 +24,7 @@ var logger = new (winston.Logger)({
     ],
     exceptionHandlers: [
             new winston.transports.Console({timestamp:true})
-      /new winston.transports.File({ timestamp:true, filename: '/var/logs/kitecaster/server-exceptions.log' })
+      //new winston.transports.File({ timestamp:true, filename: '/var/logs/kitecaster/server-exceptions.log' })
     ] 
   });
   
