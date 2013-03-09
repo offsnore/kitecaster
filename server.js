@@ -20,11 +20,11 @@ var express = require('express')
 var logger = new (winston.Logger)({
     transports: [
       new winston.transports.Console({timestamp:true}),
-      new winston.transports.File({ timestamp:true, filename: 'logs/server.log' })
+      new winston.transports.File({ timestamp:true, filename: '/var/logs/kitecaster/server.log' })
     ],
     exceptionHandlers: [
             new winston.transports.Console({timestamp:true}),
-      new winston.transports.File({ timestamp:true, filename: 'logs/server-exceptions.log' })
+      new winston.transports.File({ timestamp:true, filename: '/var/logs/kitecaster/server-exceptions.log' })
     ] 
   });
   
