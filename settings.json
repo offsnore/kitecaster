@@ -5,9 +5,9 @@
         "restKey": "zeJNClfH1mAaJL2wVELcqdNbFcgkhTTCEyoZ4qaw"
      } ,  
   "api" : {
-      "spot": {"port" : "8501"}
+      "spot": {"port" : "8501"},
+      "model": {"port" : "8502"}
    },
-   "foo": "bar",
    "test" : {
       "socketio.port" : "9001"
       
