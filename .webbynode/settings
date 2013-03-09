@@ -1,4 +1,4 @@
-addons=(redis memcached mongodb beanstalkd)
 engine=nodejs
-nodejs_port=8000
+addons=(redis memcached mongodb beanstalkd)
 nodejs_proxy=Y
+nodejs_port=8000
