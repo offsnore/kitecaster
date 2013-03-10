@@ -6,23 +6,18 @@ var restify = require('restify'),
     redis = require("redis"),
     colors = require('colors'),
     //jsonify = require("redis-jsonify"),
-    client = redis.createClient();
+    client = redis.createClient(),
+    logger = require('winston');
     
-colors.setTheme({
-  silly: 'rainbow',
-  input: 'grey',
-  verbose: 'cyan',
-  prompt: 'grey',
-  info: 'green',
-  data: 'grey',
-  help: 'cyan',
-  warn: 'yellow', 
-  debug: 'blue',
-  error: 'red'
-});
-
-var logger = {}; logger.debug = console.log; logger.info = console.log;
 redisSpotIdKey = 'spot:id:counter';
+
+var options = {
+   colorize : "true"
+};
+
+//logger.add(logger.transports.Console, options)
+//logger.loggers.options = options;
+
 /*    
 var logger = new (winston.Logger)({
     transports: [d
@@ -56,6 +51,12 @@ var spotSchema = {
          "name" : {"type":"string", "required": true},
          "description" : {"type":"string"},
          "wind_directions": {
+           "type": "array",
+           "items": {"type": "string"},
+           "required":true
+           
+         },
+         "sketchy_directions": {
            "type": "array",
            "items": {"type": "string"},
            "required":true
@@ -97,7 +98,6 @@ if (nconf.get('api:spot:port'))
 logger.debug('nconf port: ' + restPort); 
 
 process.argv.forEach(function (val, index, array) {
-  console.log(index + ': ' + val);
   if (val === '-p')
    {
       restPort = array[index+1] || DEFAULT_PORT;
@@ -111,7 +111,7 @@ var server = restify.createServer();
 //-----
 
 server.listen(restPort, function() {
-  console.log('%s listening at %s', server.name, server.url);
+  console.log('%s listening at %s'.blue, server.name, server.url);
 });
 
 /**
@@ -178,8 +178,10 @@ server.get('spot/api', function(req, res) {
 
 server.get('/spot', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
-   var lat, lon, distance = 30000, limit = 10,distanceFormat;
-   var redisKey = "spot:search:";
+   var lat, lon, distance = 30000, limit = 10,distanceFormat = null;
+//   var redisKey = "spot:search:";
+   var redisKey = "";
+   redisKey = addToRedisKey(redisKey, ["spot", "search"]);
    var queryParams = {
          //limit : limit,
          count: true        
@@ -196,13 +198,13 @@ server.get('/spot', function(req, res) {
       logger.debug('geoloc: '.red + queryParts.geoloc);
       lat = Number(queryParts.geoloc.split(/,/)[0]);
       lon = Number(queryParts.geoloc.split(/,/)[1]);
-      redisKey += queryParts.geoloc + ":"
+      redisKey = addToRedisKey(redisKey, [queryParts.geoloc]);
       logger.debug("redisKey" + redisKey.red);
    }
    else if (queryParts.lat && queryParts.lon) {
       lat = Number(queryParts.lat);
       lon = Number(queryParts.lon);
-      redisKey += lat + ',' + lon + ":";
+      redisKey = addToRedisKey(redisKey, [lat, lon]);
    }
    
    logger.debug('redisKey: ' + redisKey);
@@ -210,31 +212,31 @@ server.get('/spot', function(req, res) {
    if (queryParts.limit) {
       limit =  Number(queryParts.limit);
       queryParams.limit = limit;
-      redisKey +=  "limit-" + limit + ":"
+      redisKey = addToRedisKey(redisKey, ["limit", limit]);
    }
    if (queryParts.miles){
       distanceFormat = "$maxDistanceInMiles";
       distance =  Number(queryParts.miles);
-      redisKey += "miles-" + distance + ":";
+      redisKey = addToRedisKey(redisKey, ["miles", distance]);
    }
    else if (queryParts.km)
    {
       distanceFormat = "$maxDistanceInKilometers";
       distance =  Number(queryParts.km);
-      redisKey += "km-" + distance + ":";
+      redisKey = addToRedisKey(redisKey, ["km", distance]);      
    } 
    else if (queryParts.radians) {
       distanceFormat = "$maxDistanceInRadians";
       distance =  Number(queryParts.radians);
-      redisKey += "radians-" + distance + ":";
-   }
+      redisKey = addToRedisKey(redisKey, ["radians", distance]);      
+      }
      console.log('qP'.red + JSON.stringify(queryParams));
    // Search for name
    if (queryParts.name) {
-   queryParams.where = {
+      queryParams.where = {
          name: queryParts.name
       }
-   redisKey += queryParts.name;
+      addToRedisKey(redisKey, ["name", queryParts.name]);      
    }
    
    else if (queryParts.description) {
@@ -242,14 +244,15 @@ server.get('/spot', function(req, res) {
          description: queryParts.description
       }
       redisKey += queryParts.description;
+      addToRedisKey(redisKey, ["description", queryParts.description]);      
    }
    else if (queryParts.keywords) {
    console.log('qP'.red + JSON.stringify(queryParams));
       var mode = 'compound';
-      redisKey += "keywords-";
+      addToRedisKey(redisKey, "keywords", queryParts.keywords);      
+            addToRedisKey(redisKey, "mode", mode);      
       if (queryParts.mode && (queryParts.mode === "compound" || queryParts.mode === "filter")){
          mode = queryParts.mode;
-         console.log('redisKey: ' + redisKey);
       } 
        
       var arr = queryParts.keywords.split(/,/);
@@ -260,12 +263,10 @@ server.get('/spot', function(req, res) {
          arr.forEach(function(item){
             console.log('item: ' + item);
             params += "{\"keywords\":\"" + item + "\"},"
-            redisKey +=  item + ',';  
             console.log('redisKey: ' + redisKey);
          });
          // remove trailing comma
          params = params.substring(0, params.length-1);
-         redisKey = redisKey.substring(0, redisKey.length-1);         
          params += "]}"; // close out the json object
          queryParams.where = params;
       }
@@ -302,12 +303,18 @@ server.get('/spot', function(req, res) {
                 longitude: lon,
                 limit : limit
                 }
-            ,"$maxDistanceInMiles": distance
+            //,"$maxDistanceInMiles": distance
             
            }
         }
       }
    }
+   if (distanceFormat != null) {
+      if (distanceFormat.indexOf('K') != -1)  queryParams.where.location.$maxDistanceInKilometers = distance;
+      else if (distanceFormat.indexOf('M') != -1)  queryParams.where.location.$maxDistanceInMiles = distance;
+      else if (distanceFormat.indexOf('R') != -1)  queryParams.where.location.$maxDistanceInRadians = distance;
+   }
+   console.log('max distance: ' + JSON.stringify(queryParams.where.location));
    console.log('qP'.red + JSON.stringify(queryParams));
    
    
@@ -316,6 +323,8 @@ server.get('/spot', function(req, res) {
       logger.debug("params after delete: " + JSON.stringify(params));
    }
    var resp, dateStart, dateEnd, diff;
+   
+   console.log('final qP'.red + JSON.stringify(queryParams));
    client.exists(redisKey , function (err, replies){
       console.log('queryParams stringified: ' + redisKey);
       console.log('redisKey ' + redisKey + ' exists? ' + replies);
@@ -332,7 +341,7 @@ server.get('/spot', function(req, res) {
       }
       else if (replies === 0) {
          dateStart =  new Date().getUTCMilliseconds();
-         
+              console.log('making request: qP'.red + JSON.stringify(queryParams));
          parse.getObjects('Spot', queryParams, function(err, response, body, success) {      
             //console.log('spots  found:\n', body);    
             client.set(redisKey, JSON.stringify(body), function(err, replies) {            
@@ -353,6 +362,8 @@ server.get('/spot', function(req, res) {
    
    
 });
+
+// Retrieve specific spotId
 
 server.get('/spot/:id', function(req, res) {
    //res.send('get spot id API: ' + req.params.id);
@@ -469,7 +480,7 @@ server.put('/spot/:id', function(req, res){
          res.send("Invalid lat/long format");
          return;
       }
-      else {
+      else {   
          updateSpot(json);
       }
       
@@ -512,17 +523,24 @@ function createSpot(spot) {
    // 2. Save the spot
    var spotId; 
    client.incr(redisSpotIdKey, function(err, replies) {
-      logger.info('incr: '.red + replies);
       spotId = replies; 
-      logger.debug('spot: '.red + spotId);
       spot.spotId = spotId;  
       parse.createObject("Spot", spot, function(err, res, body, success) {
-      console.log('object created = ', body);
-   });
+         logger.info('');
+      });
    });
   
    
 };
+
+function addToRedisKey(key, array) {
+   var retString = key;
+   array.forEach(function(item)
+   {
+      retString += item + ":";
+   });
+   return retString; 
+}
 
 /**
    Function to call parse, update existing Spot object
