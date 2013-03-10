@@ -148,8 +148,8 @@ server.get('spot/api', function(req, res) {
          radians: "number/metric: choose number of radians for search radius"
       },
       POST: {
-         
-         "required" : {
+         description: "Create a Spot, request is JSON content",
+         required : {
             geoloc : "lat,long coordinates",
             lat : "if no geoloc, latitude",
             lon : "if no geoloc, longitude",
@@ -162,6 +162,7 @@ server.get('spot/api', function(req, res) {
         
       },
       PUT: {
+         description: "Update a Spot, request is JSON content",
          "/:id" : "Update Spot, must have required fields"
       },
       
@@ -314,8 +315,7 @@ server.get('/spot', function(req, res) {
       else if (distanceFormat.indexOf('M') != -1)  queryParams.where.location.$maxDistanceInMiles = distance;
       else if (distanceFormat.indexOf('R') != -1)  queryParams.where.location.$maxDistanceInRadians = distance;
    }
-   console.log('max distance: ' + JSON.stringify(queryParams.where.location));
-   console.log('qP'.red + JSON.stringify(queryParams));
+  
    
    
    if (distance == -1) {
@@ -383,8 +383,11 @@ server.get('/spot/:id', function(req, res) {
          };
          logger.debug('queryParams: ' + JSON.stringify(queryParams));
          parse.getObjects('Spot', queryParams , function(err, response, body, success) {
-            console.log('found object = ', body);
+            console.log('found object = ', body, 'success: ' , success);
             var bodyJson = JSON.parse(JSON.stringify(body));
+            if (body.length == 0) {
+               res.send(404, "Spot " + req.params.id + " doesn't exist");
+            }
             client.set(redisKey,  JSON.stringify(bodyJson[0]), function (err, response, body, success) {
                client.expire(redisKey, redisExpireTime, function (err, replies) {
                   console.log('expire set for ' + redisKey + ' to ' + redisExpireTime + ' seconds.');

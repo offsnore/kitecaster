@@ -33,6 +33,15 @@ var DEFAULT_PORT = 8502;
 var parse = new Parse( nconf.get('parse:appId'),  nconf.get('parse:restKey')); 
 var restPort = DEFAULT_PORT;
 
+var windSchema = {
+   "id": "/SimpleWind",
+   "type": "object"<
+   "properties": {
+      "description" : {"required" : false, "type" : "string"}
+   }
+   
+}
+
 var modelSchema = {
    "id": "/SimpleModel",
       "type":"object",
