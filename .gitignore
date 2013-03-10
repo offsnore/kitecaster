@@ -1,0 +1,13 @@
+
+*.bak
+logs/*
+logs/appendonly.aof
+*.aof
+
+*.rdb
+
+*.rdb
+
+*.rdb
+
+*.aof
