@@ -149,19 +149,30 @@ server.get('spot/api', function(req, res) {
       },
       POST: {
          
+         "required" : {
+            geoloc : "lat,long coordinates",
+            lat : "if no geoloc, latitude",
+            lon : "if no geoloc, longitude",
+            name : "Name of spot"
+         },
+         optional : {
+            "keywords": "assign keywords, separated by commas",
+            "description": "description"
+         }
+        
       },
       PUT: {
-         
+         "/:id" : "Update Spot, must have required fields"
       },
       
       DELETE: {
-         
+         "/:id" : "Delete Spot by id"
       }
       
       
       
    };
-   
+   //res.send(updateSpotSchema);
    res.send(api);
 });
 
