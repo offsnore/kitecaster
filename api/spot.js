@@ -7,6 +7,7 @@ var restify = require('restify'),
     colors = require('colors'),
     //jsonify = require("redis-jsonify"),
     client = redis.createClient(),
+    async = require('async'),
     logger = require('winston');
     
 redisSpotIdKey = 'spot:id:counter';
@@ -36,7 +37,7 @@ nconf.argv()
        .env()
        .file({ file: '../settings.json' });   
 
-var redisExpireTime = parseInt(nconf.get('redis:expireTime')), redisExpire = nconf.get('redis:expire');
+var redisExpireTime = parseInt(nconf.get('redis:expireTime'));
 var DEFAULT_PORT = 8080;
 var parse = new Parse( nconf.get('parse:appId'),  nconf.get('parse:restKey')); 
 var restPort = DEFAULT_PORT;
@@ -59,7 +60,7 @@ var spotSchema = {
          "sketchy_directions": {
            "type": "array",
            "items": {"type": "string"},
-           "required":true
+           "required":false
            
          },
          "keywords": {
@@ -443,11 +444,8 @@ server.post('/spot', function(req, res) {
          return;
       }
       else {
-         createSpot(json);
+         createSpot(json, res);
       }
-      
-      //console.log('all the data received: ', JSON.stringify(json));
-      res.send('Spot for ' + json.name + ' created');
    });
 
 });
@@ -495,22 +493,40 @@ server.put('/spot/:id', function(req, res){
 server.del('/spot/:id', function(req, res) {
    var id = req.params.id;
    console.log('id: ' + id);
+    var queryParams = {
+            where: {spotId : parseInt(req.params.id)   },
+         };
+    parse.getObjects('Spot', queryParams , function(err, response, body, success) {
+            console.log('found object = ', body, 'success: ' , success);
+            var bodyJson = JSON.parse(JSON.stringify(body));
+            if (body.length == 0) {
+               res.send(404, "Spot " + req.params.id + " doesn't exist");
+               return;
+            }
+            var spot = bodyJson[0];            
+            var spotParseId = spot.objectId;
+            logger.info('spotParseId to delete: '.red + spotParseId );
+            parse.deleteObject("Spot", spotParseId, function(err, response, body, success){
+               console.log( "body: " + JSON.stringify(body) + ', success: ' + success);
+               if (err) {
+                  res.sendError('Error deleting spot: ' + err);
+               }
+               else if (success === true) {
+                  res.send('Spot ' + id + ' successfully deleted');
+                  return;
+               }
+            });
+         });      
+   
 
-   parse.deleteObject("Spot", id, function(err, response, body, success){
-      console.log('err: ' + err + ", body: " + body + ', success: ' + success);
-      if (err) {
-         logger.error('Error deleting spot: ' + err);
-      }
-      
-   });
-   res.end();
+    
 });
 
 
 /**
    Function to call parse, create Spot object
 **/
-function createSpot(spot) {
+function createSpot(spot,res) {
    console.log('spot to create: ' + JSON.stringify(spot));
     
    spot.location = {
@@ -528,8 +544,9 @@ function createSpot(spot) {
    client.incr(redisSpotIdKey, function(err, replies) {
       spotId = replies; 
       spot.spotId = spotId;  
-      parse.createObject("Spot", spot, function(err, res, body, success) {
-         logger.info('');
+      parse.createObject("Spot", spot, function(err, res2, body, success) {
+         logger.info(JSON.stringify(body));
+         res.send(body);
       });
    });
   
