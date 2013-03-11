@@ -324,8 +324,6 @@ server.get('/spot', function(req, res) {
       logger.debug("params after delete: " + JSON.stringify(params));
    }
    var resp, dateStart, dateEnd, diff;
-   
-   console.log('final qP'.red + JSON.stringify(queryParams));
    client.exists(redisKey , function (err, replies){
       console.log('queryParams stringified: ' + redisKey);
       console.log('redisKey ' + redisKey + ' exists? ' + replies);
@@ -335,12 +333,13 @@ server.get('/spot', function(req, res) {
             dateEnd = new Date().getUTCMilliseconds();
             diff = dateEnd - dateStart;
             console.log('took ' + diff / 1000 + ' milli seconds');
+            logger.error('what'.red + replies.red + '|finito');
             var json = JSON.parse(replies);
-            logger.info('key found, returning redis value');
+            logger.info('key found, returning redis value1: ' + JSON.stringify(json));
             res.send(json); 
          });
       }
-      else if (replies === 0) {
+      else if (replies == 0) {
          dateStart =  new Date().getUTCMilliseconds();
               console.log('making request: qP'.red + JSON.stringify(queryParams));
          parse.getObjects('Spot', queryParams, function(err, response, body, success) {      
@@ -355,6 +354,7 @@ server.get('/spot', function(req, res) {
             });
             
          });  
+         logger.error('what'.blue + replies.red + '|finito');
          res.send(body);
       
       });
@@ -388,6 +388,7 @@ server.get('/spot/:id', function(req, res) {
             var bodyJson = JSON.parse(JSON.stringify(body));
             if (body.length == 0) {
                res.send(404, "Spot " + req.params.id + " doesn't exist");
+               return;
             }
             client.set(redisKey,  JSON.stringify(bodyJson[0]), function (err, response, body, success) {
                client.expire(redisKey, redisExpireTime, function (err, replies) {
@@ -396,6 +397,7 @@ server.get('/spot/:id', function(req, res) {
 
             });
             res.send(bodyJson[0]);
+            return;
          });
       }
    });
@@ -427,15 +429,13 @@ server.post('/spot', function(req, res) {
       json = JSON.parse(data);
       } catch (err) {
          console.log('Error parsing data: ' + err);
-         res.statusCode = 400;
-         res.send(err);
+         res.send(400, err);
          return;
       } 
       valid = validate(json, spotSchema);
       if (valid.length > 0 ) {
          console.log('Error validating spot schema:\n', valid);
-         res.statusCode = 400;
-         res.send('Error validating spot schema:\n' + JSON.stringify(valid));
+         res.send(500, 'Error validating spot schema:\n' + valid);
          return;
       }
       else if (json.lat > 90 || json.lat < -90  || json.lon < -180 || json.lon > 180){
@@ -449,6 +449,8 @@ server.post('/spot', function(req, res) {
    });
 
 });
+
+
 
 server.put('/spot/:id', function(req, res){
    var queryParts = require('url').parse(req.url, true).query;
@@ -471,9 +473,7 @@ server.put('/spot/:id', function(req, res){
       
       valid = validate(json, updateSpotSchema);
       if (valid.length > 0 ) {
-         console.log('Error validating spot schema:\n', valid);
-         res.statusCode = 400;
-         res.send('Error validating spot schema:\n' + JSON.stringify(valid));
+         res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
          return;
       }
       else if (json.lat > 90 || json.lat < -90  || json.lon < -180 || json.lon > 180){

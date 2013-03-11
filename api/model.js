@@ -96,11 +96,7 @@ server.listen(restPort, function() {
 });
 
 server.get('/model', function(req, res) {
-   var queryParts = require('url').parse(req.url, true).query;
-   var lat, lon, distance = 30000, limit = 10, queryParams = {}, distanceFormat;
-   var redisKey = "model:search:", redisExpireTime = nconf.get('redis:expireTime') * 1000, redisExpire = true;
-   res.send('/model called!');
-   
+   getModel(1, res);   
 });
 
 
@@ -110,35 +106,7 @@ server.get('/model/:id', function(req, res) {
    //res.send('get model id API: ' + req.params.id);
    var id = parseInt(req.params.id);
    logger.debug('Getting model ID:', req.params.id);
-   var redisKey = 'model:id:' + id;
-   client.exists(redisKey , function (err, reply){
-      if (reply === 1){
-         client.get(redisKey, function (err, replies) {
-            logger.debug('redisKey found for ' + redisKey + ': ' + replies);
-            res.send(JSON.parse(replies));
-         });
-      }
-      else if (reply === 0) {
-         var queryParams = {
-            where: {modelId : parseInt(req.params.id)   },
-         };
-         logger.debug('queryParams: ' + JSON.stringify(queryParams));
-         parse.getObjects('Model', queryParams , function(err, response, body, success) {
-            console.log('found object = ', body, 'success: ' , success);
-            var bodyJson = JSON.parse(JSON.stringify(body));
-            if (body.length == 0) {
-               res.send(404, "model " + req.params.id + " doesn't exist");
-            }
-            client.set(redisKey,  JSON.stringify(bodyJson[0]), function (err, response, body, success) {
-               client.expire(redisKey, redisExpireTime, function (err, replies) {
-                  console.log('expire set for ' + redisKey + ' to ' + redisExpireTime + ' seconds.');
-               });
-
-            });
-            res.send(bodyJson[0]);
-         });
-      }
-   });
+   getModel(id, res);
     
 });
 
@@ -208,7 +176,7 @@ server.put('/model/:id', function(req, res){
          return;
       } 
       
-      valid = validate(json, updatemodelSchema);
+      valid = validate(json, modelSchema);
       if (valid.length > 0 ) {
          console.log('Error validating model schema:\n', valid);
          res.statusCode = 400;
@@ -287,6 +255,38 @@ function createModel(model, res){
 
 }
 
+function getModel (id, res) {
+   var redisKey = 'model:id:' + id;
+   client.exists(redisKey , function (err, reply){
+      if (reply === 1){
+         client.get(redisKey, function (err, replies) {
+            logger.debug('redisKey found for ' + redisKey + ': ' + replies);
+            res.send(JSON.parse(replies));
+         });
+      }
+      else if (reply === 0) {
+         var queryParams = {
+            where: {modelId : parseInt(id)   },
+         };
+         logger.debug('queryParams: ' + JSON.stringify(queryParams));
+         parse.getObjects('Model', queryParams , function(err, response, body, success) {
+            console.log('found object = ', body, 'success: ' , success);
+            var bodyJson = JSON.parse(JSON.stringify(body));
+            if (body.length == 0) {
+               res.send(404, "model " + req.params.id + " doesn't exist");
+            }
+            client.set(redisKey,  JSON.stringify(bodyJson[0]), function (err, response, body, success) {
+               client.expire(redisKey, redisExpireTime, function (err, replies) {
+                  console.log('expire set for ' + redisKey + ' to ' + redisExpireTime + ' seconds.');
+               });
+
+            });
+            res.send(bodyJson[0]);
+         });
+      }
+   });
+}
+
 function addToRedisKey(key, array) {
    var retString = key;
    array.forEach(function(item)
@@ -295,6 +295,30 @@ function addToRedisKey(key, array) {
    });
    return retString; 
 }
+
+/**
+   Function to call parse, update existing model object
+**/
+function updateModel(model) {
+    if (!model.objectId) {
+       throw new Error("No ID in object");
+    }
+   console.log('model to create: ' + JSON.stringify(model));
+   // remove Parse internal readonly fields before sending
+   /*
+delete model.objectId;
+   delete model.createdAt;
+   delete model.updatedAt;
+   
+*/
+   parse.updateObject("Model", model.objectId, model, function(err, res, body, success) {
+      console.log('object created = ', body);
+      var redisKey = 'model:id:' + model.modelId;
+      client.del(redisKey, function(error, reply) {
+         logger.debug('stale key deleted: ' + redisKey);
+      });
+   });
+};
 
 
 
