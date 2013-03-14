@@ -1,19 +1,21 @@
 {
   "name": "kitecaster",
-  "version": "0.1.0",
+  "version": "0.1.0-2",
   "private": true,
   "scripts": {
-    "start": "node app"
+    "start": "node spot.js"
   },
   "dependencies": {
-    "express": "3.0.0rc3",
-    "stylus": "*",
-    "restify": "*",
-    "kaiseki": "*",
-    "colors": "*",
-    "winston": "*",
-    "jsonschema": "*",
-    "nconf": "*"
+	"async": "0.2.x",
+    "restify": "2.3.x",
+    "kaiseki": "0.4.x",
+    "colors": "0.6.x",
+    "winston": "0.6.x",
+    "jsonschema": "0.3.x",
+    "nconf": "0.6.x",
+	"redis":"0.8.x",
+	"poet": "0.2.x"
+	
   },
   "subdomain": "evalcrux.kitecaster",
   "engines": {

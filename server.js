@@ -14,7 +14,7 @@ var express = require('express')
   , restify = require('restify')
   , nconf = require('nconf')
   , winston = require('winston')
-  , colors = require('colors')
+  , colors = require('colors'),
   ;
   
 var logger = new (winston.Logger)({
@@ -47,6 +47,7 @@ colors.setTheme({
 });
 
 var app = express();
+var poet    = require('poet')( app );
 //
   // Setup nconf to use (in-order):
   //   1. Command-line arguments

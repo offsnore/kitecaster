@@ -271,17 +271,21 @@ function getModel (id, res) {
          logger.debug('queryParams: ' + JSON.stringify(queryParams));
          parse.getObjects('Model', queryParams , function(err, response, body, success) {
             console.log('found object = ', body, 'success: ' , success);
+            
             var bodyJson = JSON.parse(JSON.stringify(body));
             if (body.length == 0) {
-               res.send(404, "model " + req.params.id + " doesn't exist");
+               res.send(404, "model " + id + " doesn't exist");
             }
-            client.set(redisKey,  JSON.stringify(bodyJson[0]), function (err, response, body, success) {
-               client.expire(redisKey, redisExpireTime, function (err, replies) {
-                  console.log('expire set for ' + redisKey + ' to ' + redisExpireTime + ' seconds.');
+            else {
+               client.set(redisKey,  JSON.stringify(bodyJson[0]), function (err, response, body, success) {
+                  client.expire(redisKey, redisExpireTime, function (err, replies) {
+                     console.log('expire set for ' + redisKey + ' to ' + redisExpireTime + ' seconds.');
+                  });
+   
                });
-
-            });
-            res.send(bodyJson[0]);
+               res.send(bodyJson[0]);
+            }
+            
          });
       }
    });
