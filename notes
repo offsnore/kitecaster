@@ -1,0 +1,49 @@
+
+Parse roles:
+curl -X POST \
+  -H "X-Parse-Application-Id: NxEj8t7POeTJEnm3CizoU1MQZlNexcQpHTxgWhwa" \
+  -H "X-Parse-REST-API-Key: zeJNClfH1mAaJL2wVELcqdNbFcgkhTTCEyoZ4qaw" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "name": "Moderators",
+        "ACL": {
+          "*": {
+            "read": true
+          }
+        },
+        "roles": {
+          "__op": "AddRelation",
+          "objects": [
+            {
+              "__type": "Pointer",
+              "className": "_Role",
+              "objectId": "Ed1nuqPvc"
+            }
+          ]
+        },
+        "users": {
+          "__op": "AddRelation",
+          "objects": [
+            {
+              "__type": "Pointer",
+              "className": "_User",
+              "objectId": "8TOXdXf3tz"
+            }
+          ]
+        }
+      }' \
+  https://api.parse.com/1/roles
+  
+  
+  get users: 
+  curl -X GET \
+  -H "X-Parse-Application-Id: NxEj8t7POeTJEnm3CizoU1MQZlNexcQpHTxgWhwa" \
+  -H "X-Parse-REST-API-Key: zeJNClfH1mAaJL2wVELcqdNbFcgkhTTCEyoZ4qaw" \
+  https://api.parse.com/1/users
+  
+  
+  GET  roles:
+  curl -X GET \
+  -H "X-Parse-Application-Id: NxEj8t7POeTJEnm3CizoU1MQZlNexcQpHTxgWhwa" \
+  -H "X-Parse-REST-API-Key: zeJNClfH1mAaJL2wVELcqdNbFcgkhTTCEyoZ4qaw" \
+  https://api.parse.com/1/roles

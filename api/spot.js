@@ -37,6 +37,7 @@ nconf.argv()
        .env()
        .file({ file: '../settings.json' });   
 
+
 var redisExpireTime = parseInt(nconf.get('redis:expireTime'));
 var DEFAULT_PORT = 8080;
 var parse = new Parse( nconf.get('parse:appId'),  nconf.get('parse:restKey')); 
