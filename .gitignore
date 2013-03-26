@@ -11,3 +11,5 @@ logs/appendonly.aof
 *.rdb
 
 *.aof
+
+*.httpclient
