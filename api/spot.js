@@ -116,6 +116,7 @@ server.listen(restPort, function() {
   console.log('%s listening at %s'.blue, server.name, server.url);
 });
 
+
 /**
    SPOT API
 **/
@@ -189,13 +190,6 @@ server.get('/spot', function(req, res) {
          //limit : limit,
          count: true        
          };
-   
-   
-   if (queryParts.api) {
-      var apiStr = '@geoloc - tested\n@lat,@lon - tested\n@keywords [...,...] - tested\n@description =[] - tested \n@mode [filter,compound] - tested \n @limit  - number of results to return - tested \n@miles/km  \n@radians';
-      res.send(apiStr);
-      return;
-   }
 
    if (queryParts.geoloc) {
       logger.debug('geoloc: '.red + queryParts.geoloc);
@@ -586,6 +580,8 @@ delete spot.objectId;
       });
    });
 };
+
+
 
 
 
