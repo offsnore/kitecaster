@@ -6,14 +6,18 @@ var restify = require('restify'),
     redis = require("redis"),
     colors = require('colors'),
     //jsonify = require("redis-jsonify"),
-    client = redis.createClient(),
+   // client = redis.createClient(),
     async = require('async'),
-    logger = require('winston');
-    
-redisSpotIdKey = 'spot:id:counter';
+    logger = require('winston'),
+    wundernode = require('wundernode');
+
+var redisSpotIdKey = 'spot:id:counter';
 
 var options = {
    colorize : "true"
 };
+
+
+
 
 
