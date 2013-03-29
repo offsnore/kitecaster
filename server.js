@@ -14,7 +14,7 @@ var express = require('express')
   , restify = require('restify')
   , nconf = require('nconf')
   , winston = require('winston')
-  , colors = require('colors'),
+  , colors = require('colors')
   ;
   
 var logger = new (winston.Logger)({
