@@ -6,7 +6,7 @@ logs/appendonly.aof
 .webbynode
 .webbynode/*
 *.rdb
-
+.pushand
 *.rdb
 
 *.rdb
