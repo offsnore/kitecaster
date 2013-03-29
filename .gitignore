@@ -8,7 +8,7 @@ logs/appendonly.aof
 *.rdb
 .pushand
 *.rdb
-
+.DS_Store
 *.rdb
 
 *.aof
