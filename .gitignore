@@ -1,9 +1,10 @@
-
+# git ignore file
 *.bak
 logs/*
 logs/appendonly.aof
 *.aof
-
+.webbynode
+.webbynode/*
 *.rdb
 
 *.rdb
