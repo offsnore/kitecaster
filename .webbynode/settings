@@ -1,3 +1,0 @@
-engine=nodejs
-nodejs_proxy=Y
-nodejs_port=8000
