@@ -38,7 +38,7 @@ exports.main = function(req, res) {
 		credits: "testing",
 		body: {
 			content: {
-				"first entry into page"
+				pageinfo: "first entry into page"
 			}
 		}
 	}
