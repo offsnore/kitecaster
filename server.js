@@ -118,6 +118,7 @@ app.get('/foo', function(req, res) {
 });
 app.get('/start', routes.start);
 
+app.get('/main', routes.main);
 
 
 /* Start API Apps */

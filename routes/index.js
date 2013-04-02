@@ -30,7 +30,30 @@ exports.test = function(req, res){
   res.render('test', { title: 'Test Page Demos' });
 };
 
+// First Page for Application
+// @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
+exports.main = function(req, res) {
+	var params = {
+		title: "kitecaster - beta",
+		credits: "testing",
+		body: {
+			content: {
+				"first entry into page"
+			}
+		}
+	}
+	res.render('main', params);
 
+/**
+   res.render('main', { 
+   	title: 'kitecaster - beta', 
+   	body: 'First page of Application!',
+   	content: 'testing yo', 
+   	scripts: 
+   		['js/lib/jquery.js', 'js/lib/underscore.js'] 
+   	});
+*/
+};
 
 
 
