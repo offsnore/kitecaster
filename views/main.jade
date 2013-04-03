@@ -1,0 +1,17 @@
+extends main-layout
+
+block head
+	yield
+	script(src='js/lib/underscore.js')
+	script(src='js/lib/jquery.js')
+
+block content
+	#kitecasterapp
+		.title
+			h1 Kitecaster Beta
+		.content
+			each info in body.content
+				p= info
+	
+
+ 
