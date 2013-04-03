@@ -124,6 +124,7 @@ app.get('/start', routes.start);
 
 logger.debug('routes: ', JSON.stringify(app.routes));
 
+/*
 var server = http.createServer(app).listen(app.get('port'), function(){
         logger.debug("Express server listening on port " + app.get('port'));
            })
@@ -137,7 +138,7 @@ io.sockets.on('connection', function (socket) {
     logger.debug(data);
   });
 });
-
+*/
 
 
 
