@@ -9,8 +9,7 @@
       "model": {"port" : "8502"}
    },
    "test" : {
-      "socketio.port" : "9001"
-      
+      "socketio.port" : "9001"      
    },
    "redis" : {
       "expireTime":"60"

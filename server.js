@@ -2,8 +2,6 @@
 /**
  * Module dependencies. 
  */
-
-
 var express = require('express')
   , routes = require('./routes') 
   , http = require('http')
@@ -118,7 +116,7 @@ app.get('/foo', function(req, res) {
 });
 app.get('/start', routes.start);
 
-app.get('/main', routes.main);
+//app.get('/main', routes.main);
 
 
 /* Start API Apps */
@@ -130,7 +128,6 @@ var server = http.createServer(app).listen(app.get('port'), function(){
         logger.debug("Express server listening on port " + app.get('port'));
            })
    , io = require('socket.io').listen(server);
-
 
 io.sockets.on('connection', function (socket) {
    logger.debug('client connected');
