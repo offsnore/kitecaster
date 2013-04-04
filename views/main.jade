@@ -1,9 +1,12 @@
 extends main-layout
 
 block head
-	yield
-	script(src='js/lib/underscore.js')
-	script(src='js/lib/jquery.js')
+	script(src='js/app/widgets.js')
+
+mixin widget(name, header, pageinfo)
+	.widget(class=name)
+		h2(class="header")= header
+		div(class="content")= pageinfo
 
 block content
 	#kitecasterapp
@@ -13,6 +16,5 @@ block content
 		.content
 			each info in body.content
 				p= info
-	
-
- 
+			each widget in body.widgets
+				mixin widget(widget.name, widget.header, widget.content, widget.filename)

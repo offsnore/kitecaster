@@ -54,8 +54,15 @@ exports.mainIndex = function(req, res) {
 		credits: "testing",
 		body: {
 			content: {
-				pageinfo: "first entry into page"
-			}
+				pageinfo: "first entry into page",
+			},
+			widgets: [
+				{
+					name: "feed",
+					header: "feed info",
+					content: ""
+				}
+			]
 		}
 	}
 	res.render('main', params);
@@ -91,12 +98,26 @@ exports.mainProfile = function(req, res) {
 		credits: "testing",
 		body: {
 			content: {
-				pageinfo: "first entry into profile page"
+				pageinfo: "first entry into profile page",
 			}
 		}
 	}
 	res.render('main', params);
 };
 
-
+exports.dynamicFeed = function(req, res) {
+    fs.readFile('views/includes/widgets/feed.jade', 'utf8', function(err, data){
+        if (err) {
+            console.log(err);
+        } else {
+			var templateFunc = jade.compile(data); // you could pass options as a second argument here, e.g. including locals
+			var dynamicContent = templateFunc();
+			res.render('feed.jade', {
+			    locals : {
+			        dynamicContent: dynamicContent,
+			    }
+			});
+		}
+	});
+}
 
