@@ -34,6 +34,9 @@ exports.test = function(req, res){
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
 exports.main = function(req, res) {
 	var params = {
+		page: {
+			active: 'Home',
+		},
 		title: "kitecaster - beta",
 		credits: "testing",
 		body: {

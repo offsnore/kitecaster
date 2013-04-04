@@ -1,0 +1,11 @@
+.navbar
+	.navbar-inner
+		a.brand Navigaiton
+		ul.nav
+			each name in ["Home", "Spots", "Profile"]
+				if (page.active == name)
+					li.active
+						a(href='#')= name
+				else
+					li
+						a(href='#')= name
