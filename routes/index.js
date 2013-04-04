@@ -104,20 +104,3 @@ exports.mainProfile = function(req, res) {
 	}
 	res.render('main', params);
 };
-
-exports.dynamicFeed = function(req, res) {
-    fs.readFile('views/includes/widgets/feed.jade', 'utf8', function(err, data){
-        if (err) {
-            console.log(err);
-        } else {
-			var templateFunc = jade.compile(data); // you could pass options as a second argument here, e.g. including locals
-			var dynamicContent = templateFunc();
-			res.render('feed.jade', {
-			    locals : {
-			        dynamicContent: dynamicContent,
-			    }
-			});
-		}
-	});
-}
-
