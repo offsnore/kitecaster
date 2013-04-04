@@ -26,11 +26,6 @@ var logger = new (winston.Logger)({
     ] 
   });
   
-  
-  
-  
-  
-  
 colors.setTheme({
   silly: 'rainbow',
   input: 'grey',
@@ -116,8 +111,10 @@ app.get('/foo', function(req, res) {
 });
 app.get('/start', routes.start);
 
-app.get('/main', routes.main);
-
+// @todo make this routing come from a config file and executed via a LOOP
+app.get('/main', routes.mainIndex);
+app.get('/main/spots', routes.mainSpot);
+app.get('/main/profile', routes.mainProfile);
 
 /* Start API Apps */
 

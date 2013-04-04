@@ -1,4 +1,16 @@
 
+/**
+ * Do a general pull for Global Site Configs
+ */
+var nconf = require('nconf');
+
+function getSettings() {
+	nconf.argv()
+	       .env()
+	       .file({ file:'settings.json' });
+    return nconf;
+}
+
 /*
  * GET mappings to views
  * Remember to keep this in alpabetic order (for comprehension's sake)
@@ -32,12 +44,13 @@ exports.test = function(req, res){
 
 // First Page for Application
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
-exports.main = function(req, res) {
+exports.mainIndex = function(req, res) {
+	var nconf = getSettings();
 	var params = {
 		page: {
 			active: 'Home',
 		},
-		title: "kitecaster - beta",
+		title: nconf.get('site:frontend:title'),
 		credits: "testing",
 		body: {
 			content: {
@@ -46,18 +59,44 @@ exports.main = function(req, res) {
 		}
 	}
 	res.render('main', params);
-
-/**
-   res.render('main', { 
-   	title: 'kitecaster - beta', 
-   	body: 'First page of Application!',
-   	content: 'testing yo', 
-   	scripts: 
-   		['js/lib/jquery.js', 'js/lib/underscore.js'] 
-   	});
-*/
 };
 
+// Spots Page for Application
+// @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
+exports.mainSpot = function(req, res) {
+	var params = {
+		page: {
+			active: 'Spots',
+		},
+		title: nconf.get('site:frontend:title'),
+		credits: "testing",
+		body: {
+			content: {
+				pageinfo: "first entry into spots page"
+			}
+		}
+	}
+	res.render('main', params);
+};
+
+
+// Profile Page for Application
+// @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
+exports.mainProfile = function(req, res) {
+	var params = {
+		page: {
+			active: 'Profile',
+		},
+		title: nconf.get('site:frontend:title'),
+		credits: "testing",
+		body: {
+			content: {
+				pageinfo: "first entry into profile page"
+			}
+		}
+	}
+	res.render('main', params);
+};
 
 
 

@@ -3,9 +3,15 @@
 		a.brand Navigaiton
 		ul.nav
 			each name in ["Home", "Spots", "Profile"]
-				if (page.active == name)
+				if (page.active==name)
 					li.active
-						a(href='#')= name
+						if (name=="Home")
+							a(href='/main/')= name
+						else
+							a(href='/main/#{name.toLowerCase()}')= name
 				else
 					li
-						a(href='#')= name
+						if (name=="Home")
+							a(href='/main/')= name
+						else
+							a(href='/main/#{name.toLowerCase()}')= name

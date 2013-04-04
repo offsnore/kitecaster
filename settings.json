@@ -16,6 +16,11 @@
    },
    "spot" : {
       "defaultLimit": "10"
-   }
+   },
 
+   "site": {
+   		"frontend": {
+   			"title":"KiteCaster - Beta"
+   		}
+   }
 }
