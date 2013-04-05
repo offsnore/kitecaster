@@ -108,6 +108,19 @@ exports.mainProfile = function(req, res) {
 };
 
 exports.mainProfileSave = function(req, res) {
-	var params = {};
+	var params = {
+		page: {
+			active: 'Profile',
+		},
+		title: nconf.get('site:frontend:title'),
+		body: {
+			status: "Successfully added this information.",
+			content: {
+				pageinfo: "",
+			},
+			widgets: []
+		}
+	};
 	console.log(req.body);
+	res.render('profile', params);
 }

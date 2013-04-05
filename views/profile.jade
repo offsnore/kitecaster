@@ -11,6 +11,8 @@ block content
 			h1= title
 		include includes/navigation
 		.content
+			if (body.status)
+				h1.btn.btn-success= body.status
 			each info in body.content
 				h2= info
 			each widget in body.widgets
