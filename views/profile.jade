@@ -1,0 +1,40 @@
+extends main-layout
+
+mixin widget(name, header, pageinfo)
+	.widget(class=name)
+		h2(class="header")= header
+		div(class="content")= pageinfo
+
+block content
+	#kitecasterapp
+		.title
+			h1= title
+		include includes/navigation
+		.content
+			each info in body.content
+				h2= info
+			each widget in body.widgets
+				mixin widget(widget.name, widget.header, widget.content, widget.filename)
+			form(action='/main/profile/save', method='post').form-horizontal
+				div.well
+					div.control-group
+						label.control-label(for='input_firstname') First Name
+						div.controls
+							input(name='name', id='input_firstname', placeholder='Enter your First Name')
+					div.control-group
+						label.control-label(for='input_lastname') Last Name
+						div.controls
+							input(name='lastname', id='input_lastname', placeholder='Enter your Last name')
+					div.control-group
+						label.control-label(for='input_weight') Weight (lbs)
+						div.controls
+							input(name='lastname', id='input_weight', placeholder='Enter your Weight')
+					div.control-group
+						label.control-label Gender
+						div.controls
+							div(data-toogle='buttons-radio').btn-group
+								button(type='button').btn.btn-primary Male
+								button(type='button').btn.btn-primary Female
+					div.control-group
+						div.controls
+							input(type='submit', value='Save Profile').btn.btn-success

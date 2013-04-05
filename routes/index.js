@@ -80,7 +80,8 @@ exports.mainSpot = function(req, res) {
 		body: {
 			content: {
 				pageinfo: "first entry into spots page"
-			}
+			},
+			widgets: []
 		}
 	}
 	res.render('main', params);
@@ -98,9 +99,15 @@ exports.mainProfile = function(req, res) {
 		credits: "testing",
 		body: {
 			content: {
-				pageinfo: "first entry into profile page",
-			}
+				pageinfo: "Please fill out your profile",
+			},
+			widgets: []
 		}
 	}
-	res.render('main', params);
+	res.render('profile', params);
 };
+
+exports.mainProfileSave = function(req, res) {
+	var params = {};
+	console.log(req.body);
+}
