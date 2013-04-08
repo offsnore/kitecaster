@@ -2,7 +2,9 @@
 /**
  * Do a general pull for Global Site Configs
  */
-var nconf = require('nconf');
+var nconf = require('nconf')
+  , winston = require('winston')
+  , Parse = require('parse-api').Parse;
 
 function getSettings() {
 	nconf.argv()
@@ -91,36 +93,111 @@ exports.mainSpot = function(req, res) {
 // Profile Page for Application
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
 exports.mainProfile = function(req, res) {
-	var params = {
-		page: {
-			active: 'Profile',
-		},
-		title: nconf.get('site:frontend:title'),
-		credits: "testing",
-		body: {
-			content: {
-				pageinfo: "Please fill out your profile",
-			},
-			widgets: []
+	// get Session Details
+	var session_id = nconf.get('site:fakedSession');
+	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
+	var profile_data = {};
+	parseApp.find('Profiles', {'session_id': session_id}, function (err, response) {
+		if (response.results.length > 0) {
+			var profile_data = response.results[0];
 		}
-	}
-	res.render('profile', params);
+		var params = {
+			page: {
+				active: 'Profile',
+			},
+			data: {
+				profile_data: profile_data			
+			},
+			title: nconf.get('site:frontend:title'),
+			credits: "testing",
+			body: {
+				content: {
+					pageinfo: "Please fill out your profile",
+				},
+				widgets: []
+			}
+		}
+		res.render('profile', params);
+	});
 };
 
 exports.mainProfileSave = function(req, res) {
-	var params = {
-		page: {
-			active: 'Profile',
-		},
-		title: nconf.get('site:frontend:title'),
-		body: {
-			status: "Successfully added this information.",
-			content: {
-				pageinfo: "",
-			},
-			widgets: []
+	// add submit to Parse()
+	// add validation model
+	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
+	var data = req.body;
+
+	var logger = new (winston.Logger)({
+	    transports: [
+			new winston.transports.Console({timestamp:true})
+			//new winston.transports.File({ timestamp:true, filename: '/var/logs/kitecaster/server.log' })
+	    ],
+	    exceptionHandlers: [
+            new winston.transports.Console({timestamp:true})
+			//new winston.transports.File({ timestamp:true, filename: '/var/logs/kitecaster/server-exceptions.log' })
+	    ] 
+	  });
+
+	var session_id = nconf.get('site:fakedSession');
+	data['session_id'] = session_id;
+
+	// @todo Add data validation
+	// @todo Add err handling on err from Host
+	try {
+		parseApp.find('Profiles', {'session_id': session_id}, function (err, response) {
+			if (response.results.length > 0) {
+				var id = response.results[0].objectId;
+				parseApp.update('Profiles', id, data, function (err, response) {
+					logger.debug("update result");
+					logger.debug(err);
+					logger.debug(JSON.stringify(response));
+					mainProfileSaveAfter(parseApp, res, session_id, data, response);
+				});
+			} else {
+				parseApp.insert('Profiles', data, function(err, response) {
+					logger.debug("insert result");
+					logger.debug(err);
+					logger.debug(JSON.stringify(response));
+					mainProfileSaveAfter(parseApp, res, session_id, data, response);	
+				});			
+			}
+		});
+	} catch (e) {
+		logger.debug(e);
+	}
+}
+
+/**
+ * mainProfileSaveAfter
+ * @usage Acts as a private method to be called after an update/insert is performed
+ * @param Object parseApp
+ * @param Object res
+ * @param Object data
+ * @param Object response
+ */
+function mainProfileSaveAfter(parseApp, res, session_id, data, response) {
+	var profile_data = {};
+	parseApp.find('Profiles', {'session_id': session_id}, function (err, response) {
+		if (response.results.length > 0) {
+			var profile_data = response.results[0];
 		}
-	};
-	console.log(req.body);
-	res.render('profile', params);
+		var params = {
+			page: {
+				active: 'Profile',
+			},
+			data: {
+				profile_data: profile_data			
+			},
+			title: nconf.get('site:frontend:title'),
+			credits: "testing",
+			body: {
+				status: "Successfully added this information.",
+				content: {
+					pageinfo: "Please fill out your profile",
+				},
+				widgets: []
+			}
+		}
+		res.render('profile', params);
+	});
 }

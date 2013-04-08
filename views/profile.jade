@@ -12,7 +12,8 @@ block content
 		include includes/navigation
 		.content
 			if (body.status)
-				h1.btn.btn-success= body.status
+				div
+					h3.well.btn-success= body.status
 			each info in body.content
 				h2= info
 			each widget in body.widgets
@@ -22,21 +23,21 @@ block content
 					div.control-group
 						label.control-label(for='input_firstname') First Name
 						div.controls
-							input(name='name', id='input_firstname', placeholder='Enter your First Name')
+							input(name='name', id='input_firstname', placeholder="Enter your first name", value=data.profile_data.name)
 					div.control-group
 						label.control-label(for='input_lastname') Last Name
 						div.controls
-							input(name='lastname', id='input_lastname', placeholder='Enter your Last name')
+							input(name='lastname', id='input_lastname', placeholder='Enter your Last name', value=data.profile_data.lastname)
 					div.control-group
 						label.control-label(for='input_weight') Weight (lbs)
 						div.controls
-							input(name='lastname', id='input_weight', placeholder='Enter your Weight')
+							input(name='weight', id='input_weight', placeholder='Enter your Weight', value=data.profile_data.weight).span2
 					div.control-group
 						label.control-label Gender
 						div.controls
-							div(data-toogle='buttons-radio').btn-group
-								button(type='button').btn.btn-primary Male
-								button(type='button').btn.btn-primary Female
+							div.btn-group(data-toggle='buttons-radio')
+								input(type='button', value='Male', name='input_gender').btn.btn-primary Male
+								input(type='button', value='Female', name='input_gender').btn.btn-primary Female
 					div.control-group
 						div.controls
 							input(type='submit', value='Save Profile').btn.btn-success
