@@ -1,0 +1,62 @@
+extends main-layout
+
+mixin widget(name, header, pageinfo)
+	.widget(class=name)
+		h2(class="header")= header
+		div(class="content")= pageinfo
+
+block content
+	#kitecasterapp
+		.title
+			h1= title
+		include includes/navigation
+		.content
+			if (body.status)
+				div
+					h3.well.btn-success= body.status
+			each info in body.content
+				h2= info
+			each widget in body.widgets
+				mixin widget(widget.name, widget.header, widget.content, widget.filename)
+			form(action='/main/profile/save', method='post').form-horizontal
+				div.well
+					div.control-group
+						label.control-label(for='input_firstname') First Name
+						div.controls
+							if (data.profile_data) 
+								input(name='name', id='input_firstname', placeholder="Enter your first name", value=data.profile_data.name)
+							else
+								input(name='name', id='input_firstname', placeholder="Enter your first name", value="")
+					div.control-group
+						label.control-label(for='input_lastname') Last Name
+						div.controls
+							if (data.profile_data)
+								input(name='lastname', id='input_lastname', placeholder='Enter your Last name', value=data.profile_data.lastname)
+							else
+								input(name='lastname', id='input_lastname', placeholder='Enter your Last name', value="")
+					div.control-group
+						label.control-label(for='input_weight') Weight (lbs)
+						div.controls
+							if (data.profile_data)
+								input(name='weight', id='input_weight', placeholder='Enter your Weight', value=data.profile_data.weight).span2
+							else
+								input(name='weight', id='input_weight', placeholder='Enter your Weight', value="").span2							
+					div.control-group
+						label.control-label Gender
+						div.controls
+							div.btn-group(data-toggle='buttons-radio')
+								if (data.profile_data)
+									if (data.profile_data.gender == "male") 
+										input(type='button', value='Male', name='input_gender', id='male').btn.btn-primary.active Male
+										input(type='button', value='Female', name='input_gender', id='female').btn.btn-primary Female
+									if (data.profile_data.gender == "female")
+										input(type='button', value='Male', name='input_gender', id='male').btn.btn-primary Male
+										input(type='button', value='Female', name='input_gender', id='female').btn.btn-primary.active Female
+									input(type='hidden', name='gender', id='gender', value=data.profile_data.gender)
+								else
+									input(type='button', value='Male', name='input_gender', id='male').btn.btn-primary Male
+									input(type='button', value='Female', name='input_gender', id='female').btn.btn-primary Female
+									input(type='hidden', name='gender', id='gender', value="")
+					div.control-group
+						div.controls
+							input(type='submit', value='Save Profile').btn.btn-success

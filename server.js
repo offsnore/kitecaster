@@ -116,6 +116,8 @@ app.get('/main', routes.mainIndex);
 app.get('/main/spots', routes.mainSpot);
 app.get('/main/profile', routes.mainProfile);
 
+app.post('/main/profile/save', routes.mainProfileSave);
+
 /* Start API Apps */
 
 logger.debug('routes: ', JSON.stringify(app.routes));

@@ -1,8 +1,5 @@
 extends main-layout
 
-block head
-	script(src='js/app/widgets.js')
-
 mixin widget(name, header, pageinfo)
 	.widget(class=name)
 		h2(class="header")= header

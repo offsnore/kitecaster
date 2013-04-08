@@ -21,6 +21,7 @@
    "site": {
    		"frontend": {
    			"title":"KiteCaster - Beta"
-   		}
+   		},
+   		"fakedSession": "abcd383393"
    }
 }
