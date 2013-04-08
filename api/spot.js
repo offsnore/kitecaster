@@ -185,7 +185,7 @@ server.get('/spot', function(req, res) {
    var lat, lon, distance = 30000, limit = 10,distanceFormat = null;
 //   var redisKey = "spot:search:";
    var redisKey = "";
-   redisKey = addToRedisKey(redisKey, ["spot", "search"]);
+   redisKey = addToRedisKey(redisKey, "spot", "search");
    var queryParams = {
          //limit : limit,
          count: true        
@@ -195,13 +195,13 @@ server.get('/spot', function(req, res) {
       logger.debug('geoloc: '.red + queryParts.geoloc);
       lat = Number(queryParts.geoloc.split(/,/)[0]);
       lon = Number(queryParts.geoloc.split(/,/)[1]);
-      redisKey = addToRedisKey(redisKey, [queryParts.geoloc]);
+      redisKey = addToRedisKey(redisKey, 'geoloc', queryParts.geoloc);
       logger.debug("redisKey" + redisKey.red);
    }
    else if (queryParts.lat && queryParts.lon) {
       lat = Number(queryParts.lat);
       lon = Number(queryParts.lon);
-      redisKey = addToRedisKey(redisKey, [lat, lon]);
+      redisKey = addToRedisKey(redisKey,  'latlon', [lat, lon]);
    }
    
    logger.debug('redisKey: ' + redisKey);
@@ -214,40 +214,38 @@ server.get('/spot', function(req, res) {
    if (queryParts.miles){
       distanceFormat = "$maxDistanceInMiles";
       distance =  Number(queryParts.miles);
-      redisKey = addToRedisKey(redisKey, ["miles", distance]);
+      redisKey = addToRedisKey(redisKey, 'miles',distance);
    }
    else if (queryParts.km)
    {
       distanceFormat = "$maxDistanceInKilometers";
       distance =  Number(queryParts.km);
-      redisKey = addToRedisKey(redisKey, ["km", distance]);      
+      redisKey = addToRedisKey(redisKey, "km", distance);      
    } 
    else if (queryParts.radians) {
       distanceFormat = "$maxDistanceInRadians";
       distance =  Number(queryParts.radians);
-      redisKey = addToRedisKey(redisKey, ["radians", distance]);      
+      redisKey = addToRedisKey(redisKey, "radians", distance);      
       }
-     console.log('qP'.red + JSON.stringify(queryParams));
    // Search for name
    if (queryParts.name) {
       queryParams.where = {
          name: queryParts.name
       }
-      addToRedisKey(redisKey, ["name", queryParts.name]);      
+      addToRedisKey(redisKey, "name", queryParts.name);      
    }
    
-   else if (queryParts.description) {
+   if (queryParts.description) {
       queryParams.where = {
          description: queryParts.description
       }
       redisKey += queryParts.description;
-      addToRedisKey(redisKey, ["description", queryParts.description]);      
+      addToRedisKey(redisKey, "description", queryParts.description);      
    }
-   else if (queryParts.keywords) {
-   console.log('qP'.red + JSON.stringify(queryParams));
+   if (queryParts.keywords) {
       var mode = 'compound';
-      addToRedisKey(redisKey, "keywords", queryParts.keywords);      
-            addToRedisKey(redisKey, "mode", mode);      
+      redisKey = addToRedisKey(redisKey, "keywords", queryParts.keywords);      
+      redisKey = addToRedisKey(redisKey, "mode", mode);      
       if (queryParts.mode && (queryParts.mode === "compound" || queryParts.mode === "filter")){
          mode = queryParts.mode;
       } 
@@ -281,13 +279,10 @@ server.get('/spot', function(req, res) {
       console.log('params: ' + params);
       var json = JSON.parse(params);
       console.log('jsonified: ' + JSON.stringify(json));
-      //queryParams = json;
       logger.debug('keywords params: ' + JSON.stringify(queryParams));
       
    }
-   else if (lat && lon) {      
-      var log = 'here: lat:' + lat + ', lon:' + lon;
-      console.log(log.red);
+   if (lat && lon) {      
       // query with parameters
       queryParams = {
          limit : limit,
@@ -306,17 +301,19 @@ server.get('/spot', function(req, res) {
         }
       }
    }
+   
    if (distanceFormat != null) {
+      logger.error('here, queryParams:' + JSON.stringify(queryParams));
       if (distanceFormat.indexOf('K') != -1)  queryParams.where.location.$maxDistanceInKilometers = distance;
       else if (distanceFormat.indexOf('M') != -1)  queryParams.where.location.$maxDistanceInMiles = distance;
       else if (distanceFormat.indexOf('R') != -1)  queryParams.where.location.$maxDistanceInRadians = distance;
+            logger.error('here2'); 
    }
   
    
    
    if (distance == -1) {
       delete params.maxDistanceInMiles;
-      logger.debug("params after delete: " + JSON.stringify(params));
    }
    var resp, dateStart, dateEnd, diff;
    client.exists(redisKey , function (err, replies){
@@ -328,28 +325,24 @@ server.get('/spot', function(req, res) {
             dateEnd = new Date().getUTCMilliseconds();
             diff = dateEnd - dateStart;
             console.log('took ' + diff / 1000 + ' milli seconds');
-            logger.error('what'.red + replies.red + '|finito');
             var json = JSON.parse(replies);
-            logger.info('key found, returning redis value1: ' + JSON.stringify(json));
             res.send(json); 
          });
       }
       else if (replies == 0) {
          dateStart =  new Date().getUTCMilliseconds();
-              console.log('making request: qP'.red + JSON.stringify(queryParams));
+         logger.debug('making request: queryParams'.red + JSON.stringify(queryParams));
          parse.getObjects('Spot', queryParams, function(err, response, body, success) {      
             //console.log('spots  found:\n', body);    
             client.set(redisKey, JSON.stringify(body), function(err, replies) {            
             dateEnd = new Date().getUTCMilliseconds();
             diff = dateEnd - dateStart;
-            //console.log('key set, check redis! reply: ' + replies);
-            console.log('took ' + diff / 1000 + ' seconds');
+            //console.log('key set, check redis! reply: ' + replies)
             client.expire(redisKey, redisExpireTime, function (err, replies) {
                console.log('expire set for ' + redisKey + ' to ' + redisExpireTime + ' seconds.');
             });
             
          });  
-         logger.error('what'.blue + replies.red + '|finito');
          res.send(body);
       
       });
@@ -548,13 +541,18 @@ function createSpot(spot,res) {
    
 };
 
-function addToRedisKey(key, array) {
-   var retString = key;
-   array.forEach(function(item)
-   {
-      retString += item + ":";
-   });
-   return retString; 
+function addToRedisKey(redisKey, key, array) {
+   //logger.debug('addToRedisKey: ' + key + ', ' + array);
+   var retString = key + ':';
+   if (array instanceof Array ) {
+      array.forEach(function(item)
+      {
+         retString += item + ":";
+      });
+   } else retString += array + ':'
+   redisKey += retString;
+   //logger.debug('new redisKey: '.yellow + redisKey);
+   return redisKey
 }
 
 /**
@@ -564,7 +562,7 @@ function updateSpot(spot) {
     if (!spot.objectId) {
        throw new Error("No ID in object");
     }
-   console.log('spot to create: ' + JSON.stringify(spot));
+   logger.info('spot to create: ' + JSON.stringify(spot));
    // remove Parse internal readonly fields before sending
    /*
 delete spot.objectId;
