@@ -22,6 +22,8 @@
    		"frontend": {
    			"title":"KiteCaster - Beta"
    		},
-   		"fakedSession": "abcd383393"
+   		"fakedSession": "abcd383393",
+   		"fakeip": "8.8.8.8",
+   		"development": "true"
    }
 }

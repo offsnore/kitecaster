@@ -5,13 +5,33 @@ mixin widget(name, header, pageinfo)
 		h2(class="header")= header
 		div(class="content")= pageinfo
 
+mixin feed(name, score, date)
+	.feed(name='feed').well
+		h3.header= name
+		.details
+			p.date Last Updated #{dateNow(date)}
+		.score
+			if (score == "3") 
+				.threestars
+			if (score == "2") 
+				.twostars
+			if (score == "1") 
+				.onestars
+mixin sort()
+	.sort.well
+		h3 Sort By
+		select.span3
+			option(value='0') Score Only
+			option(value='1') Distance from #{location().city}, #{location().region}
+			option(value='2') Score & Distance from #{location().city}, #{location().region}
+		
 block content
 	#kitecasterapp
 		.title
 			h1= title
 		include includes/navigation
 		.content
-			each info in body.content
-				p= info
-			each widget in body.widgets
-				mixin widget(widget.name, widget.header, widget.content, widget.filename)
+			p Your Location: #{location().city}, #{location().region}
+			mixin sort
+			mixin feed('Tampa,FL', '3', '04/10/2013 11:02:00 AM')
+			mixin feed('Miami,FL', '2', '04/09/2013 11:02:00 AM')
