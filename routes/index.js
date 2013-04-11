@@ -2,7 +2,9 @@
 /**
  * Do a general pull for Global Site Configs
  */
-var nconf = require('nconf')
+var 
+	fs = require('fs')
+  , nconf = require('nconf')
   , winston = require('winston')
   , Parse = require('parse-api').Parse
   , moment = require('moment')
@@ -106,6 +108,13 @@ exports.mainIndex = function(req, res) {
 // Spots Page for Application
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
 exports.mainSpot = function(req, res) {
+	var nconf = getSettings();
+	// only for Dev
+	if (nconf.get('site:development') !== false) {
+		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
+	}
+	var geo_location = lookup.geolookup.getCurrent(req);
+
 	var params = {
 		page: {
 			active: 'Spots',
@@ -126,10 +135,94 @@ exports.mainSpot = function(req, res) {
 	        var yy = dateNow.getFullYear().toString().substr(2);
 	
 	        return (mm + '/' + dd + '/' + yy);
+	    },
+	    location: function() {
+	    	return geo_location;
 	    }
 	}
-	res.render('main', params);
+	res.render('spot', params);
 };
+
+// Spots Page for Application
+// @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
+exports.newSpot = function(req, res) {
+	var nconf = getSettings();
+	// only for Dev
+	if (nconf.get('site:development') !== false) {
+		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
+	}
+	var geo_location = lookup.geolookup.getCurrent(req);
+	var params = {
+		page: {
+			active: 'Spots',
+		},
+		title: nconf.get('site:frontend:title'),
+		credits: "testing",
+		body: {
+			content: {
+				pageinfo: "first entry into spots page"
+			},
+			widgets: []
+		},
+	    dateNow: function() {
+	        var dateNow = new Date();
+	        var dd = dateNow.getDate();
+	        var monthSingleDigit = dateNow.getMonth() + 1,
+	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+	        var yy = dateNow.getFullYear().toString().substr(2);
+	
+	        return (mm + '/' + dd + '/' + yy);
+	    },
+	    location: function() {
+	    	return geo_location;
+	    }
+	}
+	res.render('newspot', params);
+};
+
+exports.newSpotSave = function(req, res) {
+	var nconf = getSettings();
+	// only for Dev
+	if (nconf.get('site:development') !== false) {
+		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
+	}
+	var geo_location = lookup.geolookup.getCurrent(req);
+	var params = {
+		page: {
+			active: 'Spots',
+		},
+		title: nconf.get('site:frontend:title'),
+		credits: "testing",
+		body: {
+			content: {
+				pageinfo: "first entry into spots page"
+			},
+			widgets: []
+		},
+	    dateNow: function() {
+	        var dateNow = new Date();
+	        var dd = dateNow.getDate();
+	        var monthSingleDigit = dateNow.getMonth() + 1,
+	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+	        var yy = dateNow.getFullYear().toString().substr(2);
+	
+	        return (mm + '/' + dd + '/' + yy);
+	    },
+	    location: function() {
+	    	return geo_location;
+	    }
+	}
+
+	fs.readFile(req.files.spot_image.path, function (err, data) {
+		var newPath = __dirname + "/../public/media/" + req.files.spot_image.name;
+		fs.writeFile(newPath, data, function (err) {
+			if (err) {
+				console.log("shit, didn't write file to path.", err);
+			}
+	    });
+	});
+	res.render('newspot', params);
+}
 
 
 // Profile Page for Application
