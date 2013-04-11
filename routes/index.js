@@ -4,7 +4,9 @@
  */
 var nconf = require('nconf')
   , winston = require('winston')
-  , Parse = require('parse-api').Parse;
+  , Parse = require('parse-api').Parse
+  , moment = require('moment')
+  , lookup = require('../services/UserGeoIP');
 
 function getSettings() {
 	nconf.argv()
@@ -48,26 +50,60 @@ exports.test = function(req, res){
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
 exports.mainIndex = function(req, res) {
 	var nconf = getSettings();
-	var params = {
-		page: {
-			active: 'Home',
-		},
-		title: nconf.get('site:frontend:title'),
-		credits: "testing",
-		body: {
-			content: {
-				pageinfo: "first entry into page",
-			},
-			widgets: [
-				{
-					name: "feed",
-					header: "feed info",
-					content: ""
-				}
-			]
-		}
+
+	console.log(nconf.get('site:development'));
+
+	if (nconf.get('site:development') !== false) {
+		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
 	}
-	res.render('main', params);
+	var geo_location = lookup.geolookup.getCurrent(req);
+	var session_id = nconf.get('site:fakedSession');
+	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
+	var profile_data = {};
+	parseApp.find('Profiles', {'session_id': session_id}, function (err, response) {
+		if (response.results.length > 0) {
+			var profile_data = response.results[0];
+		}
+		var params = {
+			page: {
+				active: 'Home',
+			},
+			title: nconf.get('site:frontend:title'),
+			credits: "testing",
+			body: {
+				content: {
+					pageinfo: "first entry into page",
+				},
+				widgets: [
+					{
+						name: "feed",
+						header: "feed info",
+						content: ""
+					}
+				]
+			},
+			data: {
+				profile_data: profile_data			
+			},
+		    dateNow: function(date) {
+			    if (date) {
+				    var dateValue = new Date(date);
+				    return moment(dateValue).fromNow();
+			    }
+		        var dateNow = new Date();
+		        var dd = dateNow.getDate();
+		        var monthSingleDigit = dateNow.getMonth() + 1,
+		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+		        var yy = dateNow.getFullYear().toString().substr(2);
+		        return (mm + '/' + dd + '/' + yy);
+		    },
+		    location: function() {
+		    	console.log(geo_location);
+		    	return geo_location;
+		    }
+		}
+		res.render('main', params);
+	});
 };
 
 // Spots Page for Application
@@ -84,7 +120,16 @@ exports.mainSpot = function(req, res) {
 				pageinfo: "first entry into spots page"
 			},
 			widgets: []
-		}
+		},
+	    dateNow: function() {
+	        var dateNow = new Date();
+	        var dd = dateNow.getDate();
+	        var monthSingleDigit = dateNow.getMonth() + 1,
+	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+	        var yy = dateNow.getFullYear().toString().substr(2);
+	
+	        return (mm + '/' + dd + '/' + yy);
+	    }
 	}
 	res.render('main', params);
 };
@@ -93,6 +138,7 @@ exports.mainSpot = function(req, res) {
 // Profile Page for Application
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
 exports.mainProfile = function(req, res) {
+
 	// get Session Details
 	var session_id = nconf.get('site:fakedSession');
 	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
