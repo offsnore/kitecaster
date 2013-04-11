@@ -50,9 +50,7 @@ exports.test = function(req, res){
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
 exports.mainIndex = function(req, res) {
 	var nconf = getSettings();
-
-	console.log(nconf.get('site:development'));
-
+	// only for Dev
 	if (nconf.get('site:development') !== false) {
 		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
 	}
@@ -98,7 +96,6 @@ exports.mainIndex = function(req, res) {
 		        return (mm + '/' + dd + '/' + yy);
 		    },
 		    location: function() {
-		    	console.log(geo_location);
 		    	return geo_location;
 		    }
 		}
