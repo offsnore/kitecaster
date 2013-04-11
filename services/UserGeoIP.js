@@ -1,8 +1,8 @@
 var app = module.exports.geolookup = {};
 
 app.getCurrent = function(req) {
-	if (req.headers['X-Forwarded-For']) {
-		var ip = req.headers['X-Forwarded-For'];
+	if (req.headers['x-forwarded-for']) {
+		var ip = req.headers['x-forwarded-for'];
 	} else {
 		var ip = req.connection.remoteAddress;
 	}
