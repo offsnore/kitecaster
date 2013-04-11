@@ -5,10 +5,9 @@
 			$("#gender").attr("value", $(this).attr('id'));
 		})
 		var default_value = 150;
-		if ($("#travel_distance").val().length > 0) {
+		if ($("#travel_distance").length > 0) {
 			var default_value = $("#travel_distance").val().toFixed(0);
 		}
-		console.log(default_value);
 		$(".distance").slider({
 		    orientation: "horizontal",
 		    range: "min",

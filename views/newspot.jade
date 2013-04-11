@@ -1,0 +1,57 @@
+extends main-layout
+
+mixin widget(name, header, pageinfo)
+	.widget(class=name)
+		h2(class="header")= header
+		div(class="content")= pageinfo
+
+block content
+	#kitecasterapp
+		.title
+			h1= title
+		include includes/navigation
+		.content
+			if (body.status)
+				div
+					h3.well.btn-success= body.status
+			div.row-fluid
+				form(action='/main/spots/new/save', method='post', enctype="multipart/form-data").form-horizontal
+					div.well
+						h3 Add a new spot
+						div.control-group
+							label.control-label(for='input_location') Location Name
+							div.controls
+								- var loc = location().city + ", " + location().region;
+								input(name='name', id='input_location', value=loc).span11.search-query
+						div.control-group
+							label.control-label(for='input_description') Brief Description
+							div.controls
+								textarea(name='input_description', id='input_description', rows=3).span11
+						div.control-group
+							label.control-label Water Conditions
+							div.controls
+								div.btn-group(data-toggle='buttons-radio')
+									input(type='button', value='sound', name='input_', id='').btn.btn-primary.active Sound
+									input(type='button', value='flatwater', name='input_', id='').btn.btn-primary Flatwater
+									input(type='button', value='choppy', name='input_', id='').btn.btn-primary Choppy
+									input(type='button', value='ocean', name='input_', id='').btn.btn-primary Ocean
+						div.control-group
+							label.control-label 
+								p Warnings (obstacles, docks)
+							div.controls
+								input(name='name', id='input_location', value='').span11.search-query
+						div.control-group
+							label.control-label 
+								p Rating
+							div.controls
+								div.btn-group(data-toggle='buttons-radio')
+									input(type='button', value='Good', name='input_', id='').btn.btn-primary.active Sound
+									input(type='button', value='Solid', name='input_', id='').btn.btn-primary Flatwater
+									input(type='button', value='Awesome', name='input_', id='').btn.btn-primary Choppy
+						div.control-group
+							label.control-label Pictures
+							div.controls
+								input(type='file', name='spot_image', id='input_location', value='').span11.search-query
+						div.control-group
+							div.controls
+								input(type='submit', value='Save Profile').btn.btn-success

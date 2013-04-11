@@ -114,8 +114,10 @@ app.get('/start', routes.start);
 // @todo make this routing come from a config file and executed via a LOOP
 app.get('/main', routes.mainIndex);
 app.get('/main/spots', routes.mainSpot);
-app.get('/main/profile', routes.mainProfile);
+app.get('/main/spots/new', routes.newSpot);
+app.post('/main/spots/new/save', routes.newSpotSave);
 
+app.get('/main/profile', routes.mainProfile);
 app.post('/main/profile/save', routes.mainProfileSave);
 
 /* Start API Apps */
