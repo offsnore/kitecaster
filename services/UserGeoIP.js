@@ -7,7 +7,7 @@ app.getCurrent = function(req) {
 		var ip = req.connection.remoteAddress;
 	}
 	var sys = require('util'),
-	    geoip = require('../node_modules/node-geoip/lib/geoip');	
+	    geoip = require('../node_modules/node-geoloc/lib/geoip');	
 	var geo = geoip.lookup(ip);
 	if (geo) {
 		return geo;
