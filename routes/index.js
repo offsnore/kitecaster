@@ -8,7 +8,8 @@ var
   , winston = require('winston')
   , Parse = require('parse-api').Parse
   , moment = require('moment')
-  , lookup = require('../services/UserGeoIP');
+  , lookup = require('../services/UserGeoIP')
+  , Datastore = require('../services/DataStore');
 
 function getSettings() {
 	nconf.argv()
@@ -60,6 +61,19 @@ exports.mainIndex = function(req, res) {
 	var session_id = nconf.get('site:fakedSession');
 	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
 	var profile_data = {};
+
+	// Gets the most up-to-date Info based on DataStore Logic
+	Datastore.records.getCurrent("Profiles", {"session_id": session_id}, function(data){
+		console.log(data);
+	});
+
+	console.log(Datastore.records);
+		
+//	records.getCurrent({"session_id": session_id}, "Profiles");
+//	console.log(records);
+	
+	res.send('test output');
+	
 	parseApp.find('Profiles', {'session_id': session_id}, function (err, response) {
 		if (response.results.length > 0) {
 			var profile_data = response.results[0];
