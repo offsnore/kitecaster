@@ -26,28 +26,30 @@ block content
 						div.control-group
 							label.control-label(for='input_description') Brief Description
 							div.controls
-								textarea(name='input_description', id='input_description', rows=3).span11
+								textarea(name='description', id='input_description', rows=3).span11
 						div.control-group
 							label.control-label Water Conditions
 							div.controls
 								div.btn-group(data-toggle='buttons-radio')
-									input(type='button', value='sound', name='input_', id='').btn.btn-primary.active Sound
-									input(type='button', value='flatwater', name='input_', id='').btn.btn-primary Flatwater
-									input(type='button', value='choppy', name='input_', id='').btn.btn-primary Choppy
-									input(type='button', value='ocean', name='input_', id='').btn.btn-primary Ocean
+									input(type='button', value='sound', name='input_condition', id='sound').btn.btn-primary.active Sound
+									input(type='button', value='flatwater', name='input_condition', id='flatwater').btn.btn-primary Flatwater
+									input(type='button', value='choppy', name='input_condition', id='choppy').btn.btn-primary Choppy
+									input(type='button', value='ocean', name='input_condition', id='ocean').btn.btn-primary Ocean
+									input(type='hidden', name='condition', id='condition', value="")
 						div.control-group
 							label.control-label 
 								p Warnings (obstacles, docks)
 							div.controls
-								input(name='name', id='input_location', value='').span11.search-query
+								input(name='warning', id='input_warning', value='').span11.search-query
 						div.control-group
 							label.control-label 
 								p Rating
 							div.controls
 								div.btn-group(data-toggle='buttons-radio')
-									input(type='button', value='Good', name='input_', id='').btn.btn-primary.active Sound
-									input(type='button', value='Solid', name='input_', id='').btn.btn-primary Flatwater
-									input(type='button', value='Awesome', name='input_', id='').btn.btn-primary Choppy
+									input(type='button', value='Good', name='input_rating', id='good').btn.btn-primary.active Good
+									input(type='button', value='Solid', name='input_rating', id='solid').btn.btn-primary Solid
+									input(type='button', value='Awesome', name='input_rating', id='awesome').btn.btn-primary Awesome
+									input(type='hidden', name='rating', id='rating', value="")
 						div.control-group
 							label.control-label Pictures
 							div.controls

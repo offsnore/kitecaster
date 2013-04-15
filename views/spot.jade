@@ -4,6 +4,30 @@ mixin widget(name, header, pageinfo)
 	.widget(class=name)
 		h2(class="header")= header
 		div(class="content")= pageinfo
+		
+mixin spot_widget(data)
+	.feed(name='feed').well
+		h3.header= data.name
+		.warning
+			h5 Warnings: 
+				= data.warning
+		.condition
+			h5 Condition: 
+				= data.condition
+		.description
+			p= data.description
+		.distance
+			h5 Distance from you: 0 Miles
+		.score
+			if (data.rating == "awesome") 
+				.threestars
+			if (data.rating == "solid") 
+				.twostars
+			if (data.rating == "good") 
+				.onestars		
+		p
+		.details
+			p.date Last Updated #{dateNow(data.updatedAt)}
 
 block content
 	#kitecasterapp
@@ -15,3 +39,9 @@ block content
 				div
 					h3.well.btn-success= body.status
 			a.btn.btn-primary(href='/main/spots/new') Add New Spot
+			if (data.spot_list)
+				each spot in data.spot_list
+					mixin spot_widget(spot)
+			else 
+				div.well
+					p Oops, we don't have any spots yet. Add one now!
