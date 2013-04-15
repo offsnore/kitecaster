@@ -8,7 +8,8 @@ var
   , winston = require('winston')
   , Parse = require('parse-api').Parse
   , moment = require('moment')
-  , lookup = require('../services/UserGeoIP');
+  , lookup = require('../services/UserGeoIP')
+  , Datastore = require('../services/DataStore');
 
 function getSettings() {
 	nconf.argv()
@@ -60,6 +61,58 @@ exports.mainIndex = function(req, res) {
 	var session_id = nconf.get('site:fakedSession');
 	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
 	var profile_data = {};
+
+	// Gets the most up-to-date Info based on DataStore Logic
+	Datastore.records.getCurrent("Profiles", {"session_id": session_id}, function(data){
+//		if (data.length > 0) {
+//			var profile_data = response.results[0];
+//		}
+		var params = {
+			page: {
+				active: 'Home',
+			},
+			title: nconf.get('site:frontend:title'),
+			credits: "testing",
+			body: {
+				content: {
+					pageinfo: "first entry into page",
+				},
+				widgets: [
+					{
+						name: "feed",
+						header: "feed info",
+						content: ""
+					}
+				]
+			},
+			data: {
+				profile_data: profile_data			
+			},
+		    dateNow: function(date) {
+			    if (date) {
+				    var dateValue = new Date(date);
+				    return moment(dateValue).fromNow();
+			    }
+		        var dateNow = new Date();
+		        var dd = dateNow.getDate();
+		        var monthSingleDigit = dateNow.getMonth() + 1,
+		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+		        var yy = dateNow.getFullYear().toString().substr(2);
+		        return (mm + '/' + dd + '/' + yy);
+		    },
+		    location: function() {
+		    	return geo_location;
+		    }
+		}
+		res.render('main', params);
+	});
+
+/**
+	console.log(Datastore.records);
+		
+//	records.getCurrent({"session_id": session_id}, "Profiles");
+//	console.log(records);
+		
 	parseApp.find('Profiles', {'session_id': session_id}, function (err, response) {
 		if (response.results.length > 0) {
 			var profile_data = response.results[0];
@@ -103,6 +156,7 @@ exports.mainIndex = function(req, res) {
 		}
 		res.render('main', params);
 	});
+**/
 };
 
 // Spots Page for Application
@@ -115,32 +169,43 @@ exports.mainSpot = function(req, res) {
 	}
 	var geo_location = lookup.geolookup.getCurrent(req);
 
-	var params = {
-		page: {
-			active: 'Spots',
-		},
-		title: nconf.get('site:frontend:title'),
-		credits: "testing",
-		body: {
-			content: {
-				pageinfo: "first entry into spots page"
+	// get Session Details
+	var session_id = nconf.get('site:fakedSession');
+
+	Datastore.records.getCurrent("Spots", "*", function(records){
+		if (records.results) {
+			var records = records.results;
+		}
+		var params = {
+			page: {
+				active: 'Spots',
 			},
-			widgets: []
-		},
-	    dateNow: function() {
-	        var dateNow = new Date();
-	        var dd = dateNow.getDate();
-	        var monthSingleDigit = dateNow.getMonth() + 1,
-	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
-	        var yy = dateNow.getFullYear().toString().substr(2);
-	
-	        return (mm + '/' + dd + '/' + yy);
-	    },
-	    location: function() {
-	    	return geo_location;
-	    }
-	}
-	res.render('spot', params);
+			title: nconf.get('site:frontend:title'),
+			credits: "testing",
+			data: {
+				spot_list: records
+			},
+			body: {
+				content: {
+					pageinfo: "first entry into spots page"
+				},
+				widgets: []
+			},
+		    dateNow: function() {
+		        var dateNow = new Date();
+		        var dd = dateNow.getDate();
+		        var monthSingleDigit = dateNow.getMonth() + 1,
+		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+		        var yy = dateNow.getFullYear().toString().substr(2);
+		
+		        return (mm + '/' + dd + '/' + yy);
+		    },
+		    location: function() {
+		    	return geo_location;
+		    }
+		}
+		res.render('spot', params);
+	});
 };
 
 // Spots Page for Application
@@ -152,6 +217,7 @@ exports.newSpot = function(req, res) {
 		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
 	}
 	var geo_location = lookup.geolookup.getCurrent(req);
+
 	var params = {
 		page: {
 			active: 'Spots',
@@ -186,6 +252,10 @@ exports.newSpotSave = function(req, res) {
 	if (nconf.get('site:development') !== false) {
 		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
 	}
+
+	// get Session Details
+	var session_id = nconf.get('site:fakedSession');
+
 	var geo_location = lookup.geolookup.getCurrent(req);
 	var params = {
 		page: {
@@ -213,15 +283,20 @@ exports.newSpotSave = function(req, res) {
 	    }
 	}
 
-	fs.readFile(req.files.spot_image.path, function (err, data) {
-		var newPath = __dirname + "/../public/media/" + req.files.spot_image.name;
-		fs.writeFile(newPath, data, function (err) {
-			if (err) {
-				console.log("shit, didn't write file to path.", err);
-			}
-	    });
+	if (req.files.spot_image.path) {
+		fs.readFile(req.files.spot_image.path, function (err, data) {
+			var newPath = __dirname + "/../public/media/" + req.files.spot_image.name;
+			fs.writeFile(newPath, data, function (err) {
+				if (err) {
+					console.log("shit, didn't write file to path.", err);
+				}
+		    });
+		});
+	}
+	
+	Datastore.records.save("Spots", {"session_id": session_id}, req.body, function(err, data){
+		res.render('newspot', params);
 	});
-	res.render('newspot', params);
 }
 
 
