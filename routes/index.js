@@ -64,9 +64,6 @@ exports.mainIndex = function(req, res) {
 
 	// Gets the most up-to-date Info based on DataStore Logic
 	Datastore.records.getCurrent("Profiles", {"session_id": session_id}, function(data){
-//		if (data.length > 0) {
-//			var profile_data = response.results[0];
-//		}
 		var params = {
 			page: {
 				active: 'Home',
@@ -106,57 +103,6 @@ exports.mainIndex = function(req, res) {
 		}
 		res.render('main', params);
 	});
-
-/**
-	console.log(Datastore.records);
-		
-//	records.getCurrent({"session_id": session_id}, "Profiles");
-//	console.log(records);
-		
-	parseApp.find('Profiles', {'session_id': session_id}, function (err, response) {
-		if (response.results.length > 0) {
-			var profile_data = response.results[0];
-		}
-		var params = {
-			page: {
-				active: 'Home',
-			},
-			title: nconf.get('site:frontend:title'),
-			credits: "testing",
-			body: {
-				content: {
-					pageinfo: "first entry into page",
-				},
-				widgets: [
-					{
-						name: "feed",
-						header: "feed info",
-						content: ""
-					}
-				]
-			},
-			data: {
-				profile_data: profile_data			
-			},
-		    dateNow: function(date) {
-			    if (date) {
-				    var dateValue = new Date(date);
-				    return moment(dateValue).fromNow();
-			    }
-		        var dateNow = new Date();
-		        var dd = dateNow.getDate();
-		        var monthSingleDigit = dateNow.getMonth() + 1,
-		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
-		        var yy = dateNow.getFullYear().toString().substr(2);
-		        return (mm + '/' + dd + '/' + yy);
-		    },
-		    location: function() {
-		    	return geo_location;
-		    }
-		}
-		res.render('main', params);
-	});
-**/
 };
 
 // Spots Page for Application
@@ -211,6 +157,44 @@ exports.mainSpot = function(req, res) {
 // Spots Page for Application
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
 exports.newSpot = function(req, res) {
+	var nconf = getSettings();
+	// only for Dev
+	if (nconf.get('site:development') !== false) {
+		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
+	}
+	var geo_location = lookup.geolookup.getCurrent(req);
+
+	var params = {
+		page: {
+			active: 'Spots',
+		},
+		title: nconf.get('site:frontend:title'),
+		credits: "testing",
+		body: {
+			content: {
+				pageinfo: "first entry into spots page"
+			},
+			widgets: []
+		},
+	    dateNow: function() {
+	        var dateNow = new Date();
+	        var dd = dateNow.getDate();
+	        var monthSingleDigit = dateNow.getMonth() + 1,
+	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+	        var yy = dateNow.getFullYear().toString().substr(2);
+	
+	        return (mm + '/' + dd + '/' + yy);
+	    },
+	    location: function() {
+	    	return geo_location;
+	    }
+	}
+	res.render('newspot', params);
+};
+
+// Spots Page for Application
+// @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
+exports.editSpot = function(req, res) {
 	var nconf = getSettings();
 	// only for Dev
 	if (nconf.get('site:development') !== false) {

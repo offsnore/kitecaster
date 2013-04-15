@@ -26,7 +26,6 @@ app.getCurrent = function(db, key, callback) {
 	}
 	var hashkey = crypto.createHash("md5").update(hashkey).digest("hex");
 	client.get(hashkey, function(err, reply) {
-		console.log('found it?', err, reply);
 		if (reply) {
 			app.results = JSON.parse(reply);
 			var found = true;

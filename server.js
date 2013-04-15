@@ -116,6 +116,7 @@ app.get('/main', routes.mainIndex);
 app.get('/main/spots', routes.mainSpot);
 app.get('/main/spots/new', routes.newSpot);
 app.post('/main/spots/new/save', routes.newSpotSave);
+app.get('/main/spots/edit/*', routes.editSpot);
 
 app.get('/main/profile', routes.mainProfile);
 app.post('/main/profile/save', routes.mainProfileSave);

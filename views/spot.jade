@@ -7,6 +7,9 @@ mixin widget(name, header, pageinfo)
 		
 mixin spot_widget(data)
 	.feed(name='feed').well
+		a.btn.btn-info(href='/main/spots/edit/' + data.objectId) Modify Spot
+		&nbsp;
+		a.btn.btn-warning(href='/main/spots/subscribe/' + data.objectId) Subscribe
 		h3.header= data.name
 		.warning
 			h5 Warnings: 
@@ -39,6 +42,7 @@ block content
 				div
 					h3.well.btn-success= body.status
 			a.btn.btn-primary(href='/main/spots/new') Add New Spot
+			p
 			if (data.spot_list)
 				each spot in data.spot_list
 					mixin spot_widget(spot)
