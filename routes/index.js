@@ -192,8 +192,11 @@ exports.newSpot = function(req, res) {
 	res.render('newspot', params);
 };
 
-// Spots Page for Application
-// @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
+/**
+ * editSpot()
+ * Spots Page for Application
+ * @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
+ */
 exports.editSpot = function(req, res) {
 	var nconf = getSettings();
 	// only for Dev
@@ -201,35 +204,72 @@ exports.editSpot = function(req, res) {
 		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
 	}
 	var geo_location = lookup.geolookup.getCurrent(req);
-
-	var params = {
-		page: {
-			active: 'Spots',
-		},
-		title: nconf.get('site:frontend:title'),
-		credits: "testing",
-		body: {
-			content: {
-				pageinfo: "first entry into spots page"
-			},
-			widgets: []
-		},
-	    dateNow: function() {
-	        var dateNow = new Date();
-	        var dd = dateNow.getDate();
-	        var monthSingleDigit = dateNow.getMonth() + 1,
-	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
-	        var yy = dateNow.getFullYear().toString().substr(2);
-	
-	        return (mm + '/' + dd + '/' + yy);
-	    },
-	    location: function() {
-	    	return geo_location;
-	    }
+	var objectId = req.params[0];
+	if (objectId == '') {
+		errorPage(res, "We were unable to locate this spot (missing ID).");
 	}
-	res.render('newspot', params);
+	Datastore.records.find("Spots", objectId, function(records){
+		var params = {
+			page: {
+				active: 'Spots',
+			},
+			title: nconf.get('site:frontend:title'),
+			credits: "testing",
+			body: {
+				content: {
+					pageinfo: "first entry into spots page"
+				},
+				widgets: []
+			},
+			data: {
+				records: records
+			},
+		    dateNow: function() {
+		        var dateNow = new Date();
+		        var dd = dateNow.getDate();
+		        var monthSingleDigit = dateNow.getMonth() + 1,
+		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+		        var yy = dateNow.getFullYear().toString().substr(2);
+		
+		        return (mm + '/' + dd + '/' + yy);
+		    },
+		    location: function() {
+		    	return geo_location;
+		    }
+		}
+		res.render('newspot', params);
+	});
 };
 
+/**
+ * editSpotSave()
+ * @param req
+ * @param res
+ */
+exports.editSpotSave = function(req, res) {
+	var nconf = getSettings();
+	// only for Dev
+	if (nconf.get('site:development') !== false) {
+		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
+	}
+	var objectId = req.params[0];
+	if (objectId == '') {
+		errorPage(res, "We were unable to locate this spot (missing ID).");
+	}
+	// get Session Details
+	var session_id = nconf.get('site:fakedSession');
+	// @todo Include images in 'update'
+	Datastore.records.save("Spots", objectId, req.body, function(){
+		// nothing to report, it just wroks .. hrmm maybe invalidate the record?
+	});
+	res.redirect('/main/spots');	
+};
+
+/**
+ * newSpotSave()
+ * @param req
+ * @param res
+ */
 exports.newSpotSave = function(req, res) {
 	var nconf = getSettings();
 	// only for Dev
@@ -316,6 +356,11 @@ exports.mainProfile = function(req, res) {
 	});
 };
 
+/**
+ * mainProfileSave()
+ * @param req
+ * @param res
+ */
 exports.mainProfileSave = function(req, res) {
 	// add submit to Parse()
 	// add validation model
@@ -360,6 +405,20 @@ exports.mainProfileSave = function(req, res) {
 	} catch (e) {
 		logger.debug(e);
 	}
+}
+
+/**
+ * errorPage
+ * General catch-all for error message pages
+ */
+function errorPage(res, message) {
+	res.render('error', {
+			'title': 'An unexpected error has occured.', 
+			'message' : (message ? message : 'An unexpected error has occured.'),
+			'page' : { 
+				'active':'error'
+			} 
+		});
 }
 
 /**

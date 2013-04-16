@@ -10,8 +10,9 @@ app.results = {}
 
 /**
  * Modules does a check into the LocalStore, if not there, hits DataStore, if found, saves to LocalStore
+ * @note Added alias 'find()' for 'getCurrent()' (falls more inline with save())
  */
-app.getCurrent = function(db, key, callback) {
+app.find = app.getCurrent = function(db, key, callback) {
 	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
 	var client = redis.createClient();
 	client.on("error", function(err) {
@@ -70,6 +71,7 @@ app.save = function(db, key, data, callback) {
 			//new winston.transports.File({ timestamp:true, filename: '/var/logs/kitecaster/server-exceptions.log' })
 		]
 	});
+
 	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
 	var client = redis.createClient();
 	client.on("error", function(err) {
@@ -77,8 +79,8 @@ app.save = function(db, key, data, callback) {
 	});
 	try {
 		parseApp.find(db, key, function (err, response) {
-			if (response.results.length > 0) {
-				var id = response.results[0].objectId;
+			if (response) {
+				var id = response.objectId;
 				parseApp.update(db, id, data, function (err, response) {
 					logger.debug("update result");
 					logger.debug(err);

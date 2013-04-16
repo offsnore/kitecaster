@@ -41,7 +41,10 @@ block content
 			if (body.status)
 				div
 					h3.well.btn-success= body.status
-			a.btn.btn-primary(href='/main/spots/new') Add New Spot
+			if (data)
+				a.btn.btn-primary(href='/main/spots/new') Modify Spot
+			else
+				a.btn.btn-primary(href='/main/spots/new') Add New Spot
 			p
 			if (data.spot_list)
 				each spot in data.spot_list
