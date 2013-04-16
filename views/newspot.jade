@@ -15,9 +15,13 @@ block content
 				div
 					h3.well.btn-success= body.status
 			div.row-fluid
-				form(action='/main/spots/edit/' + data.records.objectId, method='post', enctype="multipart/form-data").form-horizontal
+				if (data.records) 
+					- var url = '/main/spots/edit/' + data.records.objectId
+				else
+					- var url = '/main/spots/new/save';
+				form(action=url, method='post', enctype="multipart/form-data").form-horizontal
 					div.well
-						if (data.records)
+						if (data && data.records)
 							h3 Modify Spot
 						else
 							h3 Add a new spot

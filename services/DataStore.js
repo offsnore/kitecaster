@@ -55,6 +55,41 @@ app.find = app.getCurrent = function(db, key, callback) {
 }
 
 /**
+ * App.Create()
+ * Handles creating new objects in the Parse Store()
+ * @usage app.create('Profiles', {'session_id':'session_id, 'field1':'key1'}, function(err, response){});
+ */
+app.create = function(db, data, callback) {
+	var logger = new (winston.Logger)({
+		transports: [
+			new winston.transports.Console({timestamp:true})
+			//new winston.transports.File({ timestamp:true, filename: '/var/logs/kitecaster/server.log' })
+		],
+		exceptionHandlers: [
+			new winston.transports.Console({timestamp:true})
+			//new winston.transports.File({ timestamp:true, filename: '/var/logs/kitecaster/server-exceptions.log' })
+		]
+	});
+
+	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
+	var client = redis.createClient();
+	client.on("error", function(err) {
+		console.log("error event - " + client.host + ":" + client.port + " - " + err);
+	});
+	try {
+		parseApp.insert(db, data, function(err, response) {
+			logger.debug("insert result");
+			logger.debug(err);
+			logger.debug(JSON.stringify(response));
+			callback(err, response);
+		});
+	} catch (e) {
+		logger.debug(e);
+		return false;		
+	}
+};
+
+/**
  * App.Save()
  * Handles creating and/or updating records in the Parse Store
  * @usage app.save('profiles', {"session_id":session_id}, {"field1":"field_value"}, function(err, response){});
@@ -98,6 +133,7 @@ app.save = function(db, key, data, callback) {
 		});
 	} catch (e) {
 		logger.debug(e);
+		return false;
 	}
 	callback();
 }

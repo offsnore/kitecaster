@@ -187,7 +187,8 @@ exports.newSpot = function(req, res) {
 	    },
 	    location: function() {
 	    	return geo_location;
-	    }
+	    },
+	    data: {}
 	}
 	res.render('newspot', params);
 };
@@ -304,6 +305,9 @@ exports.newSpotSave = function(req, res) {
 	    },
 	    location: function() {
 	    	return geo_location;
+	    },
+	    data: {
+		    
 	    }
 	}
 
@@ -317,9 +321,15 @@ exports.newSpotSave = function(req, res) {
 		    });
 		});
 	}
+
+	// Fake SessionID	
+	var data = {};
+	data = req.body;
+	data['sesson_id'] = session_id;
 	
-	Datastore.records.save("Spots", {"session_id": session_id}, req.body, function(err, data){
-		res.render('newspot', params);
+	Datastore.records.create("Spots", data, function(err, data){
+		params.body['status'] = "You have successfully added this spot!";
+		res.render("newspot", params);
 	});
 }
 
