@@ -1,0 +1,15 @@
+extends main-layout
+
+block content
+	#kitecasterapp
+		.title
+			h2= title
+		include includes/navigation
+		.content
+			if (message)
+				div
+					h3.well.btn-warning
+						p= message
+			else
+				div
+					h3.well.btn-warning An unexpected error has occured.

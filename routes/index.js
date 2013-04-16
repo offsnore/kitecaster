@@ -64,9 +64,6 @@ exports.mainIndex = function(req, res) {
 
 	// Gets the most up-to-date Info based on DataStore Logic
 	Datastore.records.getCurrent("Profiles", {"session_id": session_id}, function(data){
-//		if (data.length > 0) {
-//			var profile_data = response.results[0];
-//		}
 		var params = {
 			page: {
 				active: 'Home',
@@ -106,57 +103,6 @@ exports.mainIndex = function(req, res) {
 		}
 		res.render('main', params);
 	});
-
-/**
-	console.log(Datastore.records);
-		
-//	records.getCurrent({"session_id": session_id}, "Profiles");
-//	console.log(records);
-		
-	parseApp.find('Profiles', {'session_id': session_id}, function (err, response) {
-		if (response.results.length > 0) {
-			var profile_data = response.results[0];
-		}
-		var params = {
-			page: {
-				active: 'Home',
-			},
-			title: nconf.get('site:frontend:title'),
-			credits: "testing",
-			body: {
-				content: {
-					pageinfo: "first entry into page",
-				},
-				widgets: [
-					{
-						name: "feed",
-						header: "feed info",
-						content: ""
-					}
-				]
-			},
-			data: {
-				profile_data: profile_data			
-			},
-		    dateNow: function(date) {
-			    if (date) {
-				    var dateValue = new Date(date);
-				    return moment(dateValue).fromNow();
-			    }
-		        var dateNow = new Date();
-		        var dd = dateNow.getDate();
-		        var monthSingleDigit = dateNow.getMonth() + 1,
-		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
-		        var yy = dateNow.getFullYear().toString().substr(2);
-		        return (mm + '/' + dd + '/' + yy);
-		    },
-		    location: function() {
-		    	return geo_location;
-		    }
-		}
-		res.render('main', params);
-	});
-**/
 };
 
 // Spots Page for Application
@@ -241,11 +187,90 @@ exports.newSpot = function(req, res) {
 	    },
 	    location: function() {
 	    	return geo_location;
-	    }
+	    },
+	    data: {}
 	}
 	res.render('newspot', params);
 };
 
+/**
+ * editSpot()
+ * Spots Page for Application
+ * @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
+ */
+exports.editSpot = function(req, res) {
+	var nconf = getSettings();
+	// only for Dev
+	if (nconf.get('site:development') !== false) {
+		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
+	}
+	var geo_location = lookup.geolookup.getCurrent(req);
+	var objectId = req.params[0];
+	if (objectId == '') {
+		errorPage(res, "We were unable to locate this spot (missing ID).");
+	}
+	Datastore.records.find("Spots", objectId, function(records){
+		var params = {
+			page: {
+				active: 'Spots',
+			},
+			title: nconf.get('site:frontend:title'),
+			credits: "testing",
+			body: {
+				content: {
+					pageinfo: "first entry into spots page"
+				},
+				widgets: []
+			},
+			data: {
+				records: records
+			},
+		    dateNow: function() {
+		        var dateNow = new Date();
+		        var dd = dateNow.getDate();
+		        var monthSingleDigit = dateNow.getMonth() + 1,
+		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+		        var yy = dateNow.getFullYear().toString().substr(2);
+		
+		        return (mm + '/' + dd + '/' + yy);
+		    },
+		    location: function() {
+		    	return geo_location;
+		    }
+		}
+		res.render('newspot', params);
+	});
+};
+
+/**
+ * editSpotSave()
+ * @param req
+ * @param res
+ */
+exports.editSpotSave = function(req, res) {
+	var nconf = getSettings();
+	// only for Dev
+	if (nconf.get('site:development') !== false) {
+		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
+	}
+	var objectId = req.params[0];
+	if (objectId == '') {
+		errorPage(res, "We were unable to locate this spot (missing ID).");
+	}
+	// get Session Details
+	var session_id = nconf.get('site:fakedSession');
+	// @todo Include images in 'update'
+	Datastore.records.save("Spots", objectId, req.body, function(){
+		// nothing to report, it just wroks .. hrmm maybe invalidate the record?
+	});
+	res.redirect('/main/spots');	
+};
+
+/**
+ * newSpotSave()
+ * @param req
+ * @param res
+ */
 exports.newSpotSave = function(req, res) {
 	var nconf = getSettings();
 	// only for Dev
@@ -280,6 +305,9 @@ exports.newSpotSave = function(req, res) {
 	    },
 	    location: function() {
 	    	return geo_location;
+	    },
+	    data: {
+		    
 	    }
 	}
 
@@ -293,9 +321,15 @@ exports.newSpotSave = function(req, res) {
 		    });
 		});
 	}
+
+	// Fake SessionID	
+	var data = {};
+	data = req.body;
+	data['sesson_id'] = session_id;
 	
-	Datastore.records.save("Spots", {"session_id": session_id}, req.body, function(err, data){
-		res.render('newspot', params);
+	Datastore.records.create("Spots", data, function(err, data){
+		params.body['status'] = "You have successfully added this spot!";
+		res.render("newspot", params);
 	});
 }
 
@@ -332,6 +366,11 @@ exports.mainProfile = function(req, res) {
 	});
 };
 
+/**
+ * mainProfileSave()
+ * @param req
+ * @param res
+ */
 exports.mainProfileSave = function(req, res) {
 	// add submit to Parse()
 	// add validation model
@@ -376,6 +415,20 @@ exports.mainProfileSave = function(req, res) {
 	} catch (e) {
 		logger.debug(e);
 	}
+}
+
+/**
+ * errorPage
+ * General catch-all for error message pages
+ */
+function errorPage(res, message) {
+	res.render('error', {
+			'title': 'An unexpected error has occured.', 
+			'message' : (message ? message : 'An unexpected error has occured.'),
+			'page' : { 
+				'active':'error'
+			} 
+		});
 }
 
 /**
