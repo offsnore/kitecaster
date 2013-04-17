@@ -34,11 +34,17 @@
 
 	nconf.argv()
 	       .env()
-	       .file({ file: '../settings.json' });   
+	       .file({ file: require('path').resolve(__dirname, '../settings.json') });
+
+	// just incase our config settings file goes missing again :)
+	if (!nconf.get("parse:appId")) {
+		console.log("Unable to locate 'Parse:AppID' in Config file (settings.json).");
+		process.exit();
+	}
 
 
 	var redisExpireTime = parseInt(nconf.get('redis:expireTime'));
-	var DEFAULT_PORT = 8081;
+	var DEFAULT_PORT = 8085;
 	var parse = new Parse( nconf.get('parse:appId'),  nconf.get('parse:restKey')); 
 	var restPort = DEFAULT_PORT;
 
@@ -105,12 +111,10 @@
 
 
 	// Create server
-	var server = restify.createServer();
-	
+	var server = restify.createServer();	
 	server.listen(restPort, function() {
 		console.log('%s listening at %s'.blue, server.name, server.url);
 	});
-	
 	
 	/**
 	   SPOT API
@@ -178,8 +182,9 @@
 	 * API: /Spot
 	 */
 	server.get('/spot', function(req, res) {
+
 		var queryParts = require('url').parse(req.url, true).query;
-		var lat, lon, distance = 30000, limit = 10,distanceFormat = null;
+		var lat, lon, distance = 30000, limit = 10, distanceFormat = null;
 		//   var redisKey = "spot:search:";
 		var redisKey = "";
 		redisKey = addToRedisKey(redisKey, "spot", "search");
@@ -248,7 +253,7 @@
 			var mode = 'compound';
 			redisKey = addToRedisKey(redisKey, "keywords", queryParts.keywords);      
 			redisKey = addToRedisKey(redisKey, "mode", mode);      
-			if (queryParts.mode && (queryParts.mode === "compound" || queryParts.mode === "filter")){
+			if (queryParts.mode && (queryParts.mode === "compound" || queryParts.mode === "filter")) {
 				mode = queryParts.mode;
 			}
 			var arr = queryParts.keywords.split(/,/);
@@ -318,9 +323,13 @@
 		}
 
 		var resp, dateStart, dateEnd, diff;
+
 		client.exists(redisKey , function (err, replies){
 			console.log('queryParams stringified: ' + redisKey);
 			console.log('redisKey ' + redisKey + ' exists? ' + replies);
+
+			var replies = 0;
+
 			if (replies === 1){
 				dateStart = new Date().getUTCMilliseconds();
 				client.get(redisKey, function(err, replies) { 
@@ -333,6 +342,9 @@
 			} else if (replies == 0) {
 				dateStart =  new Date().getUTCMilliseconds();
 				logger.debug('making request: queryParams'.red + JSON.stringify(queryParams));
+
+				console.log(parse);
+
 				parse.getObjects('Spot', queryParams, function(err, response, body, success) {      
 					//console.log('spots  found:\n', body);    
 					client.set(redisKey, JSON.stringify(body), function(err, replies) {            
@@ -446,25 +458,23 @@
 	      //console.log('dater: ' + data);
 	      var json, valid;
 	      try {
-	      json = JSON.parse(data);
+		      json = JSON.parse(data);
 	      } catch (err) {
-	         console.log('Error parsing data: ' + err);
-	         res.statusCode = 400;
-	         res.send(err);
-	         return;
-	      } 
-	      
+		      console.log('Error parsing data: ' + err);
+		      res.statusCode = 400;
+		      res.send(err);
+		      return;
+	      }
 	      valid = validate(json, updateSpotSchema);
 	      if (valid.length > 0 ) {
 	         res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
 	         return;
-	      }
-	      else if (json.lat > 90 || json.lat < -90  || json.lon < -180 || json.lon > 180){
+	      } else if (json.lat > 90 || json.lat < -90  || json.lon < -180 || json.lon > 180){
 	         res.statusCode = 400;
 	         res.send("Invalid lat/long format");
 	         return;
-	      }
-	      else {   
+	      } else {
+//		      Datastore.records.save("spot", json);
 	         updateSpot(json);
 	      }
 	      
