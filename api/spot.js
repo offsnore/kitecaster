@@ -133,12 +133,13 @@
 	   var api = {}
 	   api.queryParams = {
 	      GET : {    
-	         geoloc : {"[lat,lon]" : "Lattitude,Longitude",
-	                     "tested": true },
+	         geoloc : {"[lat,lon]" : "Lattitude,Longitude", "tested": true },
 	         lat : "Lattitude (required with lon)",
 	         lon : "Longitude (required with lat)",
-	         keywords: {"description": "search list of keywords, separated by comma",
-	                     mode: "queryParam: [filter/compound] - change keyword search mode"},
+	         keywords: {
+	         	description: "search list of keywords, separated by comma",
+	         	mode: "queryParam: [filter/compound] - change keyword search mode"
+	         },
 	         description: "search description field, partial matching",
 	         limit: "number: Limit number of results",
 	         miles: "number/metric: choose number of miles for search radius",
@@ -163,13 +164,11 @@
 	         description: "Update a Spot, request is JSON content",
 	         "/:id" : "Update Spot, must have required fields"
 	      },
-	      
+
 	      DELETE: {
 	         "/:id" : "Delete Spot by id"
 	      }
-	      
-	      
-	      
+
 	   };
 	   //res.send(updateSpotSchema);
 	   res.send(api);
@@ -387,54 +386,55 @@
 		});	    
 	});
 	
-	 
 	/*
-	   Example Spot POST:
-	   {
-	   "lat":24.0499,
-	   "lon":-109.9880,
-	   "name":"Test",
-	   "description": "Delete me",	
-	   "wind_directions": ["N", "NE", "E", "SE"]
-	   }
+	
+	Example Spot POST:
+	{
+	"lat":24.0499,
+	"lon":-109.9880,
+	"name":"Test",
+	"description": "Delete me",	
+	"wind_directions": ["N", "NE", "E", "SE"]
+	}
 	*/
+	/**
+	 * POST (Edit)
+	 */
 	server.post('/spot', function(req, res) {
-	   var queryParts = require('url').parse(req.url, true).query;
-	   var data = "";
-	   req.on('data', function(chunk) {
-	      data += chunk;
-	   });
-	   
-	   req.on('end', function() {
-	      //console.log('dater: ' + data);
-	      var json, valid;
-	      try {
-	      json = JSON.parse(data);
-	      } catch (err) {
-	         console.log('Error parsing data: ' + err);
-	         res.send(400, err);
-	         return;
-	      } 
-	      valid = validate(json, spotSchema);
-	      if (valid.length > 0 ) {
-	         console.log('Error validating spot schema:\n', valid);
-	         res.send(500, 'Error validating spot schema:\n' + valid);
-	         return;
-	      }
-	      else if (json.lat > 90 || json.lat < -90  || json.lon < -180 || json.lon > 180){
-	         res.statusCode = 400;
-	         res.send("Invalid lat/long format");
-	         return;
-	      }
-	      else {
-	         createSpot(json, res);
-	      }
-	   });
-	
+		var queryParts = require('url').parse(req.url, true).query;
+		var data = "";
+		req.on('data', function(chunk) {
+			data += chunk;
+		});
+		
+		req.on('end', function() {
+			//console.log('dater: ' + data);
+			var json, valid;
+			try {
+				json = JSON.parse(data);
+			} catch (err) {
+				console.log('Error parsing data: ' + err);
+				res.send(400, err);
+				return;
+			} 
+			valid = validate(json, spotSchema);
+			if (valid.length > 0 ) {
+				console.log('Error validating spot schema:\n', valid);
+				res.send(500, 'Error validating spot schema:\n' + valid);
+				return;
+			} else if (json.lat > 90 || json.lat < -90  || json.lon < -180 || json.lon > 180){
+				res.statusCode = 400;
+				res.send("Invalid lat/long format");
+				return;
+			} else {
+				createSpot(json, res);
+			}
+		});
 	});
-	
-	
-	
+
+	/**
+	 * PUT (Create)
+	 */
 	server.put('/spot/:id', function(req, res){
 	   var queryParts = require('url').parse(req.url, true).query;
 	   var data = "";
@@ -474,37 +474,34 @@
 	});
 	
 	server.del('/spot/:id', function(req, res) {
-	   var id = req.params.id;
-	   console.log('id: ' + id);
-	    var queryParams = {
-	            where: {spotId : parseInt(req.params.id)   },
-	         };
-	    parse.getObjects('Spot', queryParams , function(err, response, body, success) {
-	            console.log('found object = ', body, 'success: ' , success);
-	            var bodyJson = JSON.parse(JSON.stringify(body));
-	            if (body.length == 0) {
-	               res.send(404, "Spot " + req.params.id + " doesn't exist");
-	               return;
-	            }
-	            var spot = bodyJson[0];            
-	            var spotParseId = spot.objectId;
-	            logger.info('spotParseId to delete: '.red + spotParseId );
-	            parse.deleteObject("Spot", spotParseId, function(err, response, body, success){
-	               console.log( "body: " + JSON.stringify(body) + ', success: ' + success);
-	               if (err) {
-	                  res.sendError('Error deleting spot: ' + err);
-	               }
-	               else if (success === true) {
-	                  res.send('Spot ' + id + ' successfully deleted');
-	                  return;
-	               }
-	            });
-	         });      
-	   
-	
-	    
+		var id = req.params.id;
+		console.log('id: ' + id);
+		var queryParams = {
+			where: {
+				spotId : parseInt(req.params.id)   
+			},
+		};
+		parse.getObjects('Spot', queryParams , function(err, response, body, success) {
+			console.log('found object = ', body, 'success: ' , success);
+			var bodyJson = JSON.parse(JSON.stringify(body));
+			if (body.length == 0) {
+				res.send(404, "Spot " + req.params.id + " doesn't exist");
+				return;
+			}
+			var spot = bodyJson[0];            
+			var spotParseId = spot.objectId;
+			logger.info('spotParseId to delete: '.red + spotParseId );
+			parse.deleteObject("Spot", spotParseId, function(err, response, body, success){
+				console.log( "body: " + JSON.stringify(body) + ', success: ' + success);
+				if (err) {
+					res.sendError('Error deleting spot: ' + err);
+				} else if (success === true) {
+					res.send('Spot ' + id + ' successfully deleted');
+					return;
+				}
+			});
+		});
 	});
-	
 	
 	/**
 	   Function to call parse, create Spot object
@@ -537,41 +534,41 @@
 	};
 	
 	function addToRedisKey(redisKey, key, array) {
-	   //logger.debug('addToRedisKey: ' + key + ', ' + array);
-	   var retString = key + ':';
-	   if (array instanceof Array ) {
-	      array.forEach(function(item)
-	      {
-	         retString += item + ":";
-	      });
-	   } else retString += array + ':'
-	   redisKey += retString;
-	   //logger.debug('new redisKey: '.yellow + redisKey);
-	   return redisKey
+		//logger.debug('addToRedisKey: ' + key + ', ' + array);
+		var retString = key + ':';
+		if (array instanceof Array ) {
+			array.forEach(function(item) {
+				retString += item + ":";
+			});
+		} else {
+			retString += array + ':'
+		}
+		redisKey += retString;
+		//logger.debug('new redisKey: '.yellow + redisKey);
+		return redisKey
 	}
 	
 	/**
 	   Function to call parse, update existing Spot object
 	**/
 	function updateSpot(spot) {
-	    if (!spot.objectId) {
-	       throw new Error("No ID in object");
-	    }
-	   logger.info('spot to create: ' + JSON.stringify(spot));
-	   // remove Parse internal readonly fields before sending
-	   /*
-	delete spot.objectId;
-	   delete spot.createdAt;
-	   delete spot.updatedAt;
-	   
-	*/
-	   parse.updateObject("Spot", spot.objectId, spot, function(err, res, body, success) {
-	      console.log('object created = ', body);
-	      var redisKey = 'spot:id:' + spot.spotId;
-	      client.del(redisKey, function(error, reply) {
-	         logger.debug('stale key deleted: ' + redisKey);
-	      });
-	   });
+		if (!spot.objectId) {
+			throw new Error("No ID in object");
+		}
+		logger.info('spot to create: ' + JSON.stringify(spot));
+		// remove Parse internal readonly fields before sending
+		/*
+		delete spot.objectId;
+		delete spot.createdAt;
+		delete spot.updatedAt;
+		*/
+		parse.updateObject("Spot", spot.objectId, spot, function(err, res, body, success) {
+			console.log('object created = ', body);
+			var redisKey = 'spot:id:' + spot.spotId;
+			client.del(redisKey, function(error, reply) {
+				logger.debug('stale key deleted: ' + redisKey);
+			});
+		});
 	};
 	
 
