@@ -1,14 +1,14 @@
-	var restify = require('restify'),
-	    nconf = require('nconf'),
-	    validate = require('jsonschema').validate,
-	    Parse = require('kaiseki'),
-	    winston = require('winston'),
-	    redis = require("redis"),
-	    colors = require('colors'),
-	    //jsonify = require("redis-jsonify"),
-	    client = redis.createClient(),
-	    async = require('async'),
-	    logger = require('winston');
+	var restify = require('restify')
+	,	nconf = require('nconf')
+	,   validate = require('jsonschema').validate
+	,   Parse = require('kaiseki')
+	,   winston = require('winston')
+	,   redis = require("redis")
+	,   colors = require('colors')
+	,   client = redis.createClient()
+	,   async = require('async')
+	,   Datastore = require('../services/DataStore')
+	,   logger = require('winston');
 	    
 	redisSpotIdKey = 'spot:id:counter';
 	
@@ -16,17 +16,14 @@
 	   colorize : "true"
 	};
 	
-	//logger.add(logger.transports.Console, options)
-	//logger.loggers.options = options;
-	
 	var logger = new (winston.Logger)({
 		transports: [
-			new winston.transports.Console({timestamp:true})
-			//new winston.transports.File({ timestamp:true, filename: '/var/logs/kitecaster/server.log' })
+			new winston.transports.Console({timestamp:true}),
+			new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/spot_server.log') })
 		],
 		exceptionHandlers: [
-		    new winston.transports.Console({timestamp:true})
-			//new winston.transports.File({ timestamp:true, filename: '/var/logs/kitecaster/server-exceptions.log' })
+		    new winston.transports.Console({timestamp:true}),
+			new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/spot_server.log') })
 		] 
 	});
 
@@ -41,7 +38,6 @@
 		console.log("Unable to locate 'Parse:AppID' in Config file (settings.json).");
 		process.exit();
 	}
-
 
 	var redisExpireTime = parseInt(nconf.get('redis:expireTime'));
 	var DEFAULT_PORT = 8085;
@@ -130,9 +126,7 @@
 	   @limit  - number of results to return - tested
 	   @miles/km
 	   @radians
-	   
-	**/
-	
+	**/	
 	server.get('spot/api', function(req, res) {
 	   var api = {}
 	   api.queryParams = {
@@ -322,42 +316,9 @@
 			delete params.maxDistanceInMiles;
 		}
 
-		var resp, dateStart, dateEnd, diff;
-
-		client.exists(redisKey , function (err, replies){
-			console.log('queryParams stringified: ' + redisKey);
-			console.log('redisKey ' + redisKey + ' exists? ' + replies);
-
-			var replies = 0;
-
-			if (replies === 1){
-				dateStart = new Date().getUTCMilliseconds();
-				client.get(redisKey, function(err, replies) { 
-					dateEnd = new Date().getUTCMilliseconds();
-					diff = dateEnd - dateStart;
-					console.log('took ' + diff / 1000 + ' milli seconds');
-					var json = JSON.parse(replies);
-					res.send(json); 
-				});
-			} else if (replies == 0) {
-				dateStart =  new Date().getUTCMilliseconds();
-				logger.debug('making request: queryParams'.red + JSON.stringify(queryParams));
-
-				console.log(parse);
-
-				parse.getObjects('Spot', queryParams, function(err, response, body, success) {      
-					//console.log('spots  found:\n', body);    
-					client.set(redisKey, JSON.stringify(body), function(err, replies) {            
-						dateEnd = new Date().getUTCMilliseconds();
-						diff = dateEnd - dateStart;
-						//console.log('key set, check redis! reply: ' + replies)
-						client.expire(redisKey, redisExpireTime, function (err, replies) {
-							console.log('expire set for ' + redisKey + ' to ' + redisExpireTime + ' seconds.');
-						});		
-					});
-					res.send(body);
-				});
-			}
+		// Use DataStore Instead
+		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
+			res.send(body);
 		});
 
 	});
@@ -366,36 +327,19 @@
 	server.get('/spot/:id', function(req, res) {
 		//res.send('get spot id API: ' + req.params.id);
 		var id = parseInt(req.params.id);
-		logger.debug('Getting spot ID:', req.params.id);
-		var redisKey = 'spot:id:' + id;
-		client.exists(redisKey , function (err, reply){
-			if (reply === 1){
-				client.get(redisKey, function (err, replies) {
-					logger.debug('redisKey found for ' + redisKey + ': ' + replies);
-					res.send(JSON.parse(replies));
-				});
-			} else if (reply === 0) {
-				var queryParams = {
-					where: {spotId : parseInt(req.params.id)   },
-				};
-				logger.debug('queryParams: ' + JSON.stringify(queryParams));
-				parse.getObjects('Spot', queryParams , function(err, response, body, success) {
-					console.log('found object = ', body, 'success: ' , success);
-					var bodyJson = JSON.parse(JSON.stringify(body));
-					if (body.length == 0) {
-						res.send(404, "Spot " + req.params.id + " doesn't exist");
-						return;
-					}
-					client.set(redisKey,  JSON.stringify(bodyJson[0]), function (err, response, body, success) {
-						client.expire(redisKey, redisExpireTime, function (err, replies) {
-							console.log('expire set for ' + redisKey + ' to ' + redisExpireTime + ' seconds.');
-						});
-					});
-					res.send(bodyJson[0]);
-					return;
-				});
+		var queryParams = {
+			where: {
+				spotId: id
 			}
-		});	    
+		};
+		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
+			if (body.length == 0) {
+				res.send(404, "Spot " + id + " not found.");
+				return true;
+			} else {
+				res.send(body);
+			}
+		});
 	});
 	
 	/*
