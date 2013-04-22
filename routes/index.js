@@ -118,41 +118,46 @@ exports.mainSpot = function(req, res) {
 	// get Session Details
 	var session_id = nconf.get('site:fakedSession');
 
+	// @todo - make this use the API
+
+/*
 	Datastore.records.getCurrent("Spots", "*", function(records){
 		if (records.results) {
 			var records = records.results;
 		}
-		var params = {
-			spot_url: nconf.get('api:spot:frontend_url'),
-			page: {
-				active: 'Spots',
+**/
+	var params = {
+		spot_url: nconf.get('api:spot:frontend_url'),
+		page: {
+			active: 'Spots',
+		},
+		title: nconf.get('site:frontend:title'),
+		credits: "testing",
+		data: {
+			spot_list: {}
+		},
+		body: {
+			content: {
+				pageinfo: "first entry into spots page"
 			},
-			title: nconf.get('site:frontend:title'),
-			credits: "testing",
-			data: {
-				spot_list: records
-			},
-			body: {
-				content: {
-					pageinfo: "first entry into spots page"
-				},
-				widgets: []
-			},
-		    dateNow: function() {
-		        var dateNow = new Date();
-		        var dd = dateNow.getDate();
-		        var monthSingleDigit = dateNow.getMonth() + 1,
-		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
-		        var yy = dateNow.getFullYear().toString().substr(2);
-		
-		        return (mm + '/' + dd + '/' + yy);
-		    },
-		    location: function() {
-		    	return geo_location;
-		    }
-		}
-		res.render('spot', params);
-	});
+			widgets: []
+		},
+	    dateNow: function() {
+	        var dateNow = new Date();
+	        var dd = dateNow.getDate();
+	        var monthSingleDigit = dateNow.getMonth() + 1,
+	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+	        var yy = dateNow.getFullYear().toString().substr(2);
+	
+	        return (mm + '/' + dd + '/' + yy);
+	    },
+	    location: function() {
+	    	return geo_location;
+	    }
+	}
+	res.render('spot', params);
+
+//	});
 };
 
 // Spots Page for Application
@@ -210,37 +215,41 @@ exports.editSpot = function(req, res) {
 	if (objectId == '') {
 		errorPage(res, "We were unable to locate this spot (missing ID).");
 	}
-	Datastore.records.find("Spots", objectId, function(records){
-		var params = {
-			page: {
-				active: 'Spots',
+	var params = {
+		spot_id: objectId,
+		spot_url: nconf.get('api:spot:frontend_url'),
+		page: {
+			active: 'Spots',
+		},
+		title: nconf.get('site:frontend:title'),
+		credits: "testing",
+		body: {
+			content: {
+				pageinfo: "first entry into spots page"
 			},
-			title: nconf.get('site:frontend:title'),
-			credits: "testing",
-			body: {
-				content: {
-					pageinfo: "first entry into spots page"
-				},
-				widgets: []
-			},
-			data: {
-				records: records
-			},
-		    dateNow: function() {
-		        var dateNow = new Date();
-		        var dd = dateNow.getDate();
-		        var monthSingleDigit = dateNow.getMonth() + 1,
-		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
-		        var yy = dateNow.getFullYear().toString().substr(2);
-		
-		        return (mm + '/' + dd + '/' + yy);
-		    },
-		    location: function() {
-		    	return geo_location;
-		    }
-		}
-		res.render('newspot', params);
-	});
+			widgets: []
+		},
+		data: {
+			records: {}
+		},
+	    dateNow: function() {
+	        var dateNow = new Date();
+	        var dd = dateNow.getDate();
+	        var monthSingleDigit = dateNow.getMonth() + 1,
+	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+	        var yy = dateNow.getFullYear().toString().substr(2);
+	
+	        return (mm + '/' + dd + '/' + yy);
+	    },
+	    location: function() {
+	    	return geo_location;
+	    }
+	}
+	res.render('newspot', params);
+
+//	Datastore.records.find("Spots", objectId, function(records){
+//		res.render('newspot', params);
+//	});
 };
 
 /**

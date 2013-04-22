@@ -327,11 +327,6 @@
 
 	});
 	
-	server.get('/spot/test', function(req, res) {
-		var obj = {"test":"hello"};
-		jsonp.send(req, res, obj);
-	});
-	
 	// Retrieve specific spotId	
 	server.get('/spot/:id', function(req, res) {
 		//res.send('get spot id API: ' + req.params.id);

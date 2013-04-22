@@ -46,3 +46,8 @@ a {
 .nav li > a:hover {
 	background-color: none !important;
 }
+
+.hidden {
+	display: none;
+	visibility: hidden;
+}
