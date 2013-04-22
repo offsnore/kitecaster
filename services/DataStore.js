@@ -2,9 +2,11 @@ var redis = require('redis')
   , nconf = require('nconf')
   , crypto = require('crypto')
   , winston = require('winston')
+  , ParseObject = require('kaiseki')
   , Parse = require('parse-api').Parse;
 
 var app = module.exports.records = {};
+var base = module.exports;
 
 app.results = {}
 
@@ -18,6 +20,9 @@ app.find = app.getCurrent = function(db, key, callback) {
 	client.on("error", function(err) {
 		console.log("error event - " + client.host + ":" + client.port + " - " + err);
 	});
+	
+	console.log('app-find', key);
+	
 	var found = false;
 	// generate a Hash Key for Lookups
 	if (typeof key != 'string') {
@@ -53,6 +58,36 @@ app.find = app.getCurrent = function(db, key, callback) {
 		}
 	});
 }
+
+/**
+ * App.Object()
+ * @param db		string
+ * @param query		mixed
+ * @param callback	method
+ */
+app.object = function(db, query, callback) {
+	var parseApp = new ParseObject(nconf.get('parse:appId'), nconf.get('parse:restKey'));
+
+	// abstract logic to base()
+	/**
+	var client = redis.createClient();
+	client.on("error", function(err) {
+		console.log("error event - " + client.host + ":" + client.port + " - " + err);
+	});
+	**/
+	try {
+		parseApp.getObjects('Spot', query, function(err, response, body, success) {
+			if (err) {
+				throw Error("An error occured: ", JSON.stringify(err));
+			} else {
+				app.results = response;
+				callback(err, response, body, success);
+			}
+		});
+	} catch (e) {
+		console.log("An unexpected error occurred: ", JSON.stringify(e));
+	}
+};
 
 /**
  * App.Create()
@@ -136,4 +171,33 @@ app.save = function(db, key, data, callback) {
 		return false;
 	}
 	callback();
+}
+
+/**
+ * Base Level Method
+ * Handles setting an object to Redis
+ */
+base.setobject = function(db, object) {
+
+	var client = redis.createClient();
+	client.on("error", function(err) {
+		console.log("error event - " + client.host + ":" + client.port + " - " + err);
+	});
+
+	// generate a Hash Key for Lookups
+	var hashkey = JSON.stringify(db) + JSON.stringify(object);
+	var hashkey = crypto.createHash("md5").update(hashkey).digest("hex");	
+
+	// set expiration time for Redis (default to 60 seconds)
+	var expiration_time = nconf.get("redis:expireTime") || 60;
+
+	var diff, date_end, date_start;
+
+	client.set(key, JSON.stringify(object), function(err, replies) {            
+		date_end = new Date().getUTCMilliseconds();
+		diff = date_end - date_start;
+		client.expire(key, expiration_time, function (err, replies) {
+			console.log('expire set for ' + key + ' to ' + expiration_time + ' seconds.');
+		});
+	});
 }

@@ -14,7 +14,9 @@ block content
 			if (body.status)
 				div
 					h3.well.btn-success= body.status
-			div.row-fluid
+			div.row-fluid.spot_container
+				h3 Loading...
+			div.row-fluid.hidden
 				if (data.records) 
 					- var url = '/main/spots/edit/' + data.records.objectId
 				else
@@ -106,3 +108,42 @@ block content
 						div.control-group
 							div.controls
 								input(type='submit', value='Save Profile').btn.btn-success
+
+block script_include
+	script(src='/js/lib/handlebars.js', type='text/javaScript')
+	script(type='text/javascript')
+		window._$spot_url = '#{spot_url}';
+		window._$spot_id  = '#{spot_id}';
+
+block scripts
+	script(type='text/x-handlebars-template', id='spotedit-template')
+		form(action=url, method='post', enctype="multipart/form-data").form-horizontal
+			div.well
+				h3 Modify Spot
+				div.control-group
+					label.control-label(for='input_location') Location Name
+					div.controls
+						input(name='name', id='input_location', value='{{name}}').span11.search-query {{name}}
+				div.control-group
+					label.control-label(for='input_location') Location
+					div.controls
+						{{location.latitude}}, {{location.longitude}}
+						p
+						<iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;geocode=&amp;q={{location.latitude}},+{{location.longitude}}&amp;aq=&amp;sll=27.982881,-82.454453&amp;sspn=0.381404,0.637207&amp;t=h&amp;ie=UTF8&amp;z=14&amp;ll=37.5991,-122.5158&amp;output=embed"></iframe><br /><small><a href="https://maps.google.com/maps?f=q&amp;source=embed&amp;hl=en&amp;geocode=&amp;q={{location.latitude}},+{{location.longitude}}&amp;aq=&amp;sll=27.982881,-82.454453&amp;sspn=0.381404,0.637207&amp;t=h&amp;ie=UTF8&amp;z=14&amp;ll=37.5991,-122.5158" style="color:#0000FF;text-align:left">View Larger Map</a></small>
+				div.control-group
+					label.control-label(for='input_description') Brief Description
+					div.controls
+						textarea(name='description', id='input_description', rows=3).span11 {{description}}
+				div.control-group
+					label.control-label Wind Directions
+					div.controls
+						h3 {{#each wind_directions}}{{this}}, {{/each}}
+					div.controls
+							input(name='warning', id='input_warning', value='').span11.search-query
+				div.control-group
+					label.control-label Pictures
+					div.controls
+						input(type='file', name='spot_image', id='input_location', value='').span11.search-query
+				div.control-group
+					div.controls
+						input(type='submit', value='Save Profile').btn.btn-success

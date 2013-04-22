@@ -43,9 +43,43 @@ block content
 					h3.well.btn-success= body.status
 			a.btn.btn-primary(href='/main/spots/new') Add New Spot
 			p
-			if (data.spot_list)
-				each spot in data.spot_list
-					mixin spot_widget(spot)
-			else 
-				div.well
-					p Oops, we don't have any spots yet. Add one now!
+			div.spot_container
+				h3 Loading...
+
+block script_include
+	script(src='/js/lib/handlebars.js', type='text/javaScript')
+	script(type='text/javascript')
+		window._$spot_url = '#{spot_url}';
+
+block scripts
+	script(type='text/x-handlebars-template', id='spots-template')
+		{{#each results}}
+		.feed.well
+			a.btn.btn-info(href='/main/spots/edit/{{spotId}}') Modify Spot
+			&nbsp;
+			a.btn.btn-warning(href='/main/spots/subscribe/{{spotId}}') Subscribe
+			h3.header {{ name }}
+			.wind_directions
+				h5 Wind: 
+					{{ wind_directions }}
+			.geo_lat
+				h5 Geo Location: 
+					{{ location.latitude }}, {{ location.longitude }}
+			.description
+				p {{ description }}
+			.distance
+				h5 Distance from you: 0 Miles
+			.score
+				{{#ifCond rating "awesome"}}
+				div.threestars
+				{{/ifCond}}
+				{{#ifCond rating "solid"}}
+				div.twostars
+				{{/ifCond}}
+				{{#ifCond rating "good"}}
+				div.onestars
+				{{/ifCond}}
+			p
+			.details
+				p.date Last Updated Empty
+		{{/each}}
