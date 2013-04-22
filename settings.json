@@ -8,8 +8,13 @@
         "restKey": "zeJNClfH1mAaJL2wVELcqdNbFcgkhTTCEyoZ4qaw"
      } ,  
   "api" : {
-      "spot": {"port" : "8501"},
-      "model": {"port" : "8502"}
+      "spot": {
+      	"frontend_url" : "127.0.0.1:7501",
+      	"port" : "7501"
+      },
+      "model": {
+      	"port" : "7502"
+      }
    },
    "test" : {
       "socketio.port" : "9001"      

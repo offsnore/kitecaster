@@ -7,6 +7,8 @@
 	,   colors = require('colors')
 	,   client = redis.createClient()
 	,   async = require('async')
+	,	jsonp = require('jsonp-handler')
+//	,	jsonp = require('jsonp-handler')
 	,   Datastore = require('../services/DataStore')
 	,   logger = require('winston');
 	    
@@ -318,9 +320,16 @@
 
 		// Use DataStore Instead
 		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
-			res.send(body);
+			//res.send(body);
+			jsonp.send(req, res, body);
+			//res.json(body);
 		});
 
+	});
+	
+	server.get('/spot/test', function(req, res) {
+		var obj = {"test":"hello"};
+		jsonp.send(req, res, obj);
 	});
 	
 	// Retrieve specific spotId	
@@ -334,11 +343,11 @@
 		};
 		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
 			if (body.length == 0) {
-				res.send(404, "Spot " + id + " not found.");
-				return true;
+				obj = {"error":"Spot" + id + "not found."};
 			} else {
-				res.send(body);
+				obj = body;
 			}
+			jsonp.send(req, res, obj);
 		});
 	});
 	

@@ -123,6 +123,7 @@ exports.mainSpot = function(req, res) {
 			var records = records.results;
 		}
 		var params = {
+			spot_url: nconf.get('api:spot:frontend_url'),
 			page: {
 				active: 'Spots',
 			},

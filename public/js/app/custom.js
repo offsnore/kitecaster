@@ -38,6 +38,36 @@
 			$("#travel_distance").val(default_value);
 			$(".distance .echo").html(default_value);
 		}
-		
+
+		// Logic To Handle Spitting out the Spot Themselves		
+		if (typeof _$spot_url != 'undefined') {
+			// does a quick pull for all spots
+			var url = "http://" + _$spot_url + "/spot?callback=?";
+			$.ajax({
+				dataType: "jsonp",
+				jsonp: "callback",
+				url: url,
+				success: function(data) {
+					var source = $("#spots-template").html();
+					var template = Handlebars.compile(source);
+					$(".spot_container").html(template(data));
+				},
+				complete: function(obj, data) {
+//					debugger;
+				}
+			});
+		}	
+
+		if (typeof Handlebars != 'undefined') {
+			Handlebars.registerHelper('ifCond', function(v1, v2, options) {
+			  if(v1 == v2) {
+			    return options.fn(this);
+			  }
+			  return options.inverse(this);
+			});
+		}
+
 	});
+
 })(jQuery)
+
