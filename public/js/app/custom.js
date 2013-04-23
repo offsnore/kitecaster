@@ -1,9 +1,26 @@
 // Custom Handler used to Handle Custom Calls and functionality
 (function($){	
-	$(document).ready(function(){
+	$(document).ready(function($){
+
+		$.fn.serializeObject = function() {
+		    var o = {};
+		    var a = this.serializeArray();
+		    $.each(a, function() {
+		        if (o[this.name] !== undefined) {
+		            if (!o[this.name].push) {
+		                o[this.name] = [o[this.name]];
+		            }
+		            o[this.name].push(this.value || '');
+		        } else {
+		            o[this.name] = this.value || '';
+		        }
+		    });
+		    return o;
+		};
+
 		$("div.btn-group input[type='button']").click(function(){
 			var hidden_label = $(this).attr('name').toString().split("_")[1];
-			console.log(hidden_label, $(this).attr('id'));
+			//console.log(hidden_label, $(this).attr('id'));
 			$("#" + hidden_label).attr("value", $(this).attr('id'));
 		});
 		$("div.btn-group input[type='button']").click(function(){
@@ -78,8 +95,43 @@
 					}
 				});
 			}
-		}	
+		}
 
+		// Handle all the 'onSubmit' for ajax requests
+		$(document).on("submit", "form.ajax-send", function(e){
+			e.preventDefault();
+			var that = this;
+			// we serailzed the object, and then set spotId to be number (as per schema requirements)
+			// if spotId actually does exist in our Form
+			var d = $(that).serializeObject();
+			if (typeof d.spotId != 'undefined') {	
+				d.spotId = parseInt(d.spotId);
+			}
+			var data = JSON.stringify(d);
+			var send_url = jQuery(that).attr("action");
+			$.ajax({
+				url: send_url,
+				type: "POST",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				data: data,
+				success: function(data) {
+					$(".message").removeClass("hidden").html("<h3>Your spot has been updated!</h3>");
+					window.setTimeout(function(){
+						$(".message").fadeOut(500, function(){
+							$(this).html("");
+							$(this).addClass("hidden");
+							$(this).removeAttr("style");
+						});
+					}, 2500);
+					$('html:not(:animated), body:not(:animated)').animate({ scrollTop: 0 }, 'fast');
+				},
+				error: function(xhr) {
+					console.log(xhr);
+				}
+			});
+			return true;
+		});
 
 		if (typeof Handlebars != 'undefined') {
 			Handlebars.registerHelper('ifCond', function(v1, v2, options) {

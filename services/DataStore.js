@@ -21,7 +21,7 @@ app.find = app.getCurrent = function(db, key, callback) {
 		console.log("error event - " + client.host + ":" + client.port + " - " + err);
 	});
 	
-	console.log('app-find', key);
+	// console.log('app-find', key);
 	
 	var found = false;
 	// generate a Hash Key for Lookups
@@ -36,7 +36,6 @@ app.find = app.getCurrent = function(db, key, callback) {
 			app.results = JSON.parse(reply);
 			var found = true;
 		}
-		
 		if (!found) {
 			if (key == "*") {
 				parseApp.find(db, '', function(err, response){
@@ -76,7 +75,7 @@ app.object = function(db, query, callback) {
 	});
 	**/
 	try {
-		parseApp.getObjects('Spot', query, function(err, response, body, success) {
+		parseApp.getObjects(db, query, function(err, response, body, success) {
 			if (err) {
 				throw Error("An error occured: ", JSON.stringify(err));
 			} else {
@@ -88,6 +87,44 @@ app.object = function(db, query, callback) {
 		console.log("An unexpected error occurred: ", JSON.stringify(e));
 	}
 };
+
+/**
+ * App.ObjectUpdate()
+ */
+app.objectupdate = function(db, objectId, query, callback) {
+
+	try {
+		var parseApp = new ParseObject(nconf.get('parse:appId'), nconf.get('parse:restKey'));
+
+		if (!objectId) {
+			throw Error("ObjectID is required to Update Object in Parse.com. Please use object()/find() before using objectupdate().");
+		}
+
+		var client = redis.createClient();
+		client.on("error", function(err) {
+			console.log("error event - " + client.host + ":" + client.port + " - " + err);
+		});
+
+		parseApp.updateObject(db, objectId, query, function(err, res, body, success) {
+			//console.log('object updated = ', JSON.stringify(body));
+			
+			if (typeof body.error != 'undefined') {
+				logger.debug("Parse.com responded with an error, ", JSON.stringify(body.error));
+				return false;
+			}
+			callback(err, res, body, success);
+			
+			// @todo - include Redis back into here
+			//var redis_key = base.createkey(db, query);
+			//var redisKey = 'spot:id:' + spot.spotId;
+			//client.del(redis_key, function(error, reply) {
+			//	logger.debug('stale key deleted: ' + redis_key);
+			//});
+		});
+	} catch (e) {
+		console.log("An unexpected error occured: ", JSON.stringify(e));
+	}
+}
 
 /**
  * App.Create()
@@ -174,6 +211,15 @@ app.save = function(db, key, data, callback) {
 }
 
 /**
+ * Base.createkey()
+ */
+base.createkey = function(db, key) {
+	var hashkey = JSON.stringify(db) + JSON.stringify(key);
+	var hashkey = crypto.createHash("md5").update(hashkey).digest("hex");
+	return hashkey;
+}
+
+/**
  * Base Level Method
  * Handles setting an object to Redis
  */
@@ -200,4 +246,22 @@ base.setobject = function(db, object) {
 			console.log('expire set for ' + key + ' to ' + expiration_time + ' seconds.');
 		});
 	});
+}
+
+/**
+ * Base.CreateGeoPoint()
+ * handles transforming data from lat/long strings into GeoPoint dataType
+ * @note - move this to a better place
+ */
+base.creategeopoint = function(data) {
+   data.location = {
+       __type: 'GeoPoint',
+       // we make sure we're sending numbers not strings
+       latitude: parseFloat(data.lat),
+       longitude: parseFloat(data.lon)
+    };
+	// remove unnecessary lat/lon since it was converted to GeoPoint
+	if (typeof data.lat != 'undefined') delete data.lat;
+	if (typeof data.lon != 'undefined') delete data.lon;
+	return data;
 }

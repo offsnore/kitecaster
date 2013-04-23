@@ -258,6 +258,7 @@ exports.editSpot = function(req, res) {
  * @param res
  */
 exports.editSpotSave = function(req, res) {
+
 	var nconf = getSettings();
 	// only for Dev
 	if (nconf.get('site:development') !== false) {
