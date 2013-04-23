@@ -116,7 +116,15 @@
 				dataType: "json",
 				data: data,
 				success: function(data) {
-					console.log(data);
+					$(".message").removeClass("hidden").html("<h3>Your spot has been updated!</h3>");
+					window.setTimeout(function(){
+						$(".message").fadeOut(500, function(){
+							$(this).html("");
+							$(this).addClass("hidden");
+							$(this).removeAttr("style");
+						});
+					}, 2500);
+					$('html:not(:animated), body:not(:animated)').animate({ scrollTop: 0 }, 'fast');
 				},
 				error: function(xhr) {
 					console.log(xhr);
