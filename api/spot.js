@@ -400,7 +400,29 @@
 				res.send("Invalid lat/long format");
 				return;
 			} else {
-				createSpot(json, res);
+				try {
+					var json = Datastore.creategeopoint(json);
+					Datastore.records.find("Spot", {'spotId':json.spotId}, function(response){
+						if (!response.results.length > 0) {
+							res.send("Invalid spotID, not able to be found.");
+							return;
+						}
+						var spotObjectId = response.results[0].objectId;
+						Datastore.records.objectupdate("Spot", spotObjectId, json, function(err, response){
+							var obj = {"status":"successful"};
+							res.send(200, "Success");
+//							jsonp.send(req, res, obj);
+						});
+					});
+				} catch (e) {
+					console.log("An unexpected error occured: ", JSON.stringify(e));
+				}
+			
+//				Datastore.records.objectupdate("Spot", json, function(err, res){
+//					res.end("Successful update.");
+//				});
+//				updateSpot(json);
+//				createSpot(json, res);
 			}
 		});
 	});
@@ -437,7 +459,7 @@
 	         return;
 	      } else {
 //		      Datastore.records.save("spot", json);
-	         updateSpot(json);
+//	         updateSpot(json);
 	      }
 	      
 	      //console.log('all the data received: ', JSON.stringify(json));
