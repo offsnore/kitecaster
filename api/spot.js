@@ -78,13 +78,25 @@
 	   "id": "/UpdateSpot",
 		"type":"object",
 		"properties" : {
-			"location" : {"required": true},
-			"spotId": {"type":"number", "required":true},       
-			"name" : {"type":"string", "required": true},
-			"description" : {"type":"string"},
+			"location" : {
+				"required": true
+			},
+			"spotId": {
+				"type":"number", 
+				"required":true
+			},       
+			"name" : {
+				"type":"string", 
+				"required": true
+			},
+			"description" : {
+				"type":"string"
+			},
 			"wind_directions": {
 				"type": "array",
-				"items": {"type": "string"},
+				"items": {
+					"type": "string"
+				},
 				"required":true	
 			},
 			"keywords": {
@@ -359,8 +371,9 @@
 	*/
 	/**
 	 * POST (Edit)
+	 * @note - we use the :id to handle the modifications to the spot
 	 */
-	server.post('/spot', function(req, res) {
+	server.post('/spot/:id', function(req, res) {
 		var queryParts = require('url').parse(req.url, true).query;
 		var data = "";
 		req.on('data', function(chunk) {
@@ -368,8 +381,8 @@
 		});
 		
 		req.on('end', function() {
-			//console.log('dater: ' + data);
 			var json, valid;
+			
 			try {
 				json = JSON.parse(data);
 			} catch (err) {
@@ -377,7 +390,7 @@
 				res.send(400, err);
 				return;
 			} 
-			valid = validate(json, spotSchema);
+			valid = validate(json, updateSpotSchema);
 			if (valid.length > 0 ) {
 				console.log('Error validating spot schema:\n', valid);
 				res.send(500, 'Error validating spot schema:\n' + valid);
@@ -394,8 +407,9 @@
 
 	/**
 	 * PUT (Create)
+	 * @note - we only "create" PUT into the server itself, because we don't know it's spotID (that's generated for us)
 	 */
-	server.put('/spot/:id', function(req, res){
+	server.put('/spot', function(req, res){
 	   var queryParts = require('url').parse(req.url, true).query;
 	   var data = "";
 	   req.on('data', function(chunk) {

@@ -9,7 +9,7 @@
      } ,  
   "api" : {
       "spot": {
-      	"frontend_url" : "127.0.0.1:7501",
+      	"frontend_url" : "local.kitecaster.com",
       	"port" : "7501"
       },
       "model": {
