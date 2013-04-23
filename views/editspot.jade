@@ -15,8 +15,14 @@ block content
 				div
 					h3.well.btn-success= body.status
 			div.row-fluid.message.hidden.well.btn-success
-			div.row-fluid
-				form(method='/spot', action='PUT', enctype="multipart/form-data").form-horizontal
+			div.row-fluid.spot_container
+				h3 Loading...
+			div.row-fluid.hidden
+				if (data.records) 
+					- var url = '/main/spots/edit/' + data.records.objectId
+				else
+					- var url = '/main/spots/new/save';
+				form(method='post', enctype="multipart/form-data").form-horizontal
 					div.well
 						if (data && data.records)
 							h3 Modify Spot
@@ -25,19 +31,8 @@ block content
 						div.control-group
 							label.control-label(for='input_location') Location Name
 							div.controls
-								- var lon = location().ll[1];
-								- var lat = location().ll[0];
 								- var loc = location().city + ", " + location().region;
 								input(name='name', id='input_location', value=loc).span11.search-query
-						div.control-group
-							label.control-label(for='input_location') Location
-							div.controls
-								input(type='hidden', name='location', value='#{lat}, #{lon}')
-								input(type='hidden', name='lat', value=lat)
-								input(type='hidden', name='lon', value=lon)
-								p.latlon #{lat}, #{lon}
-								p
-								div#map-canvas(style='height: 300px;')
 						div.control-group
 							label.control-label(for='input_description') Brief Description
 							div.controls
@@ -46,17 +41,71 @@ block content
 								else
 									textarea(name='description', id='input_description', rows=3).span11
 						div.control-group
-							label.control-label Wind Directions
+							label.control-label Water Conditions
 							div.controls
-								div.btn-group(data-toggle='buttons-checkbox')
-									input(type='button', value='N', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='NE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='E', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='WE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='W', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='SW', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='S', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='SE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+								div.btn-group(data-toggle='buttons-radio')
+									if (data.records && data.records.condition == 'sound')
+										input(type='button', value='sound', name='input_condition', id='sound').btn.btn-primary.active Sound
+									else
+										input(type='button', value='sound', name='input_condition', id='sound').btn.btn-primary Sound
+									
+									if (data.records && data.records.condition == 'flatwater')
+										input(type='button', value='flatwater', name='input_condition', id='flatwater').btn.btn-primary.active Flatwater
+									else
+										input(type='button', value='flatwater', name='input_condition', id='flatwater').btn.btn-primary Flatwater	
+
+									if (data.records && data.records.condition == 'choppy')
+										input(type='button', value='choppy', name='input_condition', id='choppy').btn.btn-primary.active Choppy
+									else
+										input(type='button', value='choppy', name='input_condition', id='choppy').btn.btn-primary Choppy
+
+									if (data.records && data.records.condition == 'ocean')
+										input(type='button', value='ocean', name='input_condition', id='ocean').btn.btn-primary.active Ocean
+									else
+										input(type='button', value='ocean', name='input_condition', id='ocean').btn.btn-primary Ocean
+
+								if (data.records && data.records.condition)
+									input(type='hidden', name='condition', id='condition', value=data.records.condition)
+								else
+									input(type='hidden', name='condition', id='condition', value="")
+
+						div.control-group
+							label.control-label 
+								p Warnings (obstacles, docks)
+							div.controls
+								if (data.records && data.records.warning)
+									input(name='warning', id='input_warning', value=data.records.warning).span11.search-query
+								else
+									input(name='warning', id='input_warning', value='').span11.search-query
+						div.control-group
+							label.control-label 
+								p Rating
+							div.controls
+								div.btn-group(data-toggle='buttons-radio')
+									if (data.records && data.records.rating == 'good')
+										input(type='button', value='Good', name='input_rating', id='good').btn.btn-primary.active Good
+									else
+										input(type='button', value='Good', name='input_rating', id='good').btn.btn-primary Good
+
+									if (data.records && data.records.rating == 'solid')
+										input(type='button', value='Solid', name='input_rating', id='solid').btn.btn-primary.active Solid
+									else
+										input(type='button', value='Solid', name='input_rating', id='solid').btn.btn-primary Solid
+
+									if (data.records && data.records.rating == 'awesome')
+										input(type='button', value='Awesome', name='input_rating', id='awesome').btn.btn-primary.active Awesome
+									else
+										input(type='button', value='Awesome', name='input_rating', id='awesome').btn.btn-primary Awesome
+
+									if (data.records && data.records.rating)
+										input(type='hidden', name='rating', id='rating', value=data.records.rating)
+									else
+										input(type='hidden', name='rating', id='rating', value="")
+
+						div.control-group
+							label.control-label Pictures
+							div.controls
+								input(type='file', name='spot_image', id='input_location', value='').span11.search-query
 						div.control-group
 							div.controls
 								input(type='submit', value='Save Profile').btn.btn-success
@@ -66,45 +115,6 @@ block script_include
 	script(type='text/javascript')
 		window._$spot_url = '#{spot_url}';
 		window._$spot_id  = '#{spot_id}';
-	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=false')
-	script(type='text/javascript')
-		function initialize() {
-			var map = new google.maps.Map(
-				document.getElementById('map-canvas'), {
-				center: new google.maps.LatLng(#{geo().lat}, #{geo().lon}),
-				zoom: 11,
-				mapTypeId: google.maps.MapTypeId.ROADMAP
-			});	
-			var marker = new google.maps.Marker({
-				position: new google.maps.LatLng(#{geo().lat}, #{geo().lon}),
-				map: map
-			});
-			google.maps.event.addListener(map, 'click', function(event){
-				var latlong = parseFloat(event.latLng.lat()).toFixed(4) + ", " + parseFloat(event.latLng.lng()).toFixed(4);
-				var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + event.latLng.lat() + "," + event.latLng.lng() + "&sensor=true";
-				$.ajax({
-					url: url,
-					dataType: "json",
-					beforeSend: function() {
-						$(".search-query").val("Loading..");
-					},
-					success: function(data){
-						var addy = data.results[1].formatted_address;
-						//console.log(data.results);
-						//var address = addy[1].short_name + ", " + addy[2].short_name;
-						$(".search-query").val(addy);
-					},
-					error: function() {
-						$(".search-query").val("Something went wrong :( .. try again.");
-					}
-				});
-				$(".latlon").text(latlong);
-			});
-		}
-		jQuery(document).ready(function(){
-			google.maps.event.addDomListener(window, 'load', initialize);
-		});
-	
 
 block scripts
 	script(type='text/x-handlebars-template', id='spotedit-template')
