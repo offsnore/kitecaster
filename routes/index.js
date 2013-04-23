@@ -171,6 +171,9 @@ exports.newSpot = function(req, res) {
 	var geo_location = lookup.geolookup.getCurrent(req);
 
 	var params = {
+		spot_id: 0,
+		spot_url: nconf.get('api:spot:frontend_url'),
+		google_api_key: 'AIzaSyDBD7vGX-y9pO8PP8bHCOQlKztjWzcJNf8',
 		page: {
 			active: 'Spots',
 		},
@@ -191,11 +194,23 @@ exports.newSpot = function(req, res) {
 	
 	        return (mm + '/' + dd + '/' + yy);
 	    },
+	    geo: function(){
+			var g = geo_location;
+	    	var lat = g.ll[0];
+	    	var lon = g.ll[1];
+			return {
+				lat: lat,
+				lon: lon
+			}
+	    },
 	    location: function() {
 	    	return geo_location;
 	    },
 	    data: {}
 	}
+	
+	console.log(params.geo());
+	
 	res.render('newspot', params);
 };
 
@@ -245,7 +260,7 @@ exports.editSpot = function(req, res) {
 	    	return geo_location;
 	    }
 	}
-	res.render('newspot', params);
+	res.render('editspot', params);
 
 //	Datastore.records.find("Spots", objectId, function(records){
 //		res.render('newspot', params);
