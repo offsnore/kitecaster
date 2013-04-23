@@ -142,7 +142,20 @@ block scripts
 				div.control-group
 					label.control-label Wind Directions
 					div.controls
-						h3 {{#each wind_directions}}<input type='hidden' name='wind_directions' id='wind_directions' value='{{this}}' /> {{this}}, {{/each}}
+						div.btn-group(data-toggle='buttons-checkbox')
+							input(type='button', value='N', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+							input(type='button', value='NE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+							input(type='button', value='E', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+							input(type='button', value='WE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+							input(type='button', value='W', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+							input(type='button', value='SW', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+							input(type='button', value='S', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+							input(type='button', value='SE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
 				div.control-group
 					div.controls
 						input(type='submit', id='save-submit', value='Save Profile').btn.btn-success
+			script(type='text/javascript')
+				window._$winds = [];
+				{{#each wind_directions}}
+					window._$winds.push('{{this}}');
+				{{/each}}

@@ -18,6 +18,29 @@
 		    return o;
 		};
 
+
+		function loadWindCondition(direction) {
+			$(".wind_direction").each(function(i, item){
+				console.log($(item).val(), direction);
+				if ($(item).val() == direction) {
+					$(item).addClass("active");
+				}
+			});
+		}
+
+		function loadWindConditions() {
+			if (typeof window._$winds != 'undefined') {
+				console.log('found, go');
+				var winds = window._$winds;
+				for (var x in winds) {
+					console.log(winds[x]);
+					loadWindCondition(winds[x]);
+				}
+			} else {
+				console.log('not yet');
+			}
+		}
+
 		$("div.btn-group input[type='button']").click(function(){
 			var hidden_label = $(this).attr('name').toString().split("_")[1];
 			//console.log(hidden_label, $(this).attr('id'));
@@ -89,6 +112,7 @@
 						var source = obj.html();
 						var template = Handlebars.compile(source);
 						$(".spot_container").html(template(data[0]));
+						loadWindConditions();
 					},
 					error: function() {
 						//console.log('oops');	
@@ -107,7 +131,14 @@
 			if (typeof d.spotId != 'undefined') {	
 				d.spotId = parseInt(d.spotId);
 			}
+			// get the wind conditions
+			var winds = [];
+			$(".wind_direction.active").each(function(i, item){
+				winds.push($(item).val());
+			});
+			d['wind_directions'] = winds;
 			var data = JSON.stringify(d);
+			console.log(data);
 			var send_url = jQuery(that).attr("action");
 			$.ajax({
 				url: send_url,
