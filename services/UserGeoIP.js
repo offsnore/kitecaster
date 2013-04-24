@@ -2,9 +2,6 @@ var app = module.exports.geolookup = {};
 
 app.getCurrent = function(req) {
 	var ip = req.headers['X-Forwarded-For'] || req.header('x-forwarded-for') || re.connection.remoteAddress;
-
-	console.log('what we lloking at son!', ip);
-
 	var sys = require('util'),
 	    geoip = require('../node_modules/node-geoloc/lib/geoip');	
 	var geo = geoip.lookup(ip);
