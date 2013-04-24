@@ -105,9 +105,7 @@ app.objectupdate = function(db, objectId, query, callback) {
 			console.log("error event - " + client.host + ":" + client.port + " - " + err);
 		});
 
-		parseApp.updateObject(db, objectId, query, function(err, res, body, success) {
-			//console.log('object updated = ', JSON.stringify(body));
-			
+		parseApp.updateObject(db, objectId, query, function(err, res, body, success) {			
 			if (typeof body.error != 'undefined') {
 				logger.debug("Parse.com responded with an error, ", JSON.stringify(body.error));
 				return false;
@@ -122,9 +120,30 @@ app.objectupdate = function(db, objectId, query, callback) {
 			//});
 		});
 	} catch (e) {
-		console.log("An unexpected error occured: ", JSON.stringify(e));
+		console.log("An unexpected error occured: " + JSON.stringify(e));
 	}
 }
+
+app.createobject = function(db, object, callback) {
+	try {
+		var parseApp = new ParseObject(nconf.get('parse:appId'), nconf.get('parse:restKey'));
+		var rediskey = "spot:id:counter";
+
+		var client = redis.createClient();
+		client.on("error", function(err) {
+			console.log("error event - " + client.host + ":" + client.port + " - " + err);
+		});
+
+		client.incr(rediskey, function(err, replies) {
+			object.spotId = replies;
+			parseApp.createObject(db, object, function(err, res, body, success) {
+				callback(err, res, body, success);
+			});
+		});
+	} catch (e) {
+		console.log("An unexpected error occured: " + JSON.stringify(e));
+	}
+};
 
 /**
  * App.Create()

@@ -16,7 +16,7 @@ block content
 					h3.well.btn-success= body.status
 			div.row-fluid.message.hidden.well.btn-success
 			div.row-fluid
-				form(method='/spot', action='PUT', enctype="multipart/form-data").form-horizontal
+				form(method='PUT', data-redirect='/main/spots', action='/spot', enctype="multipart/form-data").form-horizontal.ajax-send
 					div.well
 						if (data && data.records)
 							h3 Modify Spot

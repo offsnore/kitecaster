@@ -131,6 +131,15 @@
 			if (typeof d.spotId != 'undefined') {	
 				d.spotId = parseInt(d.spotId);
 			}
+			
+			if (typeof d.lat != 'undefined') {
+				d.lat = parseFloat(d.lat);
+			}
+
+			if (typeof d.lon != 'undefined') {
+				d.lon = parseFloat(d.lon);
+			}
+			
 			// get the wind conditions
 			var winds = [];
 			$(".wind_direction.active").each(function(i, item){
@@ -140,14 +149,18 @@
 			var data = JSON.stringify(d);
 			console.log(data);
 			var send_url = jQuery(that).attr("action");
+
+			var method = $(that).attr('method') || "POST";
+			var redirect = $(that).attr('data-redirect') || false;
+			
 			$.ajax({
 				url: send_url,
-				type: "POST",
+				type: method,
 				contentType: "application/json; charset=utf-8",
 				dataType: "json",
 				data: data,
-				success: function(data) {
-					$(".message").removeClass("hidden").html("<h3>Your spot has been updated!</h3>");
+				success: function(response) {
+					$(".message").removeClass("hidden").html("<h3>" + response + "</h3>");
 					window.setTimeout(function(){
 						$(".message").fadeOut(500, function(){
 							$(this).html("");
@@ -155,6 +168,9 @@
 							$(this).removeAttr("style");
 						});
 					}, 2500);
+					if (redirect) {
+						window.location.href = redirect;
+					}
 					$('html:not(:animated), body:not(:animated)').animate({ scrollTop: 0 }, 'fast');
 				},
 				error: function(xhr) {

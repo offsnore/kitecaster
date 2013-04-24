@@ -55,7 +55,7 @@ exports.mainIndex = function(req, res) {
 	var nconf = getSettings();
 	// only for Dev
 	if (nconf.get('site:development') !== false) {
-		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
+		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
 	var geo_location = lookup.geolookup.getCurrent(req);
 	var session_id = nconf.get('site:fakedSession');
@@ -111,7 +111,7 @@ exports.mainSpot = function(req, res) {
 	var nconf = getSettings();
 	// only for Dev
 	if (nconf.get('site:development') !== false) {
-		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
+		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
 	var geo_location = lookup.geolookup.getCurrent(req);
 
@@ -166,7 +166,7 @@ exports.newSpot = function(req, res) {
 	var nconf = getSettings();
 	// only for Dev
 	if (nconf.get('site:development') !== false) {
-		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
+		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
 	var geo_location = lookup.geolookup.getCurrent(req);
 
@@ -207,10 +207,7 @@ exports.newSpot = function(req, res) {
 	    	return geo_location;
 	    },
 	    data: {}
-	}
-	
-	console.log(params.geo());
-	
+	}	
 	res.render('newspot', params);
 };
 
@@ -223,7 +220,7 @@ exports.editSpot = function(req, res) {
 	var nconf = getSettings();
 	// only for Dev
 	if (nconf.get('site:development') !== false) {
-		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
+		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
 	var geo_location = lookup.geolookup.getCurrent(req);
 	var objectId = req.params[0];
@@ -277,7 +274,7 @@ exports.editSpotSave = function(req, res) {
 	var nconf = getSettings();
 	// only for Dev
 	if (nconf.get('site:development') !== false) {
-		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
+		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
 	var objectId = req.params[0];
 	if (objectId == '') {
@@ -301,7 +298,7 @@ exports.newSpotSave = function(req, res) {
 	var nconf = getSettings();
 	// only for Dev
 	if (nconf.get('site:development') !== false) {
-		req.headers['X-Forwarded-For'] = nconf.get('site:fakeip');
+		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
 
 	// get Session Details

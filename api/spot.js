@@ -51,24 +51,44 @@
 	   "id": "/SimpleSpot",
 		"type":"object",
 		"properties" : {
-			 "lat" : {"type":"number", "required": true},
-			 "lon" : {"type":"number", "required": true},  
-			 "spotId": {"type":"number", "required":false},       
-			 "name" : {"type":"string", "required": true},
-			 "description" : {"type":"string"},
+			"lat" : {
+				"type":"number", 
+				"required": true
+			},
+			"lon" : {
+				"type":"number", 
+				"required": true
+			},  
+			"spotId": {
+				"type":"number", 
+				"required":false
+			},       
+			"name" : {
+				"type":"string", 
+				"required": true
+			},
+			"description" : {
+				"type":"string"
+			},
 			"wind_directions": {
 				"type": "array",
-				"items": {"type": "string"},
+				"items": {
+					"type": "string"
+				},
 				"required":true
 			},
 			"sketchy_directions": {
 				"type": "array",
-				"items": {"type": "string"},
+				"items": {
+					"type": "string"
+				},
 				"required":false
 			},
 			"keywords": {
 				"type": "array",
-				"items" : {"type":"string"},
+				"items" : {
+					"type":"string"
+				},
 				"required": false
 			}
 		}        
@@ -410,7 +430,7 @@
 						var spotObjectId = response.results[0].objectId;
 						Datastore.records.objectupdate("Spot", spotObjectId, json, function(err, response){
 							var obj = {"status":"successful"};
-							res.send(200, "Success");
+							res.send(200, 'Spot for ' + json.name + ' was been updated!');
 //							jsonp.send(req, res, obj);
 						});
 					});
@@ -432,38 +452,45 @@
 	 * @note - we only "create" PUT into the server itself, because we don't know it's spotID (that's generated for us)
 	 */
 	server.put('/spot', function(req, res){
-	   var queryParts = require('url').parse(req.url, true).query;
-	   var data = "";
-	   req.on('data', function(chunk) {
-	      data += chunk;
-	   });
-	   
-	   req.on('end', function() {
+		var queryParts = require('url').parse(req.url, true).query;
+		var data = "";
+		req.on('data', function(chunk) {
+			data += chunk;
+		});
+
+		req.on('end', function() {
 	      //console.log('dater: ' + data);
-	      var json, valid;
-	      try {
-		      json = JSON.parse(data);
-	      } catch (err) {
-		      console.log('Error parsing data: ' + err);
-		      res.statusCode = 400;
-		      res.send(err);
-		      return;
-	      }
-	      valid = validate(json, updateSpotSchema);
-	      if (valid.length > 0 ) {
-	         res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
-	         return;
-	      } else if (json.lat > 90 || json.lat < -90  || json.lon < -180 || json.lon > 180){
-	         res.statusCode = 400;
-	         res.send("Invalid lat/long format");
-	         return;
-	      } else {
-//		      Datastore.records.save("spot", json);
-//	         updateSpot(json);
+			var json, valid;
+			try {
+				json = JSON.parse(data);
+			} catch (err) {
+				console.log('Error parsing data: ' + err);
+				res.statusCode = 400;
+				res.send(err);
+				return;
+			}
+			valid = validate(json, spotSchema);
+			if (valid.length > 0 ) {
+				res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
+				return;
+			} else if (json.lat > 90 || json.lat < -90  || json.lon < -180 || json.lon > 180){
+				res.statusCode = 400;
+				res.send("Invalid lat/long format");
+				return;
+			} else {
+				try {
+					var json = Datastore.creategeopoint(json);
+					Datastore.records.createobject("Spot", json, function(err, response){
+						console.log(err);
+						res.send(200, 'Spot for ' + json.name + ' was been created!');
+					});
+				} catch (e) {
+					console.log("An unexpected error occured in the SpotAPI: " + JSON.stringify(e));
+				}
 	      }
 	      
 	      //console.log('all the data received: ', JSON.stringify(json));
-	      res.send('Spot for ' + json.name + ' created');
+//	      res.send('Spot for ' + json.name + ' created!');
 	   });
 	});
 	
