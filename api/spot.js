@@ -142,6 +142,12 @@
 
 	// Create server
 	var server = restify.createServer();	
+
+	// incase we get errors, lets know about them :)
+	server.on("error", function(r, v) {
+		console.log("error occured: " + JSON.stringify(r) + "," + JSON.stringify(v));
+	});
+
 	server.listen(restPort, function() {
 		console.log('%s listening at %s'.blue, server.name, server.url);
 	});
