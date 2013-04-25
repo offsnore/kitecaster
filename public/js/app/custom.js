@@ -21,7 +21,6 @@
 
 		function loadWindCondition(direction) {
 			$(".wind_direction").each(function(i, item){
-				console.log($(item).val(), direction);
 				if ($(item).val() == direction) {
 					$(item).addClass("active");
 				}
@@ -30,10 +29,8 @@
 
 		function loadWindConditions() {
 			if (typeof window._$winds != 'undefined') {
-				console.log('found, go');
 				var winds = window._$winds;
 				for (var x in winds) {
-					console.log(winds[x]);
 					loadWindCondition(winds[x]);
 				}
 			} else {
@@ -81,8 +78,8 @@
 
 		// Logic To Handle Spitting out the Spot Themselves		
 		if (typeof _$spot_url != 'undefined') {
-			var obj = $("#spots-template");
-			if (typeof obj[0] != 'undefined') {
+			if (typeof $("#spots-template")[0] != 'undefined') {
+				var obj = $("#spots-template");
 				// does a quick pull for all spots
 				var url = "http://" + _$spot_url + "/spot?callback=?";
 				$.ajax({
@@ -99,9 +96,8 @@
 					}
 				});
 			}
-			
-			var obj = $("#spotedit-template");
-			if (typeof obj[0] != 'undefined') {
+			if (typeof $("#spotedit-template")[0] != 'undefined') {
+				var obj = $("#spotedit-template");
 				// does a quick pull for all spots
 				var url = "http://" + _$spot_url + "/spot/" + _$spot_id + "?callback=?";
 				$.ajax({
@@ -109,15 +105,22 @@
 					jsonp: "callback",
 					url: url,
 					success: function(data) {
+						var data = data[0];
 						var source = obj.html();
 						var template = Handlebars.compile(source);
-						$(".spot_container").html(template(data[0]));
+						$(".spot_container").html(template(data));
 						loadWindConditions();
 					},
 					error: function() {
 						//console.log('oops');	
 					}
 				});
+			}
+			if (typeof $("#spotnew-template")[0] != 'undefined') {
+				var obj = $("#spotnew-template");
+				var source = obj.html();
+				var template = Handlebars.compile(source);
+				$(".spot_container").html(template({}));
 			}
 		}
 
@@ -147,7 +150,6 @@
 			});
 			d['wind_directions'] = winds;
 			var data = JSON.stringify(d);
-			console.log(data);
 			var send_url = jQuery(that).attr("action");
 
 			var method = $(that).attr('method') || "POST";
