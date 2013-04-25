@@ -33,8 +33,6 @@
 				for (var x in winds) {
 					loadWindCondition(winds[x]);
 				}
-			} else {
-				console.log('not yet');
 			}
 		}
 
@@ -180,6 +178,44 @@
 				}
 			});
 			return true;
+		});
+		
+		bootstrap_alert = function(){ };
+		bootstrap_alert.warning = function(msg, header) {
+			if (!header) {
+				var header = "Are you sure?";
+			}
+			$(".warning_msg").html('<div class="alert alert-error"><a class="close" data-dismiss="alert">×</a><h4 class="alert-heading">' + header + '</h4><p>' + msg + '</p></div>');
+			$(".clear-alert", ".warning_msg").live("click", function(){
+				$(".warning_msg").html("");
+			});
+		}
+		
+		$(".removeSpot").live("click", function(e){
+			var that = this;
+			bootstrap_alert.warning("This action is not reversible, press the 'delete me forever' button if you really wish to continue.<br /><br /><a class='btn btn-inverse delete-forever' action='" + $(that).attr('action') + "'>Delete Me Forever</a> <a class='btn btn-success clear-alert' data-dismiss='alert'>No Thanks, Cancel this Action</a>", "You're about to delete this spot, Are you really sure??");
+		});
+		$(".delete-forever").live("click", function(){
+			var that = this;
+			var send_url = jQuery(that).attr("action");
+			$.ajax({
+				url: send_url,
+				type: "DELETE",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				data: {},
+				success: function(response) {
+					$(".message").removeClass("hidden").html("<h3>" + response + "</h3>");
+					window.setTimeout(function(){
+						$(".message").fadeOut(500, function(){
+							$(this).html("");
+							$(this).addClass("hidden");
+							$(this).removeAttr("style");
+						});
+						window.location.href = "/main/spots";
+					}, 2500);
+				}			
+			})			
 		});
 
 		if (typeof Handlebars != 'undefined') {

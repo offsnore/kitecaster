@@ -508,6 +508,9 @@
 				spotId : parseInt(req.params.id)   
 			},
 		};
+
+		// @todo - move this into DataStore (Del functionality)
+		// @todo - check ownership of Spot before Delete
 		parse.getObjects('Spot', queryParams , function(err, response, body, success) {
 			console.log('found object = ', body, 'success: ' , success);
 			var bodyJson = JSON.parse(JSON.stringify(body));
@@ -515,15 +518,15 @@
 				res.send(404, "Spot " + req.params.id + " doesn't exist");
 				return;
 			}
-			var spot = bodyJson[0];            
+			var spot = bodyJson[0];
 			var spotParseId = spot.objectId;
 			logger.info('spotParseId to delete: '.red + spotParseId );
 			parse.deleteObject("Spot", spotParseId, function(err, response, body, success){
-				console.log( "body: " + JSON.stringify(body) + ', success: ' + success);
+//				console.log( "body: " + JSON.stringify(body) + ', success: ' + success);
 				if (err) {
 					res.sendError('Error deleting spot: ' + err);
 				} else if (success === true) {
-					res.send('Spot ' + id + ' successfully deleted');
+					res.send('Spot ' + spot.name + ' has been successfully deleted');
 					return;
 				}
 			});

@@ -17,98 +17,6 @@ block content
 			div.row-fluid.message.hidden.well.btn-success
 			div.row-fluid.spot_container
 				h3 Loading...
-			div.row-fluid.hidden
-				if (data.records) 
-					- var url = '/main/spots/edit/' + data.records.objectId
-				else
-					- var url = '/main/spots/new/save';
-				form(method='post', enctype="multipart/form-data").form-horizontal
-					div.well
-						if (data && data.records)
-							h3 Modify Spot
-						else
-							h3 Add a new spot
-						div.control-group
-							label.control-label(for='input_location') Location Name
-							div.controls
-								- var loc = location().city + ", " + location().region;
-								input(name='name', id='input_location', value=loc).span11.search-query
-						div.control-group
-							label.control-label(for='input_description') Brief Description
-							div.controls
-								if (data.records && data.records.description)
-									textarea(name='description', id='input_description', rows=3).span11= data.records.description
-								else
-									textarea(name='description', id='input_description', rows=3).span11
-						div.control-group
-							label.control-label Water Conditions
-							div.controls
-								div.btn-group(data-toggle='buttons-radio')
-									if (data.records && data.records.condition == 'sound')
-										input(type='button', value='sound', name='input_condition', id='sound').btn.btn-primary.active Sound
-									else
-										input(type='button', value='sound', name='input_condition', id='sound').btn.btn-primary Sound
-									
-									if (data.records && data.records.condition == 'flatwater')
-										input(type='button', value='flatwater', name='input_condition', id='flatwater').btn.btn-primary.active Flatwater
-									else
-										input(type='button', value='flatwater', name='input_condition', id='flatwater').btn.btn-primary Flatwater	
-
-									if (data.records && data.records.condition == 'choppy')
-										input(type='button', value='choppy', name='input_condition', id='choppy').btn.btn-primary.active Choppy
-									else
-										input(type='button', value='choppy', name='input_condition', id='choppy').btn.btn-primary Choppy
-
-									if (data.records && data.records.condition == 'ocean')
-										input(type='button', value='ocean', name='input_condition', id='ocean').btn.btn-primary.active Ocean
-									else
-										input(type='button', value='ocean', name='input_condition', id='ocean').btn.btn-primary Ocean
-
-								if (data.records && data.records.condition)
-									input(type='hidden', name='condition', id='condition', value=data.records.condition)
-								else
-									input(type='hidden', name='condition', id='condition', value="")
-
-						div.control-group
-							label.control-label 
-								p Warnings (obstacles, docks)
-							div.controls
-								if (data.records && data.records.warning)
-									input(name='warning', id='input_warning', value=data.records.warning).span11.search-query
-								else
-									input(name='warning', id='input_warning', value='').span11.search-query
-						div.control-group
-							label.control-label 
-								p Rating
-							div.controls
-								div.btn-group(data-toggle='buttons-radio')
-									if (data.records && data.records.rating == 'good')
-										input(type='button', value='Good', name='input_rating', id='good').btn.btn-primary.active Good
-									else
-										input(type='button', value='Good', name='input_rating', id='good').btn.btn-primary Good
-
-									if (data.records && data.records.rating == 'solid')
-										input(type='button', value='Solid', name='input_rating', id='solid').btn.btn-primary.active Solid
-									else
-										input(type='button', value='Solid', name='input_rating', id='solid').btn.btn-primary Solid
-
-									if (data.records && data.records.rating == 'awesome')
-										input(type='button', value='Awesome', name='input_rating', id='awesome').btn.btn-primary.active Awesome
-									else
-										input(type='button', value='Awesome', name='input_rating', id='awesome').btn.btn-primary Awesome
-
-									if (data.records && data.records.rating)
-										input(type='hidden', name='rating', id='rating', value=data.records.rating)
-									else
-										input(type='hidden', name='rating', id='rating', value="")
-
-						div.control-group
-							label.control-label Pictures
-							div.controls
-								input(type='file', name='spot_image', id='input_location', value='').span11.search-query
-						div.control-group
-							div.controls
-								input(type='submit', value='Save Profile').btn.btn-success
 
 block script_include
 	script(src='/js/lib/handlebars.js', type='text/javaScript')
@@ -121,7 +29,14 @@ block scripts
 		form(action='/spot/{{ spotId }}', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send
 			input(type='hidden', name='spotId', id='spotId', value='{{ spotId }}')
 			div.well
-				h3 Modify Spot
+				h3 Modify Spot 
+				div.control-group
+					div.controls
+						div.warning_msg
+				div.control-group
+					label.control-label(for='input_delete') Remove
+					div.controls
+						a.btn.btn-danger(data-attr='{{spotId}}', action='/spot/{{spotId}}').removeSpot Delete Spot
 				div.control-group
 					label.control-label(for='input_location') Location Name
 					div.controls
