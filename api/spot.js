@@ -93,6 +93,17 @@
 			}
 		}        
 	}
+	
+	var subscribeSchema = {
+		"id": "/SubscribeSpot",
+		"type": "object",
+		"properties": {
+			"userId": {
+				"type": "string",
+				"required" : true
+			}
+		}
+	}
 
 	var updateSpotSchema = {
 	   "id": "/UpdateSpot",
@@ -502,7 +513,6 @@
 	
 	server.del('/spot/:id', function(req, res) {
 		var id = req.params.id;
-		console.log('id: ' + id);
 		var queryParams = {
 			where: {
 				spotId : parseInt(req.params.id)   
@@ -533,6 +543,89 @@
 		});
 	});
 	
+	
+	/**
+	 * PUT (Create)
+	 * @note - we only "create" PUT into the server itself, because we don't know it's spotID (that's generated for us)
+	 */
+	server.put('/spot/subscribe/:id', function(req, res){
+		var id = req.params.id;
+		var data = "";
+		req.on('data', function(chunk) {
+			data += chunk;
+		});
+		req.on('end', function(){
+			var json, valid;
+			try {
+				json = JSON.parse(data);
+				valid = validate(json, subscribeSchema);
+		
+				if (valid.length > 0 ) {
+					res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
+					return;
+				} else {
+					try {
+						json.spotId = id;
+						Datastore.records.createobject("Subscribe", json, function(err, response){
+							// @todo build better error handling from Parse-com return
+							res.send(200, 'Spot has been subscribed!');
+						}, false);
+					} catch (e) {
+						console.log("An unexpected error occured in the SpotAPI: " + JSON.stringify(e));
+					}					
+				}
+			} catch (e) {
+				console.log("Unexpected error occured: " + JSON.stringify(e));
+				res.statusCode = 400;
+				res.send(e);				
+			}
+		});
+	});
+
+
+	/**
+	 * DELETE (Delete)
+	 */
+	server.del('/spot/subscribe/:id', function(req, res){
+		var id = req.params.id;
+		var queryParams = {
+			"spotId": parseInt(req.params.id),
+			"userId": false
+		}
+		
+		// @note - there is a bug in here somehwere
+
+		var data = "";
+		req.on('data', function(chunk) {
+			data += chunk;
+		});
+		req.on('end', function(){
+			json = JSON.parse(data);
+			valid = validate(json, subscribeSchema);
+
+			if (valid.length > 0 ) {
+				res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
+				return;
+			} else {
+				json.spotId = parseInt(req.params.id);
+				try {
+					Datastore.records.deleteobject('Subscribe', json, function(err, response, body){
+						if (body.length == 0) {
+							res.send(400, "Spot has no subscription to delete.");
+						} else {
+							res.send(200, "Spot subscribe has been deleted!");
+						}
+					});
+				} catch (e) {
+					console.log("Unexepected error occured: " + JSON.stringify(e));
+					res.statusCode = 400;
+					res.send(JSON.stingify(e));
+				}
+			}
+		});
+	});
+
+
 	/**
 	   Function to call parse, create Spot object
 	**/

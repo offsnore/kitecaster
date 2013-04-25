@@ -124,7 +124,14 @@ app.objectupdate = function(db, objectId, query, callback) {
 	}
 }
 
-app.createobject = function(db, object, callback) {
+/**
+ * app.CreateObject()
+ * Handles creating (and incrementing redis) objects in Parse(.)com DataStore
+ */
+app.createobject = function(db, object, callback, auto_increment) {
+	if (typeof auto_increment == 'undefined') {
+		var auto_increment = true;
+	}
 	try {
 		var parseApp = new ParseObject(nconf.get('parse:appId'), nconf.get('parse:restKey'));
 		var rediskey = "spot:id:counter";
@@ -133,17 +140,60 @@ app.createobject = function(db, object, callback) {
 		client.on("error", function(err) {
 			console.log("error event - " + client.host + ":" + client.port + " - " + err);
 		});
-
-		client.incr(rediskey, function(err, replies) {
-			object.spotId = replies;
+		
+		if (auto_increment) {
+			client.incr(rediskey, function(err, replies) {
+				object.spotId = replies;
+				parseApp.createObject(db, object, function(err, res, body, success) {
+					callback(err, res, body, success);
+				});
+			});
+		} else {
 			parseApp.createObject(db, object, function(err, res, body, success) {
 				callback(err, res, body, success);
 			});
-		});
+		}
 	} catch (e) {
 		console.log("An unexpected error occured: " + JSON.stringify(e));
 	}
 };
+
+app.deleteobject = function(db, query, callback) {
+	var parseApp = new ParseObject(nconf.get('parse:appId'), nconf.get('parse:restKey'));
+	try {
+		this.object(db, query, function(err, response, body, success) {
+			if (body.length === 0) {
+				callback(err, response, body, success);
+			} else {
+				for (obj in body) {
+					var id = body[obj].objectId;
+					parseApp.deleteObject(db, id, function(err, response, body, success) {
+						callback(err, response, body, success);
+					});
+				}
+			}
+		});
+/**
+		parseApp.getObjects(db, query, function(err, response, body, success) {
+			console.log(response, body);
+			console.log('found object = ', body, 'success: ' , success);
+//			var bodyJson = JSON.parse(JSON.stringify(body));
+//			if (body.length == 0) {
+//				throw Error("Record in " + db + " doesn't exist.");
+//				return;
+//			}
+//			var object = bodyJson[0];
+//			var id = object.objectId;
+//			logger.info('spotParseId to delete: '.red + id );
+//			parseApp.deleteObject(db, id, function(err, response, body, success){
+//				callback(err, response, body, success);
+//			});
+		});
+**/
+	} catch (e) {
+		console.log("An unexpected error occured: " + JSON.stringify(e));
+	}
+}
 
 /**
  * App.Create()

@@ -50,6 +50,7 @@ block script_include
 	script(src='/js/lib/handlebars.js', type='text/javaScript')
 	script(type='text/javascript')
 		window._$spot_url = '#{spot_url}';
+		window._$userId = '#{user_id}';
 
 block scripts
 	script(type='text/x-handlebars-template', id='spots-template')
@@ -57,7 +58,7 @@ block scripts
 		.feed.well
 			a.btn.btn-info(href='/main/spots/edit/{{spotId}}') Modify Spot
 			&nbsp;
-			a.btn.btn-warning(href='/main/spots/subscribe/{{spotId}}') Subscribe
+			a.btn.btn-warning(action='/spot/subscribe/{{spotId}}', method='PUT').subscribe Subscribe
 			h3.header {{ name }}
 			.wind_directions
 				h5 Wind: 

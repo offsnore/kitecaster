@@ -217,6 +217,35 @@
 				}			
 			})			
 		});
+		
+		$(".subscribe").live("click", function(e){
+			e.preventDefault();
+			var that = this;
+			var send_url = $(that).attr('action');
+			var method = $(this).attr('method') || "PUT";
+			var data = {
+				'userId': _$userId
+			};
+			var data = JSON.stringify(data);
+			$.ajax({
+				url: send_url,
+				type: method,
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				data: data,
+				success: function(response) {
+					if (method == "PUT") {
+						$(that).html("Subscribed");
+						$(that).removeClass("btn-warning").addClass("btn-success");
+						$(that).attr('method', 'DELETE');
+					} else {
+						$(that).html("Subscribe");
+						$(that).removeClass("btn-success").addClass("btn-warning");
+						$(that).attr('method', 'PUT');						
+					}
+				}
+			})			
+		})
 
 		if (typeof Handlebars != 'undefined') {
 			Handlebars.registerHelper('ifCond', function(v1, v2, options) {

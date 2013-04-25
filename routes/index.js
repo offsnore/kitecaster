@@ -117,6 +117,7 @@ exports.mainSpot = function(req, res) {
 
 	// get Session Details
 	var session_id = nconf.get('site:fakedSession');
+	var user_id = session_id;
 
 	// @todo - make this use the API
 
@@ -127,6 +128,7 @@ exports.mainSpot = function(req, res) {
 		}
 **/
 	var params = {
+		user_id: user_id,
 		spot_url: nconf.get('api:spot:frontend_url'),
 		page: {
 			active: 'Spots',
