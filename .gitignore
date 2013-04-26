@@ -14,3 +14,7 @@ logs/appendonly.aof
 *.aof
 
 *.httpclient
+
+node_modules/.DS_Store
+
+node_modules/.DS_Store

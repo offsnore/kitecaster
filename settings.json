@@ -12,12 +12,15 @@
 			"frontend_url" : "local.kitecaster.com",
 			"port" : "7501"
 		},
-			"model": {
+		"model": {
 			"port" : "7504"
 		},
 		"kite" : {
 			"frontend_url" : "local.kitecaster.com",
 			"port" : "7508"
+		}
+		"kitescore": {
+			"port" : "8503"
 		}
 	},
 		"test" : {
@@ -28,6 +31,11 @@
 	},
 		"spot" : {
 		"defaultLimit": "10"
+	},
+	"weather" : {
+		"apis" : {
+			"wunderground": "27c9a5dc8f98410f"     
+		}
 	},
 	"site": {
 		"frontend": {
