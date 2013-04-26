@@ -8,6 +8,7 @@
         "restKey": "zeJNClfH1mAaJL2wVELcqdNbFcgkhTTCEyoZ4qaw"
      } ,  
   "api" : {
+<<<<<<< HEAD
       "spot": {
       	"frontend_url" : "local.kitecaster.com",
       	"port" : "7501"
@@ -15,6 +16,11 @@
       "model": {
       	"port" : "7502"
       }
+=======
+      "spot": {"port" : "8501"},
+      "model": {"port" : "8502"},
+      "kitescore": {"port" : "8503"}
+>>>>>>> wundernode update, kitescore API, some tests
    },
    "test" : {
       "socketio.port" : "9001"      
@@ -25,7 +31,11 @@
    "spot" : {
       "defaultLimit": "10"
    },
-
+   "weather" : {
+     "apis" : {
+         "wunderground": "27c9a5dc8f98410f"     
+         }   
+   },
    "site": {
    		"frontend": {
    			"title":"KiteCaster - Beta"
