@@ -58,13 +58,20 @@ exports.mainIndex = function(req, res) {
 		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
 	var geo_location = lookup.geolookup.getCurrent(req);
+
+	// get Session Details
 	var session_id = nconf.get('site:fakedSession');
+	var user_id = session_id;
+
 	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
 	var profile_data = {};
 
 	// Gets the most up-to-date Info based on DataStore Logic
 	Datastore.records.getCurrent("Profiles", {"session_id": session_id}, function(data){
 		var params = {
+			user_id: user_id,
+			spot_url: nconf.get('api:spot:frontend_url'),
+			kite_url: nconf.get('api:kite:frontend_url'),
 			page: {
 				active: 'Home',
 			},

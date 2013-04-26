@@ -119,6 +119,30 @@
 				var source = obj.html();
 				var template = Handlebars.compile(source);
 				$(".spot_container").html(template({}));
+			}			
+		}
+
+		// Logic To Handle Spitting out the Spot Themselves		
+		if (typeof _$kite_url != 'undefined') {
+			if (typeof $("#kitespot-template")[0] != 'undefined') {
+				var obj = $("#kitespot-template");
+				var url = "http://" + _$kite_url + "/kite";
+				$.ajax({
+					dataType: "json",
+					data: {
+						userId: _$user_id
+					},
+					url: url,
+					success: function(data) {
+						var data = {'results': data};
+						var source = obj.html();
+						var template = Handlebars.compile(source);
+						$(".spot_container").html(template(data));
+					},
+					error: function() {
+						//console.log('oops');	
+					}
+				});
 			}
 		}
 
