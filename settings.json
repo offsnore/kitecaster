@@ -18,18 +18,18 @@
 		"kite" : {
 			"frontend_url" : "local.kitecaster.com",
 			"port" : "7508"
-		}
+		},
 		"kitescore": {
 			"port" : "8503"
 		}
 	},
-		"test" : {
+	"test" : {
 		"socketio.port" : "9001"      
 	},
-		"redis" : {
+	"redis" : {
 		"expireTime":"60"
 	},
-		"spot" : {
+	"spot" : {
 		"defaultLimit": "10"
 	},
 	"weather" : {
