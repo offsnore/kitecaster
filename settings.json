@@ -21,6 +21,9 @@
 		},
 		"kitescore": {
 			"port" : "8503"
+		},
+		"google": {
+			"api_key": "AIzaSyDBD7vGX-y9pO8PP8bHCOQlKztjWzcJNf8"
 		}
 	},
 	"test" : {

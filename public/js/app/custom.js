@@ -114,12 +114,50 @@
 					}
 				});
 			}
+			if (typeof $("#spotview-template")[0] != 'undefined') {
+				var obj = $("#spotview-template");
+				// does a quick pull for all spots
+				var url = "http://" + _$spot_url + "/spot/" + _$spot_id + "?callback=?";
+				$.ajax({
+					dataType: "jsonp",
+					jsonp: "callback",
+					url: url,
+					success: function(data) {
+						var data = data[0];
+						var source = obj.html();
+						var template = Handlebars.compile(source);
+						$(".spot_container").html(template(data));
+						if (typeof initialize == 'function') {	
+							initialize();
+							loadnearby();
+						}
+					},
+					error: function() {
+						//console.log('oops');	
+					}
+				});
+			}
 			if (typeof $("#spotnew-template")[0] != 'undefined') {
 				var obj = $("#spotnew-template");
 				var source = obj.html();
 				var template = Handlebars.compile(source);
 				$(".spot_container").html(template({}));
-			}			
+			}
+			
+			// Easy method for a Call to nearby Spots
+			function loadnearby() {
+				if (typeof _$local.map != 'undefined') {
+					$.ajax({
+						url: '/spot/' + _$spot_id + "?discover=true",
+						datatype: "json",
+						success: function(data){
+							$(data).each(function(i, item){
+								_$local.map.loadSpots(item.location.latitude, item.location.longitude, item.name);
+							});
+						}
+					});
+				}
+			}
 		}
 
 		// Logic To Handle Spitting out the Spot Themselves		
@@ -277,6 +315,20 @@
 			    return options.fn(this);
 			  }
 			  return options.inverse(this);
+			});
+
+			Handlebars.registerHelper('looper', function(list, delimiter, options) {
+				if (!delimiter) {
+					var delimiter = ",";
+				}
+				var hlist = "";
+				for (var i in list) {
+					hlist += list[i];
+					if (i < (list.length - 1)) {
+						hlist += delimiter + " ";
+					}
+				}
+				return hlist;
 			});
 		}
 

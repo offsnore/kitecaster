@@ -385,13 +385,61 @@
 				spotId: id
 			}
 		};
+
+		var queryParts = require('url').parse(req.url, true).query;
+		
 		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
 			if (body.length == 0) {
 				obj = {"error":"Spot" + id + "not found."};
 			} else {
 				obj = body;
 			}
-			jsonp.send(req, res, obj);
+		
+			// gets Spots within certain distance of THIS spot (for mapping)		
+			if (queryParts.discover == 'true') {
+				var distance = 10;
+				var unittype = "miles";
+
+				var limit = 5;
+
+				var queryParams = {
+					'limit': limit,
+					'where': {}
+				};
+				
+				if (queryParts.unittype) {
+					var unittype = queryParts.unittype;
+				}
+				
+				if (queryParts.distance) {
+					var distance = queryParts.distance;
+				}
+				
+				if (obj.length > 0) {
+					var lat = obj[0].location.latitude;
+					var lon = obj[0].location.longitude;
+				}
+
+				queryParams.where.location = {
+					"$nearSphere" : {
+						__type: 'GeoPoint',
+						latitude: lat,
+						longitude: lon
+					}
+				};
+
+				Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
+					if (body.length == 0) {
+						obj = {};
+					} else {
+						obj = body;
+					}
+					jsonp.send(req, res, obj);
+				});
+				
+			} else {
+				jsonp.send(req, res, obj);
+			}
 		});
 	});
 	
