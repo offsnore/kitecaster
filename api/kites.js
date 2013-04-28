@@ -79,7 +79,7 @@ var restify = require('restify')
 	});
 	
 	// KitePage API
-	server.get('kite/api', function(req, res) {
+	server.get('/kite/api', function(req, res) {
 		var api = {}
 		api.queryParams = {
 			GET : {
