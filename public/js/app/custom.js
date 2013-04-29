@@ -128,7 +128,7 @@
 						var template = Handlebars.compile(source);
 						$(".spot_container").html(template(data));
 						if (typeof initialize == 'function') {	
-							initialize();
+							initialize(data.location.latitude, data.location.longitude);
 							loadnearby();
 						}
 					},
