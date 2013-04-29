@@ -181,6 +181,7 @@ exports.newSpot = function(req, res) {
 
 	var params = {
 		spot_id: 0,
+		kite_url: null,
 		spot_url: nconf.get('api:spot:frontend_url'),
 		google_api_key: nconf.get('api:google:api_key'),
 		page: {
