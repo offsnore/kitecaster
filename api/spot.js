@@ -591,12 +591,54 @@
 		});
 	});
 	
+	/**
+	 * GET (Create)
+	 * Used to grab all the spot IDs for a particular UserID
+	 */
+	server.get('/subscribe/spot', function(req, res){
+		var id = req.params.userId;
+		var data = "";
+
+		var data = require('url').parse(req.url, true).query;
+
+		var json, valid;
+		try {
+			json = data;
+			valid = validate(json, subscribeSchema);
+			if (valid.length > 0 ) {
+				res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
+				return;
+			} else {
+				try {
+					var queryParams = json;
+					
+					// the -include will link up objects in the DB and return object field values
+					queryParams['include'] = "spotPointer";
+					
+					Datastore.records.object("Subscribe", queryParams, function(err, response, body, success) {
+						if (body.length == 0) {
+							obj = {};
+						} else {
+							obj = body;
+						}
+						jsonp.send(req, res, obj);
+					});
+				} catch (e) {
+					console.log("An unexpected error occured in the SpotSubscribeAPI: " + JSON.stringify(e));
+				}
+			}
+		} catch (e) {
+			console.log("Unexpected error occured: " + JSON.stringify(e));
+			res.statusCode = 400;
+			res.send(e);
+		}
+	});
 	
 	/**
 	 * PUT (Create)
 	 * @note - we only "create" PUT into the server itself, because we don't know it's spotID (that's generated for us)
 	 */
-	server.put('/spot/subscribe/:id', function(req, res){
+	server.put('/subscribe/spot/:id', function(req, res){
 		var id = req.params.id;
 		var data = "";
 		req.on('data', function(chunk) {
@@ -609,10 +651,16 @@
 				valid = validate(json, subscribeSchema);
 		
 				if (valid.length > 0 ) {
-					res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
+					res.statusCode = 400;
+					res.send('Error validating spot schema:' + JSON.stringify(valid));
 					return;
 				} else {
 					try {
+					
+// @todo get Spot pointer for DB insert
+//						json.spotId_relation = {"__op":"AddRelation", "objects":[{"__type":"Pointer","className":"Spot","objectId":"k0LtRf6clD"}]};
+//						json.spotPointer = {"__type":"Pointer","className":"Spot","objectId":"k0LtRf6clD"};
+
 						json.spotId = id;
 						Datastore.records.createobject("Subscribe", json, function(err, response){
 							// @todo build better error handling from Parse-com return
@@ -634,15 +682,14 @@
 	/**
 	 * DELETE (Delete)
 	 */
-	server.del('/spot/subscribe/:id', function(req, res){
+	server.del('/subscribe/spot/:id', function(req, res){
 		var id = req.params.id;
 		var queryParams = {
 			"spotId": parseInt(req.params.id),
 			"userId": false
 		}
-		
 		// @note - there is a bug in here somehwere
-
+		// @note - thinking it's with HEaders being sent before sTream
 		var data = "";
 		req.on('data', function(chunk) {
 			data += chunk;
@@ -650,18 +697,25 @@
 		req.on('end', function(){
 			json = JSON.parse(data);
 			valid = validate(json, subscribeSchema);
-
 			if (valid.length > 0 ) {
-				res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
+				res.statusCode = 400;
+				res.send('Error validating spot schema:' + JSON.stringify(valid));
 				return;
 			} else {
-				json.spotId = parseInt(req.params.id);
+				json.spotId = req.params.id;
+				var query = {
+					'where': json
+				};
 				try {
-					Datastore.records.deleteobject('Subscribe', json, function(err, response, body){
+					Datastore.records.deleteobject('Subscribe', query, function(err, response, body){
 						if (body.length == 0) {
-							res.send(400, "Spot has no subscription to delete.");
+							res.statusCode = 400;
+							res.send("Spot has no subscription to delete.");
+							res.end(400);
 						} else {
-							res.send(200, "Spot subscribe has been deleted!");
+							res.statusCode = 200;
+							res.send("Spot subscribe has been deleted!");
+							res.end(200);
 						}
 					});
 				} catch (e) {
