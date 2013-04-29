@@ -42,7 +42,7 @@
 			$("#" + hidden_label).attr("value", $(this).attr('id'));
 		});
 		$("div.btn-group input[type='button']").click(function(){
-			$("")
+			//$("")
 		});
 		var default_value = 150;
 		if ($("#travel_distance").length > 0) {
@@ -88,6 +88,24 @@
 						var source = $("#spots-template").html();
 						var template = Handlebars.compile(source);
 						$(".spot_container").html(template(data));
+						// load up the subscribes
+						$.ajax({
+							data: {
+								userId: _$userId
+							},
+							url: '/subscribe/spot',
+							success: function(data) {
+								$.each(data, function(i, item){
+									if (item.spotId) {
+										var id = item.spotId;
+										var obj = $(".subscribe[data-attr='" + id + "']");
+										obj.text("Subscribed");
+										obj.addClass("btn-success").removeClass("btn-warning");
+										obj.attr('method', 'DELETE');
+									}
+								});
+							}
+						});
 					},
 					error: function() {
 						//console.log('oops');	

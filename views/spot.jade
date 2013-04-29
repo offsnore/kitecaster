@@ -58,7 +58,7 @@ block scripts
 		.feed.well
 			a.btn.btn-info(href='/main/spots/edit/{{spotId}}') Modify Spot
 			&nbsp;
-			a.btn.btn-warning(action='/spot/subscribe/{{spotId}}', method='PUT').subscribe Subscribe
+			a.btn.btn-warning(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe Subscribe
 			h3.header {{ name }}
 			.wind_directions
 				h5 Wind: 
