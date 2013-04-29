@@ -100,20 +100,20 @@ block scripts
 					div.controls 
 						h3 {{ name }}
 				div.control-group
+					label.control-label(for='input_location') People NearBy
 					div.controls
-						.btn.btn-success I'm here! (Check-In)
+						div.control-group
+							.btn.btn-success I'm here! (Check-In)
+							.active_users
+								h3 Loading...
 				div.control-group
+					label.control-label(for='input_location') KitingScore
 					div.controls
-						div.warning_msg
+						h3 93 {need this to be real .. c'mon weather API}
 				div.control-group
-					label.control-label(for='input_location') Location
+					label.control-label(for='input_location') Historical Weather Data
 					div.controls
-						input(type='hidden', name='location', value='{{location.latitude}},{{location.longitude}}')
-						input(type='hidden', name='lat', value='{{location.latitude}}')
-						input(type='hidden', name='lon', value='{{location.longitude}}')
-						{{location.latitude}}, {{location.longitude}}
-						p
-						div#map-canvas(style='height: 300px;') Loading map...
+						h3 [insert history about this lat/long]
 				div.control-group
 					label.control-label(for='input_description') Brief Description
 					div.controls
@@ -123,6 +123,18 @@ block scripts
 					div.controls
 						h3.list 
 							{{looper wind_directions ","}}
+				div.control-group
+					div.controls
+						div.warning_msg
+				div.control-group
+					label.control-label(for='input_location') Location
+					div.controls
+						input(type='hidden', name='location', value='{{location.latitude}},{{location.longitude}}')
+						input(type='hidden', name='lat', value='{{location.latitude}}')
+						input(type='hidden', name='lon', value='{{location.longitude}}')
+						p Lat.: {{location.latitude}}, Long.: {{location.longitude}}
+						p
+						div#map-canvas(style='height: 300px;') Loading map...
 			script(type='text/javascript')
 				window._$winds = [];
 				{{#each wind_directions}}
