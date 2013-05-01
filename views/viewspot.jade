@@ -19,11 +19,13 @@ block content
 				h3 Loading...
 
 block script_include
-	script(src='/js/lib/handlebars.js', type='text/javaScript')
+	script(src='/js/lib/handlebars.js', type='text/JavaScript')
+	script(src='/js/lib/moment.min.js', type='text/JavaScript')
 	script(type='text/javascript')
 		window._$local = {}; // future container for all local envs
 		window._$spot_url = '#{spot_url}';
 		window._$spot_id  = '#{spot_id}';
+		window._$user_id = '#{user_id}';
 	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=false')
 	script(type='text/javascript')
 		function initialize(lat, lon) {
@@ -91,6 +93,11 @@ block script_include
 		}
 
 block scripts
+	script(type='text/x-handlebars-template', id='spotcheckin-template')
+		{{#each results}}
+		{{profilePointer.name}} {{profilePointer.lastname}} was here {{createdFrom}}
+		{{/each}}
+		
 	script(type='text/x-handlebars-template', id='spotview-template')
 		form(action='/spot/{{ spotId }}', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send
 			input(type='hidden', name='spotName', id='spotName', value='{{ name }}')
@@ -103,7 +110,7 @@ block scripts
 					label.control-label(for='input_location') People NearBy
 					div.controls
 						div.control-group
-							.btn.btn-success I'm here! (Check-In)
+							.btn.btn-success.checkin I'm here! (Check-In)
 							.active_users
 								h3 Loading...
 				div.control-group

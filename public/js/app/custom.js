@@ -154,7 +154,53 @@
 						//console.log('oops');	
 					}
 				});
+				
+				$(".checkin").live("click", function(){
+					var url = "http://" + _$spot_url + "/checkin/spot/" + _$spot_id;
+					var data = {userId: _$user_id};
+					$.ajax({
+						type: 'PUT',
+						contentType: "application/json; charset=utf-8",
+						dataType: "json",
+						data: JSON.stringify(data),
+						url: url,
+						success: function(data) {
+							console.log(data);
+						},
+						error: function() {
+							//console.log('oops');	
+						}
+					});
+				});				
 			}
+			
+			if (typeof $("#spotcheckin-template")[0] != 'undefined') {
+				var url = "http://" + _$spot_url + "/checkin/spot/" + _$spot_id;
+				$.ajax({
+					type: 'GET',
+					dataType: "json",
+					data: {
+						userId: _$user_id
+					},
+					url: url,
+					success: function(data) {
+						$(data).each(function(i, item){
+							item.createdFrom = false;
+							if (item.createdAt) {
+								item.createdFrom = moment(item.createdAt).fromNow()
+							}
+						});
+						var data = {
+							results: data	
+						};
+						var obj = $("#spotcheckin-template");
+						var source = obj.html();
+						var template = Handlebars.compile(source);
+						$(".active_users").html(template(data));
+					}
+				});
+			}
+			
 			if (typeof $("#spotnew-template")[0] != 'undefined') {
 				var obj = $("#spotnew-template");
 				var source = obj.html();

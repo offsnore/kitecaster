@@ -237,7 +237,13 @@ exports.viewSpot = function(req, res) {
 	if (objectId == '') {
 		errorPage(res, "We were unable to locate this spot (missing ID).");
 	}
+
+	// get Session Details
+	var session_id = nconf.get('site:fakedSession');
+	var user_id = session_id;
+
 	var params = {
+		user_id: user_id,
 		spot_id: objectId,
 		spot_url: nconf.get('api:spot:frontend_url'),
 		google_api_key: nconf.get('api:google:api_key'),
