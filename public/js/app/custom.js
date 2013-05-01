@@ -156,6 +156,7 @@
 				});
 				
 				$(".checkin").live("click", function(){
+					var that = this;
 					var url = "http://" + _$spot_url + "/checkin/spot/" + _$spot_id;
 					var data = {userId: _$user_id};
 					$.ajax({
@@ -165,7 +166,8 @@
 						data: JSON.stringify(data),
 						url: url,
 						success: function(data) {
-							console.log(data);
+							$(that).remove();
+							$(".active_users").prepend("<p>You were here just now.</p>");
 						},
 						error: function() {
 							//console.log('oops');	
@@ -197,6 +199,9 @@
 						var source = obj.html();
 						var template = Handlebars.compile(source);
 						$(".active_users").html(template(data));
+					}, 
+					error: function() {
+						$(".active_users").html("Current kiters unavailable at the moment.");
 					}
 				});
 			}
