@@ -828,6 +828,7 @@
 					// the -include will link up objects in the DB and return object field values
 					queryParams['include'] = "spotPointer";
 					queryParams['include'] = "profilePointer";
+					queryParams['order'] = "-createdAt";
 					Datastore.records.object("Checkin", queryParams, function(err, response, body, success) {
 						if (body.length == 0) {
 							obj = {};

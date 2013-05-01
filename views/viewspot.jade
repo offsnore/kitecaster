@@ -95,7 +95,7 @@ block script_include
 block scripts
 	script(type='text/x-handlebars-template', id='spotcheckin-template')
 		{{#each results}}
-		{{profilePointer.name}} {{profilePointer.lastname}} was here {{createdFrom}}
+		p {{profilePointer.name}} {{profilePointer.lastname}} was here {{createdFrom}}
 		{{/each}}
 		
 	script(type='text/x-handlebars-template', id='spotview-template')
