@@ -270,6 +270,7 @@
 						if (data) {
 							var current_forecast = data.simpleforecast.forecastday[0];								
 							current_forecast.details = data.txt_forecast.forecastday[0].fcttext;
+							current_forecast.google_image_url = data.google_image_url;
 						}
 						var obj = $("#spotweather-template");
 						var source = obj.html();
