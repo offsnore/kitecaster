@@ -60,6 +60,22 @@ a {
 	display: none;
 }
 
+.form-input .control-group > *, .form-input .controls > * {
+	font-size: 24px !important;
+	min-height: 42px;
+}
+
+.form-input input {
+	font-size: 24px !important;
+	line-height: 33px;
+	height: 44px;
+	min-height: 46px;
+}
+
+.form-input span.add-on {
+	height: 34px;
+}
+
 @media (min-width: 768px) and (max-width: 979px) {
 	.nav li {
 		font-size: 1.5em;

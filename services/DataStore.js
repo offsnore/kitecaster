@@ -302,6 +302,21 @@ base.createkey = function(db, key) {
 }
 
 /**
+ * Base.clearkey()
+ * Does a cache removal of local object
+ */
+base.clearkey = function(db, key) {
+	var client = redis.createClient();
+	client.on("error", function(err) {
+		console.log("error event - " + client.host + ":" + client.port + " - " + err);
+	});
+	var hashkey = base.createkey(db, key);
+	// if there is no data, expire the key
+	client.del(hashkey);
+	return true;	
+}
+
+/**
  * Base Level Method
  * Handles setting an object to Redis
  */
