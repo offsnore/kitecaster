@@ -192,9 +192,13 @@
 								item.createdFrom = moment(item.createdAt).fromNow()
 							}
 						});
-						var data = {
-							results: data	
-						};
+						if (data.length > 0) {
+							var data = {
+								results: data	
+							};
+						} else {
+							var data = {};
+						}
 						var obj = $("#spotcheckin-template");
 						var source = obj.html();
 						var template = Handlebars.compile(source);

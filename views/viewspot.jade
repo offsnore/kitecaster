@@ -94,9 +94,13 @@ block script_include
 
 block scripts
 	script(type='text/x-handlebars-template', id='spotcheckin-template')
+		{{#if results}}
 		{{#each results}}
 		p {{profilePointer.name}} {{profilePointer.lastname}} was here {{createdFrom}}
 		{{/each}}
+		{{else}}
+		p Nobody has been here yet. Let us know we're here!
+		{{/if}}
 		
 	script(type='text/x-handlebars-template', id='spotview-template')
 		form(action='/spot/{{ spotId }}', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send
@@ -107,12 +111,13 @@ block scripts
 					div.controls 
 						h3 {{ name }}
 				div.control-group
+					div.controls
+						.btn.btn-success.checkin I'm here! (Check-In)
+				div.control-group
 					label.control-label(for='input_location') People NearBy
 					div.controls
-						div.control-group
-							.btn.btn-success.checkin I'm here! (Check-In)
-							.active_users
-								h3 Loading...
+						.active_users
+							h3 Loading...
 				div.control-group
 					label.control-label(for='input_location') KitingScore
 					div.controls
