@@ -77,7 +77,8 @@ a {
 }
 
 .multiple-borders {
-	box-shadow: 0px 0px 0px 5px #000, 0px 0px 0px 10px #fff;
+	border-radius: 4px;
+	box-shadow: 0px 0px 0px 5px #000, 0px 0px 0px 10px #f5f5f5;
 	-webkit-filter: grayscale(100%) contrast(150%);
 }
 
