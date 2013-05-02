@@ -47,6 +47,8 @@ block script_include
 block scripts
 	script(type='text/x-handlebars-template', id='spotweather-template')
 		p
+			img(src='{{google_image_url}}').multiple-borders
+		p
 			img(src='{{icon_url}}')
 		p
 			{{details}}

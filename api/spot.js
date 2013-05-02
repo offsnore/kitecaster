@@ -410,10 +410,13 @@
 				res.end(400);
 			} else {
 				obj = body;
+				var google_api_key = nconf.get("api:google:api_key");
+				var google_image_url = "http://maps.googleapis.com/maps/api/streetview?size=300x300&location=" + obj[0].location.latitude + "," + obj[0].location.longitude + "&sensor=false&key=" + google_api_key;
 				Weather.current_weather(obj[0].location.latitude, obj[0].location.longitude, function(err, obj){
 					if (err) {
 						res.send(JSON.stringify(err));
 					} else {
+						obj.google_image_url = google_image_url; 
 						res.send(obj);
 					}
 				});
