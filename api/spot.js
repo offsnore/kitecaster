@@ -400,13 +400,11 @@
 		var id = req.params.id;
 		var data = "";
 		var data = require('url').parse(req.url, true).query;
-
 		var queryParams = {
 			where: {
 				spotId: parseInt(id)
 			}
 		};
-
 		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
 			if (body.length == 0) {
 				obj = {"error":"Spot" + id + "not found."};
@@ -418,7 +416,6 @@
 					if (err) {
 						res.send(JSON.stringify(err));
 					} else {
-						var obj = obj.forecast;
 						res.send(obj);
 					}
 				});
@@ -435,9 +432,7 @@
 				spotId: id
 			}
 		};
-
 		var queryParts = require('url').parse(req.url, true).query;
-		
 		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
 			if (body.length == 0) {
 				obj = {"error":"Spot" + id + "not found."};
@@ -574,7 +569,6 @@
 		});
 
 		req.on('end', function() {
-	      //console.log('dater: ' + data);
 			var json, valid;
 			try {
 				json = JSON.parse(data);
@@ -596,9 +590,8 @@
 				try {
 					var json = Datastore.creategeopoint(json);
 					Datastore.records.createobject("Spot", json, function(err, response){
-						console.log(err);
 						res.send(200, 'Spot for ' + json.name + ' was been created!');
-					});
+					}, true);
 				} catch (e) {
 					console.log("An unexpected error occured in the SpotAPI: " + JSON.stringify(e));
 				}
@@ -710,7 +703,7 @@
 						Datastore.records.createobject("Subscribe", json, function(err, response){
 							// @todo build better error handling from Parse-com return
 							res.send(200, 'Spot has been subscribed!');
-						}, false);
+						});
 					} catch (e) {
 						console.log("An unexpected error occured in the SpotAPI: " + JSON.stringify(e));
 					}					
@@ -827,7 +820,7 @@
 										Datastore.records.createobject("Checkin", json, function(err, response){
 											// @todo, check check it complete, check for others in the same area
 											res.send(200, 'You\'ve been checked into this Spot.');
-										}, false);
+										});
 									}
 								});
 							}
@@ -895,8 +888,6 @@
 	   Function to call parse, create Spot object
 	**/
 	function createSpot(spot,res) {
-	   console.log('spot to create: ' + JSON.stringify(spot));
-	    
 	   spot.location = {
 	       __type: 'GeoPoint',
 	       latitude: spot.lat,

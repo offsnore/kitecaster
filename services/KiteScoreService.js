@@ -7,6 +7,7 @@ var restify = require('restify'),
     colors = require('colors'),
     //jsonify = require("redis-jsonify"),
    // client = redis.createClient(),
+    Datastore = require('./DataStore'),
     async = require('async'),
     logger = require('winston'),
     wundernode = require('wundernode');
@@ -30,8 +31,21 @@ app.locals = function() {
 app.current_weather = function(lat, lon, callback){
 	var locals = this.locals();
 	var q = lat + "," + lon;
-	var wunder = new wundernode(locals.api_key, locals.debug);
-	wunder.forecast(q, function(err, obj){
-		callback(err, JSON.parse(obj));
+	var db = "weather";
+	Datastore.getlocalobject(db, q, function(err, res){
+		if (res != null) {
+			// the only thing I dont like about this .. is saves it with {body:{}}
+			var res = res.body;
+			callback(err, res);
+		} else {
+			var wunder = new wundernode(locals.api_key, locals.debug);
+			wunder.forecast(q, function(err, obj){
+				var obj = JSON.parse(obj);
+				var obj = obj.forecast;
+				Datastore.setobject(db, q, obj, 3600, function(){
+					callback(err, obj);
+				});
+			});
+		}
 	});
 }
