@@ -101,12 +101,27 @@ block scripts
 		{{else}}
 		p Nobody has been here yet. Let us know you're here!
 		{{/if}}
+
+	script(type='text/x-handlebars-template', id='spotweather-template')
+		p
+			img(src='{{icon_url}}')
+		p
+			{{details}}
+		{{#if avghumidity}}
+		h5 Avg Humidity: {{avghumidity}} %
+		{{/if}}
+		{{#if maxhumidity}}
+		h5 Max Humidity: {{maxhumidity}} %
+		{{/if}}
+		{{#if maxwind}}
+		h5 Max Wind: {{maxwind.degrees}} {{maxwind.dir}} {{maxwind.kph}} kph / {{maxwind.mph}} mph	
+		{{/if}}
 		
 	script(type='text/x-handlebars-template', id='spotview-template')
 		form(action='/spot/{{ spotId }}', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send
 			input(type='hidden', name='spotName', id='spotName', value='{{ name }}')
 			input(type='hidden', name='spotId', id='spotId', value='{{ spotId }}')
-			div.well
+			div.well(id='spot-{{ spotId }}')
 				div.control-group
 					div.controls 
 						h3 {{ name }}
@@ -123,9 +138,10 @@ block scripts
 					div.controls
 						h3 93 {need this to be real .. c'mon weather API}
 				div.control-group
-					label.control-label(for='input_location') Historical Weather Data
+					label.control-label(for='input_location') Current Weather Forecast
 					div.controls
-						h3 [insert history about this lat/long]
+						.active_weather
+							h3 Loading...
 				div.control-group
 					label.control-label(for='input_description') Brief Description
 					div.controls

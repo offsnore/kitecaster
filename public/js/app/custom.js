@@ -177,37 +177,53 @@
 			}
 			
 			if (typeof $("#spotcheckin-template")[0] != 'undefined') {
-				var url = "http://" + _$spot_url + "/checkin/spot/" + _$spot_id;
-				$.ajax({
-					type: 'GET',
-					dataType: "json",
-					data: {
-						userId: _$user_id
-					},
-					url: url,
-					success: function(data) {
-						$(data).each(function(i, item){
-							item.createdFrom = false;
-							if (item.createdAt) {
-								item.createdFrom = moment(item.createdAt).fromNow()
+				function loadActivePeople() {
+					var url = "http://" + _$spot_url + "/checkin/spot/" + _$spot_id;
+					$.ajax({
+						type: 'GET',
+						dataType: "json",
+						data: {
+							userId: _$user_id
+						},
+						url: url,
+						success: function(data) {
+							$(data).each(function(i, item){
+								item.createdFrom = false;
+								if (item.createdAt) {
+									item.createdFrom = moment(item.createdAt).fromNow()
+								}
+							});
+							if (data.length > 0) {
+								var data = {
+									results: data	
+								};
+							} else {
+								var data = {};
 							}
-						});
-						if (data.length > 0) {
-							var data = {
-								results: data	
-							};
-						} else {
-							var data = {};
+							var obj = $("#spotcheckin-template");
+							var source = obj.html();
+							var template = Handlebars.compile(source);
+							$(".active_users").html(template(data));
+						}, 
+						error: function() {
+							$(".active_users").html("Current kiters unavailable at the moment.");
 						}
-						var obj = $("#spotcheckin-template");
-						var source = obj.html();
-						var template = Handlebars.compile(source);
-						$(".active_users").html(template(data));
-					}, 
-					error: function() {
-						$(".active_users").html("Current kiters unavailable at the moment.");
-					}
-				});
+					});
+				}
+				
+				window.setTimeout(function(){
+					loadActivePeople();					
+				}, 1500);
+	
+				// @todo - Make this work with Socket.IO
+//				_$local.peopleload = window.setInterval(function(){
+//					loadActivePeople();
+//				}, 5000);
+				
+			}
+			
+			if (typeof $("#spotweather-template")[0] != 'undefined') {
+				loadForecast();
 			}
 			
 			if (typeof $("#spotnew-template")[0] != 'undefined') {
@@ -231,6 +247,41 @@
 					});
 				}
 			}
+
+			// Easy method for a Call to Weather Forecast
+			function loadForecast(spot_id) {
+				var spot = spot_id || _$spot_id;
+					
+				if (!spot) {
+					return false;
+				}
+				
+				var url = "http://" + _$spot_url + "/checkin/weather/" + spot;
+				var parent = "#spot-" + spot;
+				$.ajax({
+					type: 'GET',
+					dataType: "json",
+					data: {
+						userId: _$user_id
+					},
+					url: url,
+					success: function(data) {
+						var current_forecast = {};
+						if (data) {
+							var current_forecast = data.simpleforecast.forecastday[0];								
+							current_forecast.details = data.txt_forecast.forecastday[0].fcttext;
+						}
+						var obj = $("#spotweather-template");
+						var source = obj.html();
+						var template = Handlebars.compile(source);
+						$(".active_weather", parent).html(template(current_forecast));
+					}, 
+					error: function() {
+						$(".active_weather", parent).html("Current kiters unavailable at the moment.");
+					}
+				});					
+			}
+
 		}
 
 		// Logic To Handle Spitting out the Spot Themselves		
@@ -249,6 +300,9 @@
 						var source = obj.html();
 						var template = Handlebars.compile(source);
 						$(".spot_container").html(template(data));
+						$(data.results).each(function(i, item){
+							loadForecast(item.spotId);
+						});
 					},
 					error: function() {
 						//console.log('oops');	
