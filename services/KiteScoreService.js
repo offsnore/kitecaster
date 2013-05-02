@@ -17,7 +17,21 @@ var options = {
    colorize : "true"
 };
 
+var app = module.exports;
 
+app.locals = function() {
+	var api_key = nconf.get('weather:apis:wunderground');
+	return {
+		api_key: api_key || false,
+		debug: nconf.get('weather:apis:wunderground:debug') || false
+	}
+};
 
-
-
+app.current_weather = function(lat, lon, callback){
+	var locals = this.locals();
+	var q = lat + "," + lon;
+	var wunder = new wundernode(locals.api_key, locals.debug);
+	wunder.forecast(q, function(err, obj){
+		callback(err, JSON.parse(obj));
+	});
+}

@@ -9,6 +9,7 @@
 	,   async = require('async')
 	,	jsonp = require('jsonp-handler')
 //	,	jsonp = require('jsonp-handler')
+	,   Weather = require('../services/KiteScoreService')
 	,   Datastore = require('../services/DataStore')
 	,   logger = require('winston');
 	    
@@ -168,6 +169,10 @@
 	// incase we get errors, lets know about them :)
 	server.on("error", function(r, v) {
 		console.log("error occured: " + JSON.stringify(r) + "," + JSON.stringify(v));
+	});
+
+	server.on('uncaughtException', function(err) {
+		console.error("Uncaught error occured: " + JSON.stringify(err));
 	});
 
 	server.listen(restPort, function() {
@@ -385,6 +390,40 @@
 			//res.json(body);
 		});
 
+	});
+
+	/**
+	 * GET (Create)
+	 * Used to grab all the spot IDs for a particular UserID
+	 */
+	server.get('/checkin/weather/:id', function(req, res){
+		var id = req.params.id;
+		var data = "";
+		var data = require('url').parse(req.url, true).query;
+
+		var queryParams = {
+			where: {
+				spotId: parseInt(id)
+			}
+		};
+
+		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
+			if (body.length == 0) {
+				obj = {"error":"Spot" + id + "not found."};
+				res.send(obj);
+				res.end(400);
+			} else {
+				obj = body;
+				Weather.current_weather(obj[0].location.latitude, obj[0].location.longitude, function(err, obj){
+					if (err) {
+						res.send(JSON.stringify(err));
+					} else {
+						var obj = obj.forecast;
+						res.send(obj);
+					}
+				});
+			}
+		});
 	});
 	
 	// Retrieve specific spotId	
@@ -805,6 +844,8 @@
 		});
 	});
 
+
+
 	/**
 	 * GET (Create)
 	 * Used to grab all the spot IDs for a particular UserID
@@ -848,10 +889,6 @@
 			res.statusCode = 400;
 			res.send(e);
 		}
-	});
-
-	server.on('uncaughtException', function(err) {
-		console.error(err.stack);
 	});
 
 	/**
