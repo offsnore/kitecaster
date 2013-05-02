@@ -810,9 +810,8 @@
 	 * Used to grab all the spot IDs for a particular UserID
 	 */
 	server.get('/checkin/spot/:id', function(req, res){
-		var id = req.params.userId;
+		var id = req.params.id;
 		var data = "";
-
 		var data = require('url').parse(req.url, true).query;
 
 		var json, valid;
@@ -825,10 +824,13 @@
 			} else {
 				try {
 					var queryParams = json;
+					queryParams['where'] = {
+						spotId: id
+					};
 					// the -include will link up objects in the DB and return object field values
 					queryParams['include'] = "spotPointer";
 					queryParams['include'] = "profilePointer";
-					queryParams['order'] = "-createdAt";
+					queryParams['order'] = "-createdAt";					
 					Datastore.records.object("Checkin", queryParams, function(err, response, body, success) {
 						if (body.length == 0) {
 							obj = {};
