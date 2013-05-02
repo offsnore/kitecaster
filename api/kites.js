@@ -113,7 +113,7 @@ var restify = require('restify')
 		// Use DataStore Instead
 		Datastore.records.object("Subscribe", queryParams, function(err, response, body, success) {
 			//res.send(body);
-			if (body.length > 0) {
+			if (body) {
 				// @todo Make method within Datastore that handles OR queries
 				var oro = [];
 				for (var spot in body) {
