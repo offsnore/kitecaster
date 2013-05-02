@@ -113,6 +113,8 @@ app.get('/foo', function(req, res) {
 });
 app.get('/start', routes.start);
 
+app.get('/login', routes.loginIndex);
+
 // @todo make this routing come from a config file and executed via a LOOP
 app.get('/main', routes.mainIndex);
 app.get('/main/spots', routes.mainSpot);

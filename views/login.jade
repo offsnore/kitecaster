@@ -1,0 +1,29 @@
+extends main-layout
+
+block content
+	#kitecasterapp
+		.container-fluid
+			.row-fluid
+				.span4
+				.span4.well
+					.row-fluid
+						.span12
+							form(method='post').form-input
+								fieldset
+									legend 
+										h2 Sign Into Your Account
+								.control-group
+									label.control-label Email Address
+									.controls
+										input(type='text', class='span12', id='email', name='email', placeholder='me@name.com')
+								.control-group
+									label.control-label Password
+									.controls
+										input(type='password', class='span12', id='password', name='password', placeholder='Enter your password')
+								.control-group
+									.controls
+										br
+								.control-group
+									.controls
+										input(type='submit', class='btn btn-success', value='Login')
+				.span4

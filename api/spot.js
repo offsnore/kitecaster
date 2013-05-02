@@ -385,9 +385,7 @@
 
 		// Use DataStore Instead
 		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
-			//res.send(body);
 			jsonp.send(req, res, body);
-			//res.json(body);
 		});
 
 	});
@@ -751,6 +749,8 @@
 							res.send("Spot has no subscription to delete.");
 							res.end(400);
 						} else {
+							// removal the cache for the front page too
+							Datastore.clearkey("Spot", "");
 							res.statusCode = 200;
 							res.send("Spot subscribe has been deleted!");
 							res.end(200);

@@ -49,6 +49,13 @@ exports.test = function(req, res){
   res.render('test', { title: 'Test Page Demos' });
 };
 
+exports.loginIndex = function(req, res) {
+	var params = {
+		title: ""
+	};
+	res.render('login', params);
+}
+
 // First Page for Application
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
 exports.mainIndex = function(req, res) {
