@@ -108,12 +108,15 @@ var restify = require('restify')
 		}
 		// @todo add in params for sorting by Score & Distance, Score, Distance
 		var queryParams = {
-			userId: queryParts.userId
+			'where': {
+				'userId': queryParts.userId
+			}
 		};
+		console.log(queryParams);
 		// Use DataStore Instead
 		Datastore.records.object("Subscribe", queryParams, function(err, response, body, success) {
 			//res.send(body);
-			if (body) {
+			if (body && body.length > 0) {
 				// @todo Make method within Datastore that handles OR queries
 				var oro = [];
 				for (var spot in body) {
