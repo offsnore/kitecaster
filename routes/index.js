@@ -9,7 +9,8 @@ var
   , Parse = require('parse-api').Parse
   , moment = require('moment')
   , lookup = require('../services/UserGeoIP')
-  , Datastore = require('../services/DataStore');
+  , Datastore = require('../services/DataStore')
+  , Datasession = require('../services/DataSession');
 
 function getSettings() {
 	nconf.argv()
@@ -50,10 +51,43 @@ exports.test = function(req, res){
 };
 
 exports.loginIndex = function(req, res) {
+	var queryParams = require('url').parse(req.url, true).query
 	var params = {
+		txt: false,
+		msg: false,
 		title: ""
 	};
+	if (queryParams.msg) {
+		params.msg = queryParams.msg;
+	}
+	if (queryParams.txt) {
+		params.txt = queryParams.txt;
+	}
 	res.render('login', params);
+}
+
+exports.loginAction = function(req, res) {
+	var nconf = getSettings();
+	var data = req.body;
+	var q = {
+		username: data.email,
+		password: data.password
+	};
+	Datasession.login(q, function(data){
+		if (data.sessionToken) {
+			data.timestamp = new Date();
+			Datasession.setlogincookie(res, data);
+			res.redirect('/main');
+		} else {
+			res.redirect('/login?msg=' + encodeURIComponent(data.error));			
+		}
+	});
+}
+
+exports.logoutIndex = function(req, res) {
+	Datasession.logout(res, function(res){
+		res.redirect("/login?txt=" + encodeURIComponent("You have successfully logged out."));
+	});
 }
 
 // First Page for Application

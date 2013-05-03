@@ -114,6 +114,11 @@ app.get('/foo', function(req, res) {
 app.get('/start', routes.start);
 
 app.get('/login', routes.loginIndex);
+app.post('/login', routes.loginAction);
+
+// These two are alias' of each other
+app.get('/logout', routes.logoutIndex);
+app.get('/main/logout', routes.logoutIndex);
 
 // @todo make this routing come from a config file and executed via a LOOP
 app.get('/main', routes.mainIndex);

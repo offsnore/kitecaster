@@ -3,12 +3,29 @@ extends main-layout
 block content
 	#kitecasterapp
 		.container-fluid
+			if(msg)
+				.row-fluid
+					.span4
+					.span4
+						.alert
+							button(type='button', class='close', data-dismiss='alert') &times;
+							h3| An error occured:
+							h4 #{msg}
+					.span4
+			if(txt)
+				.row-fluid
+					.span4
+					.span4
+						.alert.alert-info
+							button(type='button', class='close', data-dismiss='alert') &times;
+							h4 #{txt}
+					.span4
 			.row-fluid
 				.span4
 				.span4.well
 					.row-fluid
 						.span12
-							form(method='post').form-input
+							form(method='post', action='/login', enctype='application/x-www-form-urlencoded').form-input
 								fieldset
 									legend 
 										h2 Sign Into Your Account
