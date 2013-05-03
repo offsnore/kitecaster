@@ -79,6 +79,8 @@ app.object = function(db, query, callback) {
 
 	try {
 		base.getlocalobject(db, query, function(err, res) {
+			// temp for DEV (no cache brah)
+			var res = null;
 			if (res != null) {
 				app.results = res;
 				body = res.body;

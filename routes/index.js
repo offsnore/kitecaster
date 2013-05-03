@@ -99,17 +99,20 @@ exports.mainIndex = function(req, res) {
 		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
 	var geo_location = lookup.geolookup.getCurrent(req);
-
-	// get Session Details
-	var session_id = nconf.get('site:fakedSession');
-	var user_id = session_id;
-
-	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
 	var profile_data = {};
 
-	// Gets the most up-to-date Info based on DataStore Logic
-	Datastore.records.getCurrent("Profiles", {"session_id": session_id}, function(data){
+	// this is how we get User Data ..
+	Datasession.getuser(req, function(err, response, body){		
+		if (body.length == 0) {
+			return kickOut(res, "Please login again, it seems your session has expired.");
+		}
+
+		var localdata = body[0];		
+		var user_id = localdata.objectId;
+		
+//		var user_id = localdata.objectId;
 		var params = {
+//			localdata: localdata,
 			user_id: user_id,
 			spot_url: nconf.get('api:spot:frontend_url'),
 			kite_url: nconf.get('api:kite:frontend_url'),
@@ -148,10 +151,29 @@ exports.mainIndex = function(req, res) {
 		    location: function() {
 		    	return geo_location;
 		    }
-		}
+		};
 		res.render('main', params);
 	});
+	
+//	// get Session Details
+//	var session_id = nconf.get('site:fakedSession');
+//	var user_id = session_id;
+
+//	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
+
+	// Gets the most up-to-date Info based on DataStore Logic
+//	Datastore.records.getCurrent("Profiles", {"session_id": session_id}, function(data){
+//	});
 };
+
+function clone(obj){
+    if(obj == null || typeof(obj) != 'object')
+        return obj;
+    var temp = obj.constructor(); // changed
+    for(var key in obj)
+        temp[key] = clone(obj[key]);
+    return temp;
+}
 
 // Spots Page for Application
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
@@ -167,47 +189,48 @@ exports.mainSpot = function(req, res) {
 	var session_id = nconf.get('site:fakedSession');
 	var user_id = session_id;
 
-	// @todo - make this use the API
-
-/*
-	Datastore.records.getCurrent("Spots", "*", function(records){
-		if (records.results) {
-			var records = records.results;
+	// this is how we get User Data ..
+	Datasession.getuser(req, function(err, response, body){
+		if (body.length == 0) {
+			return kickOut(res, "Please login again, it seems your session has expired.");
 		}
-**/
-	var params = {
-		user_id: user_id,
-		spot_url: nconf.get('api:spot:frontend_url'),
-		page: {
-			active: 'Spots',
-		},
-		title: nconf.get('site:frontend:title'),
-		credits: "testing",
-		data: {
-			spot_list: {}
-		},
-		body: {
-			content: {
-				pageinfo: "first entry into spots page"
-			},
-			widgets: []
-		},
-	    dateNow: function() {
-	        var dateNow = new Date();
-	        var dd = dateNow.getDate();
-	        var monthSingleDigit = dateNow.getMonth() + 1,
-	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
-	        var yy = dateNow.getFullYear().toString().substr(2);
-	
-	        return (mm + '/' + dd + '/' + yy);
-	    },
-	    location: function() {
-	    	return geo_location;
-	    }
-	}
-	res.render('spot', params);
 
-//	});
+		var localdata = body[0];		
+		var user_id = localdata.objectId;
+	
+		var params = {
+			user_id: user_id,
+			spot_url: nconf.get('api:spot:frontend_url'),
+			page: {
+				active: 'Spots',
+			},
+			title: nconf.get('site:frontend:title'),
+			credits: "testing",
+			data: {
+				spot_list: {}
+			},
+			body: {
+				content: {
+					pageinfo: "first entry into spots page"
+				},
+				widgets: []
+			},
+		    dateNow: function() {
+		        var dateNow = new Date();
+		        var dd = dateNow.getDate();
+		        var monthSingleDigit = dateNow.getMonth() + 1,
+		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+		        var yy = dateNow.getFullYear().toString().substr(2);
+		
+		        return (mm + '/' + dd + '/' + yy);
+		    },
+		    location: function() {
+		    	return geo_location;
+		    }
+		}
+		res.render('spot', params);
+	});
+
 };
 
 // Spots Page for Application
@@ -559,6 +582,10 @@ exports.mainProfileSave = function(req, res) {
 	} catch (e) {
 		logger.debug(e);
 	}
+}
+
+function kickOut(res, mesg) {
+	res.redirect("/login?txt="+encodeURIComponent(mesg));
 }
 
 /**

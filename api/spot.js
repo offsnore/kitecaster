@@ -654,7 +654,9 @@
 				return;
 			} else {
 				try {
-					var queryParams = json;
+					var queryParams = {
+							where: json
+						};
 					
 					// the -include will link up objects in the DB and return object field values
 					queryParams['include'] = "spotPointer";
