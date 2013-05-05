@@ -130,6 +130,7 @@ app.objectupdate = function(db, objectId, query, callback) {
  */
 app.createobject = function(db, object, callback, auto_increment) {
 	if (typeof auto_increment == 'undefined') {
+	  // TODO: should this be defaulted to false?
 		var auto_increment = true;
 	}
 	try {

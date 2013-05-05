@@ -14,7 +14,10 @@ var restify = require('restify'),
     async = require('async'),
     logger = require('winston'),
     wundernode = require('wundernode'),
-    kiteScoreService = require('../services/KiteScoreService');
+    KiteScoreService = require('../services/KiteScoreService'),
+    DataStore = require('../services/DataStore'),
+    ModelService = require('../services/Modelservice');
+    
     
 var options = {
    colorize : "true"
@@ -28,7 +31,7 @@ nconf.argv()
 var wundegroundAPI = nconf.get('weather:apis:wunderground');
 console.log('wunderground key: '.red + wundegroundAPI); 
 
-var wunder = new wundernode(wundegroundAPI, true);
+var wunder = new wundernode(wundegroundAPI, false);
 
 
 var api = {};
@@ -50,6 +53,16 @@ var server = restify.createServer();
 
 //----- 
 
+// Get Default model, store in controller
+var defaultModel;
+
+ModelService.getModel(1, function(error, modelJson) {
+   defaultModel = modelJson;
+   console.log('defaultModel: '.yellow + JSON.stringify(defaultModel));
+});
+
+//-----
+
 var DEFAULT_PORT = 7503;
 var restPort;
 if (nconf.get('api:kitescore:port'))
@@ -68,11 +81,11 @@ process.argv.forEach(function (val, index, array) {
    }
 }); 
 
-server.get('forecast/api', function(req, res) {
+server.get('score/api', function(req, res) {
     res.send(api);
 });
 
-server.get('forecast/today', function(req, res) {
+server.get('score/today', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
    var lat, lon, query, spotId, modelId;
    console.log("queryparts: " + JSON.stringify(queryParts));   
@@ -95,35 +108,40 @@ server.get('forecast/today', function(req, res) {
    }
    else if (queryParts.spotId) {
       spotId = queryParts.spotId;   
+      
    }
    
    // modeId check
    if (queryParts.modelId) {
       modelId = queryParts.modelId;
-   }
+   }   
    
+   var validEntry = (spotId != null ||  (lat != null && lon != null) || queryParts.query != null);
+   console.log('validEntry?: ' + validEntry);
    
-   
-   
-   
-   
-   if ( (!spotId || (!lat && !lon)) || !queryParts.query ) {
+   if ( !validEntry ) {
       res.send(400, "Bad request, must specify location or spot");
       return;
+   } else {
+      console.log('Valid entry, get score for query');
+      if (lat && lon) {
+      } 
+      
+      
    }
    
    if (queryParts.query) {
       // first query for location
       console.log('querying forecast for query location: ' + queryParts.query);
-      wunder.geolookup(function(err, obj) {
-               res.end(obj);
-       }, queryParts.query);
+      wunder.hourly(queryParts.query, function(err, response) {
+            console.log('got here in kitescore.js:'.red);
+            res.send(200, JSON.parse(response));
+            res.end();
+            return;
+       });
       
    }
    
-   
-      
-
 });
 
 server.get('forecast/tomorrow', function(req, res) {
