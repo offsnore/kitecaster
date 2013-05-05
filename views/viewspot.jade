@@ -1,0 +1,170 @@
+extends main-layout
+
+mixin widget(name, header, pageinfo)
+	.widget(class=name)
+		h2(class="header")= header
+		div(class="content")= pageinfo
+
+block content
+	#kitecasterapp
+		.title
+			h1= title
+		include includes/navigation
+		.content
+			if (body.status)
+				div
+					h3.well.btn-success= body.status
+			div.row-fluid.message.hidden.well.btn-success
+			div.row-fluid.spot_container
+				h3 Loading...
+
+block script_include
+	script(src='/js/lib/handlebars.js', type='text/JavaScript')
+	script(src='/js/lib/moment.min.js', type='text/JavaScript')
+	script(type='text/javascript')
+		window._$local = {}; // future container for all local envs
+		window._$spot_url = '#{spot_url}';
+		window._$spot_id  = '#{spot_id}';
+		window._$user_id = '#{user_id}';
+	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=false')
+	script(type='text/javascript')
+		function initialize(lat, lon) {
+			var d_lat = #{geo().lat};
+			var d_lon = #{geo().lon};
+			if (lat && lon) {
+				var d_lat = lat;
+				var d_lon = lon;
+			}
+			var map = new google.maps.Map(
+				document.getElementById('map-canvas'), {
+				center: new google.maps.LatLng(d_lat, d_lon),
+				zoom: 11,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			});
+			// @todo make a custom method for adding these
+			var marker = new google.maps.Marker({
+				position: new google.maps.LatLng(d_lat, d_lon),
+				center: new google.maps.LatLng(d_lat, d_lon),
+				icon: 'http://www.google.com/intl/en_us/mapfiles/ms/micons/red-dot.png',
+				map: map,
+				html: $("#spotName").val()
+			});
+			// handler for loading local spots (relative to this one)
+			map.loadSpots = function(lat, lon, html) {
+				var that = this;
+				var marker2 = new google.maps.Marker({
+					position: new google.maps.LatLng(lat, lon),
+					center: new google.maps.LatLng(lat, lon),
+					animation: google.maps.Animation.DROP,
+					icon: 'http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png',
+					map: _$local.map,
+					html: html || "An error occured, unable to find spot name."
+				});
+				google.maps.event.addListener(marker2, 'click', function(){
+					_$local.infowindow.setContent(this.html);
+					_$local.infowindow.open(_$local.map, this);
+				});
+			}
+			window._$local['infowindow'] = new google.maps.InfoWindow();
+			window._$local['map'] = map;
+			google.maps.event.addListener(marker, 'click', function(){
+				_$local.infowindow.setContent(this.html);
+				_$local.infowindow.open(_$local.map, this);
+			});
+			google.maps.event.addListener(map, 'click', function(event){
+				var latlong = parseFloat(event.latLng.lat()).toFixed(4) + ", " + parseFloat(event.latLng.lng()).toFixed(4);
+				var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + event.latLng.lat() + "," + event.latLng.lng() + "&sensor=true";
+				$.ajax({
+					url: url,
+					dataType: "json",
+					beforeSend: function() {
+						$(".search-query").val("Loading..");
+					},
+					success: function(data){
+						var addy = data.results[1].formatted_address;
+						$(".search-query").val(addy);
+					},
+					error: function() {
+						$(".search-query").val("Something went wrong :( .. try again.");
+					}
+				});
+				$(".latlon").text(latlong);
+			});
+		}
+
+block scripts
+	script(type='text/x-handlebars-template', id='spotcheckin-template')
+		{{#if results}}
+		{{#each results}}
+		p {{profilePointer.name}} {{profilePointer.lastname}} was here {{createdFrom}}
+		{{/each}}
+		{{else}}
+		p Nobody has been here yet. Let us know you're here!
+		{{/if}}
+
+	script(type='text/x-handlebars-template', id='spotweather-template')
+		p
+			img(src='{{icon_url}}')
+		p
+			{{details}}
+		{{#if avghumidity}}
+		h5 Avg Humidity: {{avghumidity}} %
+		{{/if}}
+		{{#if maxhumidity}}
+		h5 Max Humidity: {{maxhumidity}} %
+		{{/if}}
+		{{#if maxwind}}
+		h5 Max Wind: {{maxwind.degrees}} {{maxwind.dir}} {{maxwind.kph}} kph / {{maxwind.mph}} mph	
+		{{/if}}
+		
+	script(type='text/x-handlebars-template', id='spotview-template')
+		form(action='/spot/{{ spotId }}', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send
+			input(type='hidden', name='spotName', id='spotName', value='{{ name }}')
+			input(type='hidden', name='spotId', id='spotId', value='{{ spotId }}')
+			div.well(id='spot-{{ spotId }}')
+				div.control-group
+					div.controls 
+						h3 {{ name }}
+				div.control-group
+					div.controls
+						.btn.btn-success.checkin I'm here! (Check-In)
+				div.control-group
+					label.control-label(for='input_location') People NearBy
+					div.controls
+						.active_users
+							h3 Loading...
+				div.control-group
+					label.control-label(for='input_location') KitingScore
+					div.controls
+						h3 93 {need this to be real .. c'mon weather API}
+				div.control-group
+					label.control-label(for='input_location') Current Weather Forecast
+					div.controls
+						.active_weather
+							h3 Loading...
+				div.control-group
+					label.control-label(for='input_description') Brief Description
+					div.controls
+						{{description}}
+				div.control-group
+					label.control-label Wind Directions
+					div.controls
+						h3.list 
+							{{looper wind_directions ","}}
+				div.control-group
+					div.controls
+						div.warning_msg
+				div.control-group
+					label.control-label(for='input_location') Location
+					div.controls
+						input(type='hidden', name='location', value='{{location.latitude}},{{location.longitude}}')
+						input(type='hidden', name='lat', value='{{location.latitude}}')
+						input(type='hidden', name='lon', value='{{location.longitude}}')
+						p Lat.: {{location.latitude}}, Long.: {{location.longitude}}
+						p
+						div#map-canvas(style='height: 300px;') Loading map...
+			script(type='text/javascript')
+				window._$winds = [];
+				{{#each wind_directions}}
+					window._$winds.push('{{this}}');
+				{{/each}}

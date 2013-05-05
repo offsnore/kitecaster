@@ -9,7 +9,8 @@ var
   , Parse = require('parse-api').Parse
   , moment = require('moment')
   , lookup = require('../services/UserGeoIP')
-  , Datastore = require('../services/DataStore');
+  , Datastore = require('../services/DataStore')
+  , Datasession = require('../services/DataSession');
 
 function getSettings() {
 	nconf.argv()
@@ -49,6 +50,46 @@ exports.test = function(req, res){
   res.render('test', { title: 'Test Page Demos' });
 };
 
+exports.loginIndex = function(req, res) {
+	var queryParams = require('url').parse(req.url, true).query
+	var params = {
+		txt: false,
+		msg: false,
+		title: ""
+	};
+	if (queryParams.msg) {
+		params.msg = queryParams.msg;
+	}
+	if (queryParams.txt) {
+		params.txt = queryParams.txt;
+	}
+	res.render('login', params);
+}
+
+exports.loginAction = function(req, res) {
+	var nconf = getSettings();
+	var data = req.body;
+	var q = {
+		username: data.email,
+		password: data.password
+	};
+	Datasession.login(q, function(data){
+		if (data.sessionToken) {
+			data.timestamp = new Date();
+			Datasession.setlogincookie(res, data);
+			res.redirect('/main');
+		} else {
+			res.redirect('/login?msg=' + encodeURIComponent(data.error));			
+		}
+	});
+}
+
+exports.logoutIndex = function(req, res) {
+	Datasession.logout(res, function(res){
+		res.redirect("/login?txt=" + encodeURIComponent("You have successfully logged out."));
+	});
+}
+
 // First Page for Application
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
 exports.mainIndex = function(req, res) {
@@ -58,17 +99,20 @@ exports.mainIndex = function(req, res) {
 		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
 	var geo_location = lookup.geolookup.getCurrent(req);
-
-	// get Session Details
-	var session_id = nconf.get('site:fakedSession');
-	var user_id = session_id;
-
-	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
 	var profile_data = {};
 
-	// Gets the most up-to-date Info based on DataStore Logic
-	Datastore.records.getCurrent("Profiles", {"session_id": session_id}, function(data){
+	// this is how we get User Data ..
+	Datasession.getuser(req, function(err, response, body){		
+		if (body.length == 0) {
+			return kickOut(res, "Please login again, it seems your session has expired.");
+		}
+
+		var localdata = body[0];		
+		var user_id = localdata.objectId;
+		
+//		var user_id = localdata.objectId;
 		var params = {
+//			localdata: localdata,
 			user_id: user_id,
 			spot_url: nconf.get('api:spot:frontend_url'),
 			kite_url: nconf.get('api:kite:frontend_url'),
@@ -107,10 +151,29 @@ exports.mainIndex = function(req, res) {
 		    location: function() {
 		    	return geo_location;
 		    }
-		}
+		};
 		res.render('main', params);
 	});
+	
+//	// get Session Details
+//	var session_id = nconf.get('site:fakedSession');
+//	var user_id = session_id;
+
+//	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
+
+	// Gets the most up-to-date Info based on DataStore Logic
+//	Datastore.records.getCurrent("Profiles", {"session_id": session_id}, function(data){
+//	});
 };
+
+function clone(obj){
+    if(obj == null || typeof(obj) != 'object')
+        return obj;
+    var temp = obj.constructor(); // changed
+    for(var key in obj)
+        temp[key] = clone(obj[key]);
+    return temp;
+}
 
 // Spots Page for Application
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
@@ -126,47 +189,48 @@ exports.mainSpot = function(req, res) {
 	var session_id = nconf.get('site:fakedSession');
 	var user_id = session_id;
 
-	// @todo - make this use the API
-
-/*
-	Datastore.records.getCurrent("Spots", "*", function(records){
-		if (records.results) {
-			var records = records.results;
+	// this is how we get User Data ..
+	Datasession.getuser(req, function(err, response, body){
+		if (body.length == 0) {
+			return kickOut(res, "Please login again, it seems your session has expired.");
 		}
-**/
-	var params = {
-		user_id: user_id,
-		spot_url: nconf.get('api:spot:frontend_url'),
-		page: {
-			active: 'Spots',
-		},
-		title: nconf.get('site:frontend:title'),
-		credits: "testing",
-		data: {
-			spot_list: {}
-		},
-		body: {
-			content: {
-				pageinfo: "first entry into spots page"
-			},
-			widgets: []
-		},
-	    dateNow: function() {
-	        var dateNow = new Date();
-	        var dd = dateNow.getDate();
-	        var monthSingleDigit = dateNow.getMonth() + 1,
-	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
-	        var yy = dateNow.getFullYear().toString().substr(2);
-	
-	        return (mm + '/' + dd + '/' + yy);
-	    },
-	    location: function() {
-	    	return geo_location;
-	    }
-	}
-	res.render('spot', params);
 
-//	});
+		var localdata = body[0];		
+		var user_id = localdata.objectId;
+	
+		var params = {
+			user_id: user_id,
+			spot_url: nconf.get('api:spot:frontend_url'),
+			page: {
+				active: 'Spots',
+			},
+			title: nconf.get('site:frontend:title'),
+			credits: "testing",
+			data: {
+				spot_list: {}
+			},
+			body: {
+				content: {
+					pageinfo: "first entry into spots page"
+				},
+				widgets: []
+			},
+		    dateNow: function() {
+		        var dateNow = new Date();
+		        var dd = dateNow.getDate();
+		        var monthSingleDigit = dateNow.getMonth() + 1,
+		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+		        var yy = dateNow.getFullYear().toString().substr(2);
+		
+		        return (mm + '/' + dd + '/' + yy);
+		    },
+		    location: function() {
+		    	return geo_location;
+		    }
+		}
+		res.render('spot', params);
+	});
+
 };
 
 // Spots Page for Application
@@ -181,8 +245,9 @@ exports.newSpot = function(req, res) {
 
 	var params = {
 		spot_id: 0,
+		kite_url: null,
 		spot_url: nconf.get('api:spot:frontend_url'),
-		google_api_key: 'AIzaSyDBD7vGX-y9pO8PP8bHCOQlKztjWzcJNf8',
+		google_api_key: nconf.get('api:google:api_key'),
 		page: {
 			active: 'Spots',
 		},
@@ -219,6 +284,76 @@ exports.newSpot = function(req, res) {
 	}	
 	res.render('newspot', params);
 };
+
+/**
+ * editSpot()
+ * Spots Page for Application
+ * @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
+ */
+exports.viewSpot = function(req, res) {
+	var nconf = getSettings();
+	// only for Dev
+	if (nconf.get('site:development') !== false) {
+		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
+	}
+	var geo_location = lookup.geolookup.getCurrent(req);
+	var objectId = req.params[0];
+	if (objectId == '') {
+		errorPage(res, "We were unable to locate this spot (missing ID).");
+	}
+
+	// get Session Details
+	var session_id = nconf.get('site:fakedSession');
+	var user_id = session_id;
+
+	var params = {
+		user_id: user_id,
+		spot_id: objectId,
+		spot_url: nconf.get('api:spot:frontend_url'),
+		google_api_key: nconf.get('api:google:api_key'),
+		page: {
+			active: 'Spots',
+		},
+		title: nconf.get('site:frontend:title'),
+		credits: "testing",
+		body: {
+			content: {
+				pageinfo: "first entry into spots page"
+			},
+			widgets: []
+		},
+		data: {
+			records: {}
+		},
+	    dateNow: function() {
+	        var dateNow = new Date();
+	        var dd = dateNow.getDate();
+	        var monthSingleDigit = dateNow.getMonth() + 1,
+	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+	        var yy = dateNow.getFullYear().toString().substr(2);
+	
+	        return (mm + '/' + dd + '/' + yy);
+	    },
+	    geo: function(){
+			var g = geo_location;
+	    	var lat = g.ll[0];
+	    	var lon = g.ll[1];
+			return {
+				lat: lat,
+				lon: lon
+			}
+	    },
+	    location: function() {
+	    	return geo_location;
+	    }
+	}
+	res.render('viewspot', params);
+
+//	Datastore.records.find("Spots", objectId, function(records){
+//		res.render('newspot', params);
+//	});
+};
+
 
 /**
  * editSpot()
@@ -447,6 +582,10 @@ exports.mainProfileSave = function(req, res) {
 	} catch (e) {
 		logger.debug(e);
 	}
+}
+
+function kickOut(res, mesg) {
+	res.redirect("/login?txt="+encodeURIComponent(mesg));
 }
 
 /**

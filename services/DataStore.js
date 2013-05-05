@@ -72,15 +72,29 @@ app.object = function(db, query, callback) {
 	var client = redis.createClient();
 	client.on("error", function(err) {
 		console.log("error event - " + client.host + ":" + client.port + " - " + err);
-	});
+	});	
 	**/
+
+	var err, response, sbody = {}, body = {}, success = {};
+
 	try {
-		parseApp.getObjects(db, query, function(err, response, body, success) {
-			if (err) {
-				throw Error("An error occured: ", JSON.stringify(err));
+		base.getlocalobject(db, query, function(err, res) {
+			// temp for DEV (no cache brah)
+			var res = null;
+			if (res != null) {
+				app.results = res;
+				body = res.body;
+				callback(null, res, body, success);
 			} else {
-				app.results = response;
-				callback(err, response, body, success);
+				parseApp.getObjects(db, query, function(err, response, body, success) {
+					if (err) {
+						throw Error("An error occured: ", JSON.stringify(err));
+					} else {
+						app.results = response;
+						base.setobject(db, query, body);
+						callback(err, response, body, success);
+					}
+				});
 			}
 		});
 	} catch (e) {
@@ -100,16 +114,20 @@ app.objectupdate = function(db, objectId, query, callback) {
 			throw Error("ObjectID is required to Update Object in Parse.com. Please use object()/find() before using objectupdate().");
 		}
 
-		var client = redis.createClient();
-		client.on("error", function(err) {
-			console.log("error event - " + client.host + ":" + client.port + " - " + err);
-		});
+//		var client = redis.createClient();
+//		client.on("error", function(err) {
+//			console.log("error event - " + client.host + ":" + client.port + " - " + err);
+//		});
 
 		parseApp.updateObject(db, objectId, query, function(err, res, body, success) {			
 			if (typeof body.error != 'undefined') {
 				logger.debug("Parse.com responded with an error, ", JSON.stringify(body.error));
 				return false;
 			}
+
+			// no callback becuase it can finish whenever it wants :)			
+			base.setobject(db, body);
+			
 			callback(err, res, body, success);
 			
 			// @todo - include Redis back into here
@@ -290,31 +308,80 @@ base.createkey = function(db, key) {
 }
 
 /**
- * Base Level Method
- * Handles setting an object to Redis
+ * Base.clearkey()
+ * Does a cache removal of local object
  */
-base.setobject = function(db, object) {
-
+base.clearkey = function(db, key) {
 	var client = redis.createClient();
 	client.on("error", function(err) {
 		console.log("error event - " + client.host + ":" + client.port + " - " + err);
 	});
+	var hashkey = base.createkey(db, key);
+	// if there is no data, expire the key
+	client.del(hashkey);
+	return true;	
+}
 
-	// generate a Hash Key for Lookups
-	var hashkey = JSON.stringify(db) + JSON.stringify(object);
-	var hashkey = crypto.createHash("md5").update(hashkey).digest("hex");	
-
+/**
+ * Base Level Method
+ * Handles setting an object to Redis
+ */
+base.setobject = function(db, query, object, expires, callback) {
+	var err;
+	if (object == null) {
+		callback(err, false);
+	}
+	var client = redis.createClient();
+	client.on("error", function(err) {
+		console.log("error event - " + client.host + ":" + client.port + " - " + err);
+	});
+	var key = base.createkey(db, query );
 	// set expiration time for Redis (default to 60 seconds)
-	var expiration_time = nconf.get("redis:expireTime") || 60;
-
+	var expiration_time = expires || nconf.get("redis:expireTime") || 60;
 	var diff, date_end, date_start;
-
-	client.set(key, JSON.stringify(object), function(err, replies) {            
+	var setobject = JSON.stringify(object);
+//	console.log('setting ' + key + ' - ' + setobject);
+	client.set(key, setobject, function(err, replies) {            
 		date_end = new Date().getUTCMilliseconds();
 		diff = date_end - date_start;
 		client.expire(key, expiration_time, function (err, replies) {
-			console.log('expire set for ' + key + ' to ' + expiration_time + ' seconds.');
+			//console.log('expire set for ' + key + ' to ' + expiration_time + ' seconds.');
 		});
+		if (typeof callback == 'function') {
+			callback(err, replies);
+		}
+	});
+}
+
+/**
+ * Base Level Method
+ * Check against Redis (local cache) for object
+ */
+base.getlocalobject = function(db, query, callback) {
+	var client = redis.createClient();
+	client.on('error', function(err) {
+		console.log("error event: " + JSON.stringify(err));
+	});
+	var hashkey = base.createkey(db, query);
+	client.get(hashkey, function(err, reply) {
+		var reply = JSON.parse(reply);
+		if (err) {
+			console.log("error occured: "+JSON.stringify(err));
+		} else {
+			if (!reply) {
+				// if there is no data, expire the key
+				client.del(hashkey);
+				callback(err, null);
+			} else {
+				var reply = {
+					body: reply
+				};
+				callback(err, reply);
+				if (!callback) {
+					return reply;
+				}
+			}
+		}
 	});
 }
 

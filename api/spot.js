@@ -9,6 +9,7 @@
 	,   async = require('async')
 	,	jsonp = require('jsonp-handler')
 //	,	jsonp = require('jsonp-handler')
+	,   Weather = require('../services/KiteScoreService')
 	,   Datastore = require('../services/DataStore')
 	,   logger = require('winston');
 	    
@@ -105,6 +106,17 @@
 		}
 	}
 
+	var checkinSchema = {
+		"id": "/CheckinSpot",
+		"type": "object",
+		"properties": {
+			"userId": {
+				"type": "string",
+				"required" : true
+			}
+		}
+	}
+
 	var updateSpotSchema = {
 	   "id": "/UpdateSpot",
 		"type":"object",
@@ -157,6 +169,10 @@
 	// incase we get errors, lets know about them :)
 	server.on("error", function(r, v) {
 		console.log("error occured: " + JSON.stringify(r) + "," + JSON.stringify(v));
+	});
+
+	server.on('uncaughtException', function(err) {
+		console.error("Uncaught error occured: " + JSON.stringify(err));
 	});
 
 	server.listen(restPort, function() {
@@ -369,11 +385,43 @@
 
 		// Use DataStore Instead
 		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
-			//res.send(body);
 			jsonp.send(req, res, body);
-			//res.json(body);
 		});
 
+	});
+
+	/**
+	 * GET (Create)
+	 * Used to grab all the spot IDs for a particular UserID
+	 */
+	server.get('/checkin/weather/:id', function(req, res){
+		var id = req.params.id;
+		var data = "";
+		var data = require('url').parse(req.url, true).query;
+		var queryParams = {
+			where: {
+				spotId: parseInt(id)
+			}
+		};
+		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
+			if (body.length == 0) {
+				obj = {"error":"Spot" + id + "not found."};
+				res.send(obj);
+				res.end(400);
+			} else {
+				obj = body;
+				var google_api_key = nconf.get("api:google:api_key");
+				var google_image_url = "http://maps.googleapis.com/maps/api/streetview?size=300x300&location=" + obj[0].location.latitude + "," + obj[0].location.longitude + "&sensor=false&key=" + google_api_key;
+				Weather.current_weather(obj[0].location.latitude, obj[0].location.longitude, function(err, obj){
+					if (err) {
+						res.send(JSON.stringify(err));
+					} else {
+						obj.google_image_url = google_image_url; 
+						res.send(obj);
+					}
+				});
+			}
+		});
 	});
 	
 	// Retrieve specific spotId	
@@ -385,13 +433,59 @@
 				spotId: id
 			}
 		};
+		var queryParts = require('url').parse(req.url, true).query;
 		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
 			if (body.length == 0) {
 				obj = {"error":"Spot" + id + "not found."};
 			} else {
 				obj = body;
 			}
-			jsonp.send(req, res, obj);
+		
+			// gets Spots within certain distance of THIS spot (for mapping)		
+			if (queryParts.discover == 'true') {
+				var distance = 10;
+				var unittype = "miles";
+
+				var limit = 5;
+
+				var queryParams = {
+					'limit': limit,
+					'where': {}
+				};
+				
+				if (queryParts.unittype) {
+					var unittype = queryParts.unittype;
+				}
+				
+				if (queryParts.distance) {
+					var distance = queryParts.distance;
+				}
+				
+				if (obj.length > 0) {
+					var lat = obj[0].location.latitude;
+					var lon = obj[0].location.longitude;
+				}
+
+				queryParams.where.location = {
+					"$nearSphere" : {
+						__type: 'GeoPoint',
+						latitude: lat,
+						longitude: lon
+					}
+				};
+
+				Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
+					if (body.length == 0) {
+						obj = {};
+					} else {
+						obj = body;
+					}
+					jsonp.send(req, res, obj);
+				});
+				
+			} else {
+				jsonp.send(req, res, obj);
+			}
 		});
 	});
 	
@@ -476,7 +570,6 @@
 		});
 
 		req.on('end', function() {
-	      //console.log('dater: ' + data);
 			var json, valid;
 			try {
 				json = JSON.parse(data);
@@ -498,9 +591,8 @@
 				try {
 					var json = Datastore.creategeopoint(json);
 					Datastore.records.createobject("Spot", json, function(err, response){
-						console.log(err);
 						res.send(200, 'Spot for ' + json.name + ' was been created!');
-					});
+					}, true);
 				} catch (e) {
 					console.log("An unexpected error occured in the SpotAPI: " + JSON.stringify(e));
 				}
@@ -543,12 +635,56 @@
 		});
 	});
 	
+	/**
+	 * GET (Create)
+	 * Used to grab all the spot IDs for a particular UserID
+	 */
+	server.get('/subscribe/spot', function(req, res){
+		var id = req.params.userId;
+		var data = "";
+
+		var data = require('url').parse(req.url, true).query;
+
+		var json, valid;
+		try {
+			json = data;
+			valid = validate(json, subscribeSchema);
+			if (valid.length > 0 ) {
+				res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
+				return;
+			} else {
+				try {
+					var queryParams = {
+							where: json
+						};
+					
+					// the -include will link up objects in the DB and return object field values
+					queryParams['include'] = "spotPointer";
+					
+					Datastore.records.object("Subscribe", queryParams, function(err, response, body, success) {
+						if (body.length == 0) {
+							obj = {};
+						} else {
+							obj = body;
+						}
+						jsonp.send(req, res, obj);
+					});
+				} catch (e) {
+					console.log("An unexpected error occured in the SpotSubscribeAPI: " + JSON.stringify(e));
+				}
+			}
+		} catch (e) {
+			console.log("Unexpected error occured: " + JSON.stringify(e));
+			res.statusCode = 400;
+			res.send(e);
+		}
+	});
 	
 	/**
 	 * PUT (Create)
 	 * @note - we only "create" PUT into the server itself, because we don't know it's spotID (that's generated for us)
 	 */
-	server.put('/spot/subscribe/:id', function(req, res){
+	server.put('/subscribe/spot/:id', function(req, res){
 		var id = req.params.id;
 		var data = "";
 		req.on('data', function(chunk) {
@@ -561,7 +697,8 @@
 				valid = validate(json, subscribeSchema);
 		
 				if (valid.length > 0 ) {
-					res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
+					res.statusCode = 400;
+					res.send('Error validating spot schema:' + JSON.stringify(valid));
 					return;
 				} else {
 					try {
@@ -569,7 +706,7 @@
 						Datastore.records.createobject("Subscribe", json, function(err, response){
 							// @todo build better error handling from Parse-com return
 							res.send(200, 'Spot has been subscribed!');
-						}, false);
+						});
 					} catch (e) {
 						console.log("An unexpected error occured in the SpotAPI: " + JSON.stringify(e));
 					}					
@@ -586,15 +723,14 @@
 	/**
 	 * DELETE (Delete)
 	 */
-	server.del('/spot/subscribe/:id', function(req, res){
+	server.del('/subscribe/spot/:id', function(req, res){
 		var id = req.params.id;
 		var queryParams = {
 			"spotId": parseInt(req.params.id),
 			"userId": false
 		}
-		
 		// @note - there is a bug in here somehwere
-
+		// @note - thinking it's with HEaders being sent before sTream
 		var data = "";
 		req.on('data', function(chunk) {
 			data += chunk;
@@ -602,18 +738,27 @@
 		req.on('end', function(){
 			json = JSON.parse(data);
 			valid = validate(json, subscribeSchema);
-
 			if (valid.length > 0 ) {
-				res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
+				res.statusCode = 400;
+				res.send('Error validating spot schema:' + JSON.stringify(valid));
 				return;
 			} else {
-				json.spotId = parseInt(req.params.id);
+				json.spotId = req.params.id;
+				var query = {
+					'where': json
+				};
 				try {
-					Datastore.records.deleteobject('Subscribe', json, function(err, response, body){
+					Datastore.records.deleteobject('Subscribe', query, function(err, response, body){
 						if (body.length == 0) {
-							res.send(400, "Spot has no subscription to delete.");
+							res.statusCode = 400;
+							res.send("Spot has no subscription to delete.");
+							res.end(400);
 						} else {
-							res.send(200, "Spot subscribe has been deleted!");
+							// removal the cache for the front page too
+							Datastore.clearkey("Spot", "");
+							res.statusCode = 200;
+							res.send("Spot subscribe has been deleted!");
+							res.end(200);
 						}
 					});
 				} catch (e) {
@@ -627,11 +772,127 @@
 
 
 	/**
+	 * PUT (Create)
+	 * @note - we only "create" PUT into the server itself, because we don't know it's spotID (that's generated for us)
+	 * @todo - create a UserID pointer so we can include details about the person
+	 */
+	server.put('/checkin/spot/:id', function(req, res){
+		var id = req.params.id;
+		var data = "";
+		req.on('data', function(chunk) {
+			data += chunk;
+		});
+		req.on('end', function(){
+			var json, valid;
+			try {
+				json = JSON.parse(data);
+				valid = validate(json, checkinSchema);		
+				if (valid.length > 0 ) {
+					res.statusCode = 400;
+					res.send('Error validating spot schema:' + JSON.stringify(valid));
+					return;
+				} else {
+					try {
+						var query = {
+							where: {
+								spotId: parseInt(id)
+							}
+						};
+						Datastore.records.object("Spot", query, function(err, response, body){
+							if (body.length == 0) {
+								res.send("Umm your spot id wasnt found. weird.");
+								res.end(400);
+							} else {
+								var objectId = body[0].objectId;
+								json.spotPointer = {"__type":"Pointer","className":"Spot","objectId": objectId};
+								json.spotId = id;
+
+								var query = {
+									where: {
+										session_id: json.userId
+									}
+								};
+
+								Datastore.records.object("Profiles", query, function(err, response, body){
+									if (body.length == 0) {
+										res.send("umm couldnt find your profile .. weird.");
+										res.send(400);
+									} else {
+
+										var objectId = body[0].objectId;
+										json.profilePointer = {"__type":"Pointer","className":"Profiles","objectId": objectId};
+									
+										Datastore.records.createobject("Checkin", json, function(err, response){
+											// @todo, check check it complete, check for others in the same area
+											res.send(200, 'You\'ve been checked into this Spot.');
+										});
+									}
+								});
+							}
+						});
+					} catch (e) {
+						console.log("An unexpected error occured in the SpotAPI: " + JSON.stringify(e));
+					}
+				}
+			} catch (e) {
+				console.log("Unexpected error occured: " + JSON.stringify(e));
+				res.statusCode = 400;
+				res.send(e);
+			}
+		});
+	});
+
+
+
+	/**
+	 * GET (Create)
+	 * Used to grab all the spot IDs for a particular UserID
+	 */
+	server.get('/checkin/spot/:id', function(req, res){
+		var id = req.params.id;
+		var data = "";
+		var data = require('url').parse(req.url, true).query;
+
+		var json, valid;
+		try {
+			json = data;
+			valid = validate(json, checkinSchema);
+			if (valid.length > 0 ) {
+				res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
+				return;
+			} else {
+				try {
+					var queryParams = json;
+					queryParams['where'] = {
+						spotId: id
+					};
+					// the -include will link up objects in the DB and return object field values
+					queryParams['include'] = "spotPointer";
+					queryParams['include'] = "profilePointer";
+					queryParams['order'] = "-createdAt";					
+					Datastore.records.object("Checkin", queryParams, function(err, response, body, success) {
+						if (body.length == 0) {
+							obj = {};
+						} else {
+							obj = body;
+						}
+						jsonp.send(req, res, obj);
+					});
+				} catch (e) {
+					console.log("An unexpected error occured in the SpotCheckinAPI: " + JSON.stringify(e));
+				}
+			}
+		} catch (e) {
+			console.log("Unexpected error occured: " + JSON.stringify(e));
+			res.statusCode = 400;
+			res.send(e);
+		}
+	});
+
+	/**
 	   Function to call parse, create Spot object
 	**/
 	function createSpot(spot,res) {
-	   console.log('spot to create: ' + JSON.stringify(spot));
-	    
 	   spot.location = {
 	       __type: 'GeoPoint',
 	       latitude: spot.lat,

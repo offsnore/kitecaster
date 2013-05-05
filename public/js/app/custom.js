@@ -42,7 +42,7 @@
 			$("#" + hidden_label).attr("value", $(this).attr('id'));
 		});
 		$("div.btn-group input[type='button']").click(function(){
-			$("")
+			//$("")
 		});
 		var default_value = 150;
 		if ($("#travel_distance").length > 0) {
@@ -88,6 +88,24 @@
 						var source = $("#spots-template").html();
 						var template = Handlebars.compile(source);
 						$(".spot_container").html(template(data));
+						// load up the subscribes
+						$.ajax({
+							data: {
+								userId: _$userId
+							},
+							url: '/subscribe/spot',
+							success: function(data) {
+								$.each(data, function(i, item){
+									if (item.spotId) {
+										var id = item.spotId;
+										var obj = $(".subscribe[data-attr='" + id + "']");
+										obj.text("Subscribed");
+										obj.addClass("btn-success").removeClass("btn-warning");
+										obj.attr('method', 'DELETE');
+									}
+								});
+							}
+						});
 					},
 					error: function() {
 						//console.log('oops');	
@@ -114,12 +132,157 @@
 					}
 				});
 			}
+			if (typeof $("#spotview-template")[0] != 'undefined') {
+				var obj = $("#spotview-template");
+				// does a quick pull for all spots
+				var url = "http://" + _$spot_url + "/spot/" + _$spot_id + "?callback=?";
+				$.ajax({
+					dataType: "jsonp",
+					jsonp: "callback",
+					url: url,
+					success: function(data) {
+						var data = data[0];
+						var source = obj.html();
+						var template = Handlebars.compile(source);
+						$(".spot_container").html(template(data));
+						if (typeof initialize == 'function') {	
+							initialize(data.location.latitude, data.location.longitude);
+							loadnearby();
+						}
+					},
+					error: function() {
+						//console.log('oops');	
+					}
+				});
+				
+				$(".checkin").live("click", function(){
+					var that = this;
+					var url = "http://" + _$spot_url + "/checkin/spot/" + _$spot_id;
+					var data = {userId: _$user_id};
+					$.ajax({
+						type: 'PUT',
+						contentType: "application/json; charset=utf-8",
+						dataType: "json",
+						data: JSON.stringify(data),
+						url: url,
+						success: function(data) {
+							$(that).remove();
+							$(".active_users").prepend("<p>You were here just now.</p>");
+						},
+						error: function() {
+							//console.log('oops');	
+						}
+					});
+				});				
+			}
+			
+			if (typeof $("#spotcheckin-template")[0] != 'undefined') {
+				function loadActivePeople() {
+					var url = "http://" + _$spot_url + "/checkin/spot/" + _$spot_id;
+					$.ajax({
+						type: 'GET',
+						dataType: "json",
+						data: {
+							userId: _$user_id
+						},
+						url: url,
+						success: function(data) {
+							$(data).each(function(i, item){
+								item.createdFrom = false;
+								if (item.createdAt) {
+									item.createdFrom = moment(item.createdAt).fromNow()
+								}
+							});
+							if (data.length > 0) {
+								var data = {
+									results: data	
+								};
+							} else {
+								var data = {};
+							}
+							var obj = $("#spotcheckin-template");
+							var source = obj.html();
+							var template = Handlebars.compile(source);
+							$(".active_users").html(template(data));
+						}, 
+						error: function() {
+							$(".active_users").html("Current kiters unavailable at the moment.");
+						}
+					});
+				}
+				
+				window.setTimeout(function(){
+					loadActivePeople();					
+				}, 1500);
+	
+				// @todo - Make this work with Socket.IO
+//				_$local.peopleload = window.setInterval(function(){
+//					loadActivePeople();
+//				}, 5000);
+				
+			}
+			
+			if (typeof $("#spotweather-template")[0] != 'undefined') {
+				loadForecast();
+			}
+			
 			if (typeof $("#spotnew-template")[0] != 'undefined') {
 				var obj = $("#spotnew-template");
 				var source = obj.html();
 				var template = Handlebars.compile(source);
 				$(".spot_container").html(template({}));
-			}			
+			}
+			
+			// Easy method for a Call to nearby Spots
+			function loadnearby() {
+				if (typeof _$local.map != 'undefined') {
+					$.ajax({
+						url: '/spot/' + _$spot_id + "?discover=true",
+						datatype: "json",
+						success: function(data){
+							$(data).each(function(i, item){
+								_$local.map.loadSpots(item.location.latitude, item.location.longitude, item.name);
+							});
+						}
+					});
+				}
+			}
+
+			// Easy method for a Call to Weather Forecast
+			function loadForecast(spot_id) {
+				var spot = spot_id || _$spot_id;
+					
+				if (!spot) {
+					return false;
+				}
+				
+				var url = "http://" + _$spot_url + "/checkin/weather/" + spot;
+				var parent = "#spot-" + spot;
+				$.ajax({
+					type: 'GET',
+					dataType: "json",
+					data: {
+						userId: _$user_id
+					},
+					url: url,
+					success: function(data) {
+						var current_forecast = {};
+						if (data) {
+							var current_forecast = data.simpleforecast.forecastday[0];								
+							current_forecast.details = data.txt_forecast.forecastday[0].fcttext;
+							current_forecast.google_image_url = data.google_image_url;
+						}
+						var obj = $("#spotweather-template");
+						var source = obj.html();
+						var template = Handlebars.compile(source);
+						$(".active_weather", parent).html(template(current_forecast));
+					}, 
+					error: function() {
+						$(".active_weather", parent).html("Current kiters unavailable at the moment.");
+					}
+				});					
+			}
+
 		}
 
 		// Logic To Handle Spitting out the Spot Themselves		
@@ -138,6 +301,9 @@
 						var source = obj.html();
 						var template = Handlebars.compile(source);
 						$(".spot_container").html(template(data));
+						$(data.results).each(function(i, item){
+							loadForecast(item.spotId);
+						});
 					},
 					error: function() {
 						//console.log('oops');	
@@ -277,6 +443,20 @@
 			    return options.fn(this);
 			  }
 			  return options.inverse(this);
+			});
+
+			Handlebars.registerHelper('looper', function(list, delimiter, options) {
+				if (!delimiter) {
+					var delimiter = ",";
+				}
+				var hlist = "";
+				for (var i in list) {
+					hlist += list[i];
+					if (i < (list.length - 1)) {
+						hlist += delimiter + " ";
+					}
+				}
+				return hlist;
 			});
 		}
 

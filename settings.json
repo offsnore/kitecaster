@@ -21,6 +21,9 @@
 		},
 		"kitescore": {
 			"port" : "8503"
+		},
+		"google": {
+			"api_key": "AIzaSyDBD7vGX-y9pO8PP8bHCOQlKztjWzcJNf8"
 		}
 	},
 	"test" : {
@@ -35,6 +38,7 @@
 	"weather" : {
 		"apis" : {
 			"wunderground": "6fff3f96703a32cb"     
+			"debug": false
 		}
 	},
 	"site": {
@@ -44,5 +48,8 @@
 		"fakedSession": "abcd383393",
 		"fakeip": "8.8.8.8",
 		"development": "true"
+	},
+	"session" : {
+		"cookiename" : "__utmza"
 	}
 }

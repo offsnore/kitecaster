@@ -40,15 +40,35 @@ block script_include
 	script(src='/js/lib/handlebars.js', type='text/javaScript')
 	script(type='text/javascript')
 		window._$kite_url = '#{kite_url}';
+		window._$spot_url = '#{kite_url}';
 		window._$user_id = '#{user_id}';
+		window._$spot_id = false;
 
 block scripts
+	script(type='text/x-handlebars-template', id='spotweather-template')
+		p
+			img(src='{{google_image_url}}').multiple-borders
+		p
+			img(src='{{icon_url}}')
+		p
+			{{details}}
+		{{#if avghumidity}}
+		h5 Avg Humidity: {{avghumidity}} %
+		{{/if}}
+		{{#if maxhumidity}}
+		h5 Max Humidity: {{maxhumidity}} %
+		{{/if}}
+		{{#if maxwind}}
+		h5 Max Wind: {{maxwind.degrees}} {{maxwind.dir}} {{maxwind.kph}} kph / {{maxwind.mph}} mph	
+		{{/if}}
+
 	script(type='text/x-handlebars-template', id='kitespot-template')
 		{{#each results}}
-		.feed(name='feed').well
-			h3.heade {{ name }}
-			.details
-				p.date Last Updated N/A
+		.feed(name='feed', id='spot-{{ spotId }}').well
+			h3.header 
+				a(href='/main/spots/view/{{ spotId }}') {{ name }}
+			.active_weather
+				h4 Loading Forecast...
 			.score
 				.onestars
 		{{ else }}

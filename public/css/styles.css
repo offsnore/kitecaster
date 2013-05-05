@@ -56,6 +56,31 @@ a {
 	font-size: 1.5em;
 }
 
+.list :last-child {
+	display: none;
+}
+
+.form-input .control-group > *, .form-input .controls > * {
+	font-size: 24px !important;
+	min-height: 42px;
+}
+
+.form-input input {
+	font-size: 24px !important;
+	line-height: 33px;
+	height: 44px;
+	min-height: 46px;
+}
+
+.form-input span.add-on {
+	height: 34px;
+}
+
+.multiple-borders {
+	border-radius: 4px;
+	box-shadow: 0px 0px 0px 5px #000, 0px 0px 0px 10px #f5f5f5;
+	-webkit-filter: grayscale(100%) contrast(150%);
+}
 
 @media (min-width: 768px) and (max-width: 979px) {
 	.nav li {
