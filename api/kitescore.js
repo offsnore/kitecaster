@@ -23,6 +23,7 @@ var options = {
    colorize : "true"
 };
 
+var defaultModel;
 
 nconf.argv()
        .env()
@@ -53,12 +54,9 @@ var server = restify.createServer();
 
 //----- 
 
-// Get Default model, store in controller
-var defaultModel;
-
 ModelService.getModel(1, function(error, modelJson) {
    defaultModel = modelJson;
-   console.log('defaultModel: '.yellow + JSON.stringify(defaultModel));
+   console.log('set defaultModel: '.yellow + JSON.stringify(defaultModel));
 });
 
 //-----
@@ -87,8 +85,12 @@ server.get('score/api', function(req, res) {
 
 server.get('score/today', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
-   var lat, lon, query, spotId, modelId;
+   var lat, lon, query, spotId, modelId, model;
    console.log("queryparts: " + JSON.stringify(queryParts));   
+   var me = this;
+   
+   console.log('default model? '.red + JSON.stringify(defaultModel));
+
    
    var queryParams = {
          //limit : limit,
@@ -114,7 +116,12 @@ server.get('score/today', function(req, res) {
    // modeId check
    if (queryParts.modelId) {
       modelId = queryParts.modelId;
-   }   
+      // need wait library to load model before continuing (callback hell?)
+   }   else { // set model to the default
+
+      me.model = defaultModel;
+      console.log('setting model to defaultModel:\n' + JSON.stringify(defaultModel));
+   }
    
    var validEntry = (spotId != null ||  (lat != null && lon != null) || queryParts.query != null);
    console.log('validEntry?: ' + validEntry);
@@ -135,8 +142,19 @@ server.get('score/today', function(req, res) {
       console.log('querying forecast for query location: ' + queryParts.query);
       wunder.hourly(queryParts.query, function(err, response) {
             console.log('got here in kitescore.js:'.red);
-            res.send(200, JSON.parse(response));
-            res.end();
+            var jsonModel = JSON.parse(defaultModel);
+            if (me.model != null && response != null) {
+               var model = me.model;
+               var hourly = JSON.parse(response);
+               KiteScoreService.processHourly(jsonModel, null, hourly, function(err, scores) {
+                  //console.log('processHourly response: ' + scores);
+                  res.send(200, scores);
+                  res.end();
+               });
+            } else {console.error('uhhh');
+               res.send(500, "Invalid server response");
+               res.end();
+            }
             return;
        });
       
@@ -144,17 +162,17 @@ server.get('score/today', function(req, res) {
    
 });
 
-server.get('forecast/tomorrow', function(req, res) {
+server.get('score/tomorrow', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
    var lat, lon;
 });
 
-server.get('forecast/7day', function(req, res) {
+server.get('score/7day', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
    var lat, lon;
 });
 
-server.get('forecast/10day', function(req, res) {
+server.get('score/10day', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
    var lat, lon;
 });

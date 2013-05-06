@@ -20,10 +20,62 @@ var options = {
 
 var app = module.exports;
 
+var compassDegrees = {
+   'North'  : 0,
+   'NNE': 23,
+   'NE' : 45,
+   'ENE': 68,
+   'East'  : 90,
+   'ESE': 113,
+   'SE' : 135,
+   'SSE': 158,
+   'South'  : 180,
+   'SSW': 203,
+   'SW' : 255,
+   'WSW': 248,
+   'West'  : 270,
+   'WNW': 293,
+   'NW' : 315,
+   'NNW': 338  
+};
+
+// color range: grey, dark grey, light green, green, dark green, orange, red, pink
+// score 0-8? ideal conditions 4-6 (e.g. 18-28mph)
+// with low, med, high wind (split in 2 for low/high end), plus one for (no kite), one for (too much wind (pink))
+/* 
+   0 - too light
+   1 - super light
+   2 - light
+   3 - med-low
+   4 - med - ideal?
+   5 - med-high
+   6 - high-low
+   7 - high-high
+   8 - too windy (beyond top range)
+   
+   scale to 10 so ideal = 10?
+   05 - too light - light gey (racer?)
+   06 - very light- darg grey (racers)
+   07 - light     - light green (big kite) 
+   08 - med-low   - green
+   09 - med-ideal?- dark green
+   10 - med-high  - orange (perfect for all general kiters)
+   11 - high-low  - red
+   12 - high-high - dark red
+   13 - too windy - pink/black (beyond top range, dangerous, specialized)
+*/
+
+var TOO_LIGHT = 5, VERY_LIGHT = 6, LIGHT = 7, MED_LOW = 8, MED_MED = 9, MED_HIGH = 10, HIGH_LOW = 11, HIGH_MED = 12,  HIGH_HIGH = 13, TOO_MUCH = 14;
+
+
+var scoreColors = {
+    
+};
+
 app.locals = function() {
 	var api_key = nconf.get('weather:apis:wunderground');
 	return {
-		api_key: api_key || false,
+		api_key: api_key || false, 
 		debug: nconf.get('weather:apis:wunderground:debug') || false
 	}
 };
@@ -46,6 +98,107 @@ app.current_weather = function(lat, lon, callback){
 					callback(err, obj);
 				});
 			});
-		}
+		}    
 	});
+};
+
+app.processHourly = function(model, spot, hourly, callback) {
+   console.log('processing model and hourly data and returning some scores');
+   console.log('here\'s our hourly data: ' + hourly.hourly_forecast.length);
+   //console.log('here\'s our model: ' + model);
+   var windData = [];
+   hourly.hourly_forecast.forEach(function(hour) {
+/*       console.log('hour data: ' + JSON.stringify(hour)); */
+      var wind = {};
+      wind.time = hour.FCTTIME;
+      wind.wdir = hour.wdir;
+      wind.wspd = hour.wspd;
+      wind.wx   = hour.wx;
+      windData.push(wind);
+   });
+   console.log('wind data:\n'.yellow + JSON.stringify(windData[0]));
+   buildKiteScore(model, spot, windData, function(err, scores) {
+      console.log('scores have been builted: ' + scores.length);
+      callback(err, scores);  
+   });
+   callback(null, 'hourly scores array hooray');
+};
+
+
+// Crude 'algorithm'!
+buildKiteScore = function(model, spot, windData, callback) {
+   var scores = [];
+   var windLowMin = model.wind_low.min;
+   var windLowMax = model.wind_low.max;
+   var windLowMid = ( windLowMin + windLowMax ) / 2;
+   var windMedMin = model.wind_med.min;
+   var windMedMax = model.wind_med.max;
+   // mid divided in 3s
+   var windMedMid = ( windMedMin + windMedMax ) / 2;
+   var windHighMin = model.wind_high.min;
+   var windHighMax = model.wind_high.max;
+   var windHighMid = ( windHighMin + windHighMax ) / 2;
+   var windLowRange = windLowMax - windLowMin;
+   var windMedRange = windMedMax - windMedMin;
+   var windHighRange = windHighMax - windHighMin; 
+   console.log('windLowMin/Max/Mid' + windLowMin + '/' + windLowMax +'/' + windLowMid);
+   console.log('windMedMin/Max/Mid' + windMedMin + '/' + windMedMax +'/' + windMedMid);
+   console.log('windHighMin/Max/Mid' + windHighMin + '/' + windHighMax +'/' + windHighMid);
+   
+   var kiteScore = 0;
+   
+   // ignore direction first, just map speeds
+   // map TOO_LIGHT = 5, VERY_LIGHT = 6, LIGHT = 7, MED_LOW = 8, MED_MED = 9, MED_HIGH = 10, HIGH_LOW = 11, HIGH_MED = 12,  HIGH_HIGH = 13, TOO_MUCH = 15;
+   windData.forEach(function(data) {
+      var speed = data.wspd.english;
+      var wdir  = data.wdir;
+      var wx    = data.wx;
+      var hour  = data.time.hour;
+      var rangeEnd = -1;
+      if (speed <= windLowMax) {
+         if (speed >= windLowMin) {
+            if (speed <= windLowMid) {
+               kiteScore = VERY_LIGHT;
+            } else kiteScore = LIGHT;
+         } else kiteScore = TOO_LIGHT;
+      }
+      else if (speed <= windMedMax) {  
+         var step =(windMedRange / 3);
+         if ((speed + step) < windMedMid) {
+            kiteScore = MED_LOW;
+         }
+         else if ((speed + step) < windMedMid)  {
+            kiteScore = MED_MED;
+         }
+         else if ((speed + step) > windMedMid) {
+            kiteScore = MED_HIGH;
+         }
+      } 
+      else if (speed <= windHighMax) {
+         var step =(windHighRange / 3);
+         if ((speed + step) < windHighMid) {
+            kiteScore = HIGH_LOW;
+         }
+         else if ((speed + step) < windHighMid)  {
+            kiteScore = HIGH;
+         }
+         else if ((speed + step) > windHighMid) {
+            kiteScore = HIGH_HIGH;
+         }
+      }
+      else if (speed > windHighMax) {
+         kiteScore = TOO_MUCH;
+      }
+      else {
+         console.log('WTF happened, no kite score determined');
+      }
+      
+      // TODO: change score based on wind direction. generic search (query for location) without a spot cannot account for specific wind direction.
+      data['kiteScore'] = kiteScore;
+      console.log(wdir.dir  +':' + speed + ', score: ' + kiteScore );
+      scores.push(data);
+   });
+   callback(null, scores);
 }
+
+

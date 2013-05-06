@@ -48,7 +48,7 @@ ModelService.getModel = function(id, callback) {
       if (reply === 1){
          client.get(redisKey, function (err, replies) {
             console.log('redisKey found for ' + redisKey + ': ' + replies);
-            return replies;
+            callback(null, replies);
          });
       }
       else if (reply === 0) {
