@@ -23,7 +23,7 @@ block script_include
 	script(type='text/javascript')
 		window._$spot_url = '#{spot_url}';
 		window._$spot_id  = '#{spot_id}';
-
+		window._$session_id = '#{session_id}';
 block scripts
 	script(type='text/x-handlebars-template', id='spotedit-template')
 		form(action='/spot/{{ spotId }}', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send

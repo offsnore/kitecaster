@@ -558,6 +558,30 @@
 		});
 	});
 
+	// breaking convention b/c browsers SUCK
+	server.post('/media', function(req, res){
+	
+		console.log("uploading image..");
+        var fName = req.header('x-file-name');
+        var fSize = req.header('x-file-size');
+        var fType = req.header('x-file-type');
+
+//        var ws = fs.createWriteStream('./'+fName)
+        req.on('data', function(data) {
+            console.log(data);
+  //          ws.write(data);
+        });
+        req.on('end', function() {
+            console.log('All Done!!!!');
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+	            success: true
+            }));
+        });
+		
+//		res.send("Error.");
+	});
+
 	/**
 	 * PUT (Create)
 	 * @note - we only "create" PUT into the server itself, because we don't know it's spotID (that's generated for us)

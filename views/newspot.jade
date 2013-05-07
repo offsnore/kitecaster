@@ -39,6 +39,10 @@ block content
 								p
 								div#map-canvas(style='height: 300px;')
 						div.control-group
+							label.control-lable Upload Cover Image
+							div.controls
+								div(id='bootstrapped-fine-uploader')
+						div.control-group
 							label.control-label(for='input_description') Brief Description
 							div.controls
 								if (data.records && data.records.description)
@@ -61,13 +65,43 @@ block content
 							div.controls
 								input(type='submit', value='Save Profile').btn.btn-success
 
+block head_include
+	link(rel='stylesheet', href='/css/uploader.css')
+
 block script_include
 	script(src='/js/lib/handlebars.js', type='text/javaScript')
 	script(type='text/javascript')
 		window._$spot_url = '#{spot_url}';
 		window._$kite_url = '#{kite_url}';
 		window._$spot_id  = '#{spot_id}';
+		window._$session_id = '#{session_id}';
 	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=false')
+	script(type='text/javascript', src='/js/lib/uploader.js')
+	script(type='text/javascript', src='/js/lib/uploader.xss.js')
+	script(type='text/javascript', src='/js/lib/jquery.uploader.min.js')
+	script(type='text/javascript')
+		function createUploader() {
+			var uploader = new qq.FineUploader({
+				element: document.getElementById('bootstrapped-fine-uploader'),
+				request: {
+					endpoint: '/media'
+				},
+				text: {
+					uploadButton: '<div><i class="icon-upload icon-white"></i> Upload a Cover Photo</div>'
+				},
+				template: '<div class="qq-uploader span12">' +
+					'<pre class="qq-upload-drop-area span12"><span>{dragZoneText}</span></pre>' +
+					'<div class="qq-upload-button btn btn-success" style="width: auto;">{uploadButtonText}</div>' +
+					'<span class="qq-drop-processing"><span>{dropProcessingText}</span><span class="qq-drop-processing-spinner"></span></span>' +
+					'<ul class="qq-upload-list" style="margin-top: 10px; text-align: center;"></ul>' +
+					'</div>',
+				classes: {
+					success: 'alert alert-success',
+					fail: 'alert alert-error'
+				}
+			});
+		}
+		window.onload = createUploader;
 	script(type='text/javascript')
 		function initialize() {
 			var map = new google.maps.Map(
