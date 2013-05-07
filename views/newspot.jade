@@ -49,7 +49,19 @@ block content
 									textarea(name='description', id='input_description', rows=3).span11= data.records.description
 								else
 									textarea(name='description', id='input_description', rows=3).span11
-						div.control-group
+						div.control-group(class='hidden-desktop hidden-tablet')
+							label.control-label Wind Directions
+							div.controls
+								select.selectpicker(multiple, data-style='btn-primary')
+									option.wind_direction| N
+									option.wind_direction| NE
+									option.wind_direction| E
+									option.wind_direction| WE
+									option.wind_direction| W
+									option.wind_direction| SW
+									option.wind_direction| S
+									option.wind_direction| SE
+						div.control-group(class='hidden-phone')
 							label.control-label Wind Directions
 							div.controls
 								div.btn-group(data-toggle='buttons-checkbox')
@@ -67,6 +79,7 @@ block content
 
 block head_include
 	link(rel='stylesheet', href='/css/uploader.css')
+	link(rel='stylesheet', href='/css/bootstrap.select.min.css')
 
 block script_include
 	script(src='/js/lib/handlebars.js', type='text/javaScript')
@@ -79,6 +92,7 @@ block script_include
 	script(type='text/javascript', src='/js/lib/uploader.js')
 	script(type='text/javascript', src='/js/lib/uploader.xss.js')
 	script(type='text/javascript', src='/js/lib/jquery.uploader.min.js')
+	script(type='text/javascript', src='/js/lib/bootstrap.select.min.js')
 	script(type='text/javascript')
 		function createUploader() {
 			var uploader = new qq.FineUploader({
@@ -138,6 +152,7 @@ block script_include
 		}
 		jQuery(document).ready(function(){
 			google.maps.event.addDomListener(window, 'load', initialize);
+			$('.selectpicker').selectpicker();
 		});
 	
 
