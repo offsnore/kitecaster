@@ -515,6 +515,7 @@
 		}
 		$(".update_location").live("click", function(e){
 			e.preventDefault();
+			$(".location_description").html("Getting Update...");
 			_$local.pullGeolocation();
 		});
 		_$local.getGeolocation();
