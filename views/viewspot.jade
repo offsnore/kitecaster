@@ -26,6 +26,7 @@ block script_include
 		window._$spot_url = '#{spot_url}';
 		window._$spot_id  = '#{spot_id}';
 		window._$user_id = '#{user_id}';
+		window._$session_id = '#{session_id}';
 	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=false')
 	script(type='text/javascript')
 		function initialize(lat, lon) {
