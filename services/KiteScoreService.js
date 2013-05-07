@@ -102,6 +102,7 @@ app.current_weather = function(lat, lon, callback){
 	});
 };
 
+// the API might return data in different format. This if for handling the hourly response
 app.processHourly = function(model, spot, hourly, callback) {
    console.log('processing model and hourly data and returning some scores');
    console.log('here\'s our hourly data: ' + hourly.hourly_forecast.length);
@@ -121,7 +122,6 @@ app.processHourly = function(model, spot, hourly, callback) {
       console.log('scores have been builted: ' + scores.length);
       callback(err, scores);  
    });
-   callback(null, 'hourly scores array hooray');
 };
 
 
@@ -133,7 +133,6 @@ buildKiteScore = function(model, spot, windData, callback) {
    var windLowMid = ( windLowMin + windLowMax ) / 2;
    var windMedMin = model.wind_med.min;
    var windMedMax = model.wind_med.max;
-   // mid divided in 3s
    var windMedMid = ( windMedMin + windMedMax ) / 2;
    var windHighMin = model.wind_high.min;
    var windHighMax = model.wind_high.max;
@@ -163,6 +162,7 @@ buildKiteScore = function(model, spot, windData, callback) {
          } else kiteScore = TOO_LIGHT;
       }
       else if (speed <= windMedMax) {  
+		 // map wind into 3 steps of medium
          var step =(windMedRange / 3);
          if ((speed + step) < windMedMid) {
             kiteScore = MED_LOW;
@@ -175,6 +175,7 @@ buildKiteScore = function(model, spot, windData, callback) {
          }
       } 
       else if (speed <= windHighMax) {
+	  // map wind into 3 steps of high
          var step =(windHighRange / 3);
          if ((speed + step) < windHighMid) {
             kiteScore = HIGH_LOW;

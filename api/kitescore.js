@@ -16,7 +16,9 @@ var restify = require('restify'),
     wundernode = require('wundernode'),
     KiteScoreService = require('../services/KiteScoreService'),
     DataStore = require('../services/DataStore'),
-    ModelService = require('../services/Modelservice');
+    ModelService = require('../services/ModelService'),
+    SpotService = require('../services/SpotService')
+    ;
     
     
 var options = {
@@ -136,6 +138,59 @@ server.get('score/today', function(req, res) {
       
       
    }
+   
+   console.log('modelId/spotId check: ' + modelId + '/' + spotId);
+   async.parallel([
+      function(callback) {
+         // get model if specified
+         console.log('getting modelId: ' + modelId);
+         if (modelId){
+            ModelService.getModel(modelId, function(err, model) {
+               console.log('Got model: ' + JSON.stringify(model));
+               callback(err, JSON.parse(model));                              
+            });
+         }
+         else callback(null, JSON.parse(defaultModel));
+      },
+      function(callback) {
+         // get spot if specified
+         console.log('getting spotId: ' + spotId);
+         if (spotId) {
+             SpotService.getSpot(spotId, function(err, spot) {
+               console.log('Got model: ' + JSON.stringify(spot));
+               callback(err, JSON.parse(spot));                              
+            });
+         } 
+         else callback("no spot ID Specified", null);
+      }],
+      function(err, results) {
+         console.log('results from gathering model and spot: ' );  
+         model = results[0];
+         spot = results[1];
+         console.log('model: ' + JSON.stringify(model));
+         console.log('spot: ' + JSON.stringify(spot));
+         var lat = spot.location.latitude;
+         var lon = spot.location.longitude;
+         var latLonQuery = lat + ',' + lon;
+         console.log('wunder.hourly with query: ' + latLonQuery);
+         wunder.hourly(latLonQuery, function(err, response) {
+            console.log('got here in kitescore.js:'.red);
+            var jsonModel = JSON.parse(defaultModel);
+            if (me.model != null && response != null) {
+               var model = JSON.parse(me.model);
+               var hourly = JSON.parse(response);
+               KiteScoreService.processHourly(model, spot, hourly, function(err, scores) {
+                  //console.log('processHourly response: ' + scores);
+                  res.send(200, scores);
+                  res.end();
+               });
+            } else {console.error('uhhh');
+               res.send(500, "Invalid server response");
+               res.end();
+            }
+            return;
+       });
+      });
    
    if (queryParts.query) {
       // first query for location
