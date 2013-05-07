@@ -140,6 +140,7 @@ server.get('score/today', function(req, res) {
    }
    
    console.log('modelId/spotId check: ' + modelId + '/' + spotId);
+   if (spotId) {
    async.parallel([
       function(callback) {
          // get model if specified
@@ -191,8 +192,8 @@ server.get('score/today', function(req, res) {
             return;
        });
       });
-   
-   if (queryParts.query) {
+   }
+   else if (queryParts.query) {
       // first query for location
       console.log('querying forecast for query location: ' + queryParts.query);
       wunder.hourly(queryParts.query, function(err, response) {
