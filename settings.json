@@ -37,7 +37,7 @@
 	},
 	"weather" : {
 		"apis" : {
-			"wunderground": "756c98e22d868927",
+			"wunderground": "6fff3f96703a32cb",     
 			"debug": false
 		}
 	},

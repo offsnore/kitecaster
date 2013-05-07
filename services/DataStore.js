@@ -147,6 +147,10 @@ app.objectupdate = function(db, objectId, query, callback) {
  * Handles creating (and incrementing redis) objects in Parse(.)com DataStore
  */
 app.createobject = function(db, object, callback, auto_increment) {
+	if (typeof auto_increment == 'undefined') {
+	  // TODO: should this be defaulted to false?
+		var auto_increment = true;
+	}
 	try {
 		var parseApp = new ParseObject(nconf.get('parse:appId'), nconf.get('parse:restKey'));
 		var rediskey = "spot:id:counter";

@@ -14,12 +14,18 @@ var restify = require('restify'),
     async = require('async'),
     logger = require('winston'),
     wundernode = require('wundernode'),
-    kiteScoreService = require('../services/KiteScoreService');
+    KiteScoreService = require('../services/KiteScoreService'),
+    DataStore = require('../services/DataStore'),
+    ModelService = require('../services/ModelService'),
+    SpotService = require('../services/SpotService')
+    ;
+    
     
 var options = {
    colorize : "true"
 };
 
+var defaultModel;
 
 nconf.argv()
        .env()
@@ -28,7 +34,7 @@ nconf.argv()
 var wundegroundAPI = nconf.get('weather:apis:wunderground');
 console.log('wunderground key: '.red + wundegroundAPI); 
 
-var wunder = new wundernode(wundegroundAPI, true);
+var wunder = new wundernode(wundegroundAPI, false);
 
 
 var api = {};
@@ -50,6 +56,13 @@ var server = restify.createServer();
 
 //----- 
 
+ModelService.getModel(1, function(error, modelJson) {
+   defaultModel = modelJson;
+   console.log('set defaultModel: '.yellow + JSON.stringify(defaultModel));
+});
+
+//-----
+
 var DEFAULT_PORT = 7503;
 var restPort;
 if (nconf.get('api:kitescore:port'))
@@ -68,14 +81,18 @@ process.argv.forEach(function (val, index, array) {
    }
 }); 
 
-server.get('forecast/api', function(req, res) {
+server.get('score/api', function(req, res) {
     res.send(api);
 });
 
-server.get('forecast/today', function(req, res) {
+server.get('score/today', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
-   var lat, lon, query, spotId, modelId;
+   var lat, lon, query, spotId, modelId, model;
    console.log("queryparts: " + JSON.stringify(queryParts));   
+   var me = this;
+   
+   console.log('default model? '.red + JSON.stringify(defaultModel));
+
    
    var queryParams = {
          //limit : limit,
@@ -95,48 +112,123 @@ server.get('forecast/today', function(req, res) {
    }
    else if (queryParts.spotId) {
       spotId = queryParts.spotId;   
+      
    }
    
    // modeId check
    if (queryParts.modelId) {
       modelId = queryParts.modelId;
+      // need wait library to load model before continuing (callback hell?)
+   }   else { // set model to the default
+
+      me.model = defaultModel;
+      console.log('setting model to defaultModel:\n' + JSON.stringify(defaultModel));
    }
    
+   var validEntry = (spotId != null ||  (lat != null && lon != null) || queryParts.query != null);
+   console.log('validEntry?: ' + validEntry);
    
-   
-   
-   
-   
-   if ( (!spotId || (!lat && !lon)) || !queryParts.query ) {
+   if ( !validEntry ) {
       res.send(400, "Bad request, must specify location or spot");
       return;
+   } else {
+      console.log('Valid entry, get score for query');
+      if (lat && lon) {
+      } 
+      
+      
    }
    
-   if (queryParts.query) {
+   console.log('modelId/spotId check: ' + modelId + '/' + spotId);
+   if (spotId) {
+   async.parallel([
+      function(callback) {
+         // get model if specified
+         console.log('getting modelId: ' + modelId);
+         if (modelId){
+            ModelService.getModel(modelId, function(err, model) {
+               console.log('Got model: ' + JSON.stringify(model));
+               callback(err, JSON.parse(model));                              
+            });
+         }
+         else callback(null, JSON.parse(defaultModel));
+      },
+      function(callback) {
+         // get spot if specified
+         console.log('getting spotId: ' + spotId);
+         if (spotId) {
+             SpotService.getSpot(spotId, function(err, spot) {
+               console.log('Got model: ' + JSON.stringify(spot));
+               callback(err, JSON.parse(spot));                              
+            });
+         } 
+         else callback("no spot ID Specified", null);
+      }],
+      function(err, results) {
+         console.log('results from gathering model and spot: ' );  
+         model = results[0];
+         spot = results[1];
+         console.log('model: ' + JSON.stringify(model));
+         console.log('spot: ' + JSON.stringify(spot));
+         var lat = spot.location.latitude;
+         var lon = spot.location.longitude;
+         var latLonQuery = lat + ',' + lon;
+         console.log('wunder.hourly with query: ' + latLonQuery);
+         wunder.hourly(latLonQuery, function(err, response) {
+            console.log('got here in kitescore.js:'.red);
+            var jsonModel = JSON.parse(defaultModel);
+            if (me.model != null && response != null) {
+               var model = JSON.parse(me.model);
+               var hourly = JSON.parse(response);
+               KiteScoreService.processHourly(model, spot, hourly, function(err, scores) {
+                  //console.log('processHourly response: ' + scores);
+                  res.send(200, scores);
+                  res.end();
+               });
+            } else {console.error('uhhh');
+               res.send(500, "Invalid server response");
+               res.end();
+            }
+            return;
+       });
+      });
+   }
+   else if (queryParts.query) {
       // first query for location
       console.log('querying forecast for query location: ' + queryParts.query);
-      wunder.geolookup(function(err, obj) {
-               res.end(obj);
-       }, queryParts.query);
+      wunder.hourly(queryParts.query, function(err, response) {
+            console.log('got here in kitescore.js:'.red);
+            var jsonModel = JSON.parse(defaultModel);
+            if (me.model != null && response != null) {
+               var model = me.model;
+               var hourly = JSON.parse(response);
+               KiteScoreService.processHourly(jsonModel, null, hourly, function(err, scores) {
+                  //console.log('processHourly response: ' + scores);
+                  res.send(200, scores);
+                  res.end();
+               });
+            } else {console.error('uhhh');
+               res.send(500, "Invalid server response");
+               res.end();
+            }
+            return;
+       });
       
    }
    
-   
-      
-
 });
 
-server.get('forecast/tomorrow', function(req, res) {
+server.get('score/tomorrow', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
    var lat, lon;
 });
 
-server.get('forecast/7day', function(req, res) {
+server.get('score/7day', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
    var lat, lon;
 });
 
-server.get('forecast/10day', function(req, res) {
+server.get('score/10day', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
    var lat, lon;
 });

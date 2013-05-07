@@ -120,6 +120,10 @@ app.post('/login', routes.loginAction);
 app.get('/logout', routes.logoutIndex);
 app.get('/main/logout', routes.logoutIndex);
 
+// Register
+app.get('/register', routes.registerIndex);
+app.post('/register', routes.registerAction);
+
 // @todo make this routing come from a config file and executed via a LOOP
 app.get('/main', routes.mainIndex);
 app.get('/main/spots', routes.mainSpot);
