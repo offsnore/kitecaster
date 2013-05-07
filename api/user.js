@@ -1,0 +1,187 @@
+	var restify = require('restify')
+	,	nconf = require('nconf')
+	,   validate = require('jsonschema').validate
+	,   Parse = require('kaiseki')
+	,   winston = require('winston')
+	,   redis = require("redis")
+	,   colors = require('colors')
+	,   client = redis.createClient()
+	,   async = require('async')
+	,	jsonp = require('jsonp-handler')
+//	,	jsonp = require('jsonp-handler')
+	,   Weather = require('../services/KiteScoreService')
+	,   Datastore = require('../services/DataStore')
+	,   Datasession = require('../services/DataSession')
+	,   logger = require('winston');
+	    
+	redisSpotIdKey = 'spot:id:counter';
+	
+	var options = {
+	   colorize : "true"
+	};
+	
+	var logger = new (winston.Logger)({
+		transports: [
+			new winston.transports.Console({timestamp:true}),
+			new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/spot_server.log') })
+		],
+		exceptionHandlers: [
+		    new winston.transports.Console({timestamp:true}),
+			new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/spot_server.log') })
+		] 
+	});
+
+	logger.info('Spot restify client started'.help);
+
+	nconf.argv()
+	       .env()
+	       .file({ file: require('path').resolve(__dirname, '../settings.json') });
+
+	// just incase our config settings file goes missing again :)
+	if (!nconf.get("parse:appId")) {
+		console.log("Unable to locate 'Parse:AppID' in Config file (settings.json).");
+		process.exit();
+	}
+
+	var redisExpireTime = parseInt(nconf.get('redis:expireTime'));
+	var DEFAULT_PORT = 8085;
+	var parse = new Parse( nconf.get('parse:appId'),  nconf.get('parse:restKey')); 
+	var restPort = DEFAULT_PORT;
+	
+	if (nconf.get('api:user:port')) {
+	   restPort = nconf.get('api:user:port');
+	}
+	
+	logger.debug('nconf port: ' + restPort); 
+	
+	process.argv.forEach(function (val, index, array) {
+		if (val === '-p') {
+			restPort = array[index+1] || DEFAULT_PORT;
+		}
+	}); 
+
+
+	// Create server
+	var server = restify.createServer();	
+
+	// incase we get errors, lets know about them :)
+	server.on("error", function(r, v) {
+		console.log("error occured: " + JSON.stringify(r) + "," + JSON.stringify(v));
+	});
+
+	server.on('uncaughtException', function(err) {
+		console.error("Uncaught error occured: " + JSON.stringify(err));
+	});
+
+	server.listen(restPort, function() {
+		console.log('%s listening at %s'.blue, server.name, server.url);
+	});
+
+	server.get('user/api', function(req, res) {
+		var api = {};
+		// @todo
+		api.queryParams = {
+			PUT: {
+				lat: "number for an updated latitude",
+				lon: "number for an updated longitude",
+				address: "string for an updated address value"
+			}
+		}
+		res.send(api);
+	});
+
+	var locationSchema = {
+		"id": "/LocationSchema",
+		"type": "object",
+		"properties": {
+			"userObjectId": {
+				"type": "string",
+				"required" : true
+			},
+			"lat": {
+				"type": "number",
+				"required" : true
+			},
+			"lon": {
+				"type": "number",
+				"required" : true
+			},
+			"street": {
+				"type": "string",
+				"required" : true
+			}
+		}
+	};
+
+	var locationGetSchema = {
+		"id": "/LocationGetSchema",
+		"type": "object",
+		"properties": {
+			"userObjectId": {
+				"type": "string",
+				"required" : true
+			},
+		}
+	};
+	
+	server.get('user/location', function(req, res) {
+		var id = req.params.userId;
+		var data = "";
+		var data = require('url').parse(req.url, true).query;
+		var json, valid;
+		json = data;
+		valid = validate(json, locationGetSchema);
+		if (valid.length > 0 ) {
+			res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
+			return;
+		} else {
+			var queryParams = {
+					where: json
+				};
+			Datastore.records.object("Location", queryParams, function(err, response, body, success) {
+				if (body.length == 0) {
+					obj = {};
+				} else {
+					obj = body;
+				}
+				res.send(obj);
+			});
+		}
+	});
+	
+	server.put('user/location', function(req, res) {
+		var id = req.params.id;
+		var data = "";
+		req.on('data', function(chunk) {
+			data += chunk;
+		});
+		req.on('end', function(){
+			var json, valid;
+			var json = JSON.parse(data);
+			valid = validate(json, locationSchema);		
+			if (valid.length > 0 ) {
+				res.statusCode = 400;
+				res.send('Error validating spot schema:' + JSON.stringify(valid));
+				return;
+			} else {
+				Datasession.getuserbyauth(json.userObjectId, function(err, response, body){
+					if (body.length > 0) {
+						var userObjectId = body[0].UserPointer.objectId;
+						json['UserPointer'] = {
+							'__type' : 'Pointer',
+							'className' : '_User',
+							'objectId' : userObjectId
+						};
+						Datastore.records.createobject("Location", json, function(err, response, body){
+							res.send("Location updated.");
+						}, false);
+					} else {
+						res.send("Location update failed.");
+					}
+				});
+			}
+		});
+
+	});
+	
+	

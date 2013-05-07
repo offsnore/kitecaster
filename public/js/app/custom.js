@@ -90,7 +90,7 @@
 						// load up the subscribes
 						$.ajax({
 							data: {
-								userId: _$userId
+								userId: _$session_id
 							},
 							url: '/subscribe/spot',
 							success: function(data) {
@@ -464,6 +464,30 @@
 		}
 		
 		_$local.getGeolocation = function() {
+			// @todo - check for new Location
+			var url = "/user/location?userObjectId=" + encodeURIComponent(_$session_id);
+			// lets check our DB first
+			$.getJSON(url, function(data){
+				if (data.length > 0) {
+					var data = data[0];
+					_$local.parseGeoFormat(data);
+				} else {
+					_$local.pullGeolocation();
+				}
+			});
+		}
+		
+		_$local.parseGeoFormat = function(data) {
+			var location;
+			if (typeof data.results != 'undefined') {
+				location = data.results[0].formatted_address;
+			} else {
+				location = data.street;
+			}
+			$(".location_description").html(location+" ");
+		}
+		
+		_$local.pullGeolocation = function() {
 			// attempt w Html5 first
 			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(function(geo){
@@ -472,17 +496,28 @@
 					var latlong = parseFloat(lat).toFixed(4) + ", " + parseFloat(lon).toFixed(4);
 					var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&sensor=true";
 					$.getJSON(url, function(data){
+						_$local.parseGeoFormat(data);
 						var location = data.results[0].formatted_address;
-						$(".location_description").html(location+"  ");
+						$.ajax({
+							url: '/user/location',
+							type: 'PUT',
+							dataType: "json",
+							data: JSON.stringify({
+								userObjectId: _$session_id,
+								lat: parseFloat(lat),
+								lon: parseFloat(lon),
+								street: location
+							})
+						});
 					});
 				});
 			}
 		}
-
 		$(".update_location").live("click", function(e){
 			e.preventDefault();
-			_$local.getGeolocation();
+			_$local.pullGeolocation();
 		});
+		_$local.getGeolocation();
 
 	});
 
