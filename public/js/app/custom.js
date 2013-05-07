@@ -18,7 +18,6 @@
 		    return o;
 		};
 
-
 		function loadWindCondition(direction) {
 			$(".wind_direction").each(function(i, item){
 				if ($(item).val() == direction) {
@@ -459,6 +458,31 @@
 				return hlist;
 			});
 		}
+		
+		if (typeof _$local == 'undefined') {
+			_$local = {};
+		}
+		
+		_$local.getGeolocation = function() {
+			// attempt w Html5 first
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(function(geo){
+					var lat = geo.coords.latitude;
+					var lon = geo.coords.longitude;
+					var latlong = parseFloat(lat).toFixed(4) + ", " + parseFloat(lon).toFixed(4);
+					var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&sensor=true";
+					$.getJSON(url, function(data){
+						var location = data.results[0].formatted_address;
+						$(".location_description").html(location+"  ");
+					});
+				});
+			}
+		}
+
+		$(".update_location").live("click", function(e){
+			e.preventDefault();
+			_$local.getGeolocation();
+		});
 
 	});
 
