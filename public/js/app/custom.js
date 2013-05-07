@@ -463,18 +463,34 @@
 			_$local = {};
 		}
 		
-		_$local.getGeolocation = function() {
+		_$local.geolocal = {};
+		
+		_$local.getGeolocation = function(callback) {
 			// @todo - check for new Location
 			var url = "/user/location?userObjectId=" + encodeURIComponent(_$session_id);
 			// lets check our DB first
 			$.getJSON(url, function(data){
 				if (data.length > 0) {
 					var data = data[0];
+					_$local.geolocal = data;
 					_$local.parseGeoFormat(data);
+					if (typeof callback == 'function') {
+						callback(data);
+					}
 				} else {
 					_$local.pullGeolocation();
 				}
 			});
+		}
+		
+		_$local.returnGeolocation = function() {
+			if (_$local.geolocal.length == 0) {
+				return _$local.getGeolocation(function(data){
+					return $data; // geolocal before being set
+				});
+			} else {
+				return _$local.geolocal;				
+			}
 		}
 		
 		_$local.parseGeoFormat = function(data) {
@@ -498,6 +514,7 @@
 					$.getJSON(url, function(data){
 						_$local.parseGeoFormat(data);
 						var location = data.results[0].formatted_address;
+						_$local.geolocal = data.results[0];
 						$.ajax({
 							url: '/user/location',
 							type: 'PUT',
@@ -513,13 +530,60 @@
 				});
 			}
 		}
+		
+		_$local.initializeGeomap = function(lat, lon) {
+			var lat = lat;
+			var lon = lon;
+			function initialize() {
+				var map = new google.maps.Map(
+					document.getElementById('map-canvas'), {
+					center: new google.maps.LatLng(lat, lon),
+					zoom: 11,
+					mapTypeId: google.maps.MapTypeId.ROADMAP
+				});	
+				var marker = new google.maps.Marker({
+					position: new google.maps.LatLng(lat, lon),
+					map: map
+				});
+				google.maps.event.addListener(map, 'click', function(event){
+					var latlong = parseFloat(event.latLng.lat()).toFixed(4) + ", " + parseFloat(event.latLng.lng()).toFixed(4);
+					var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + event.latLng.lat() + "," + event.latLng.lng() + "&sensor=true";
+					$.ajax({
+						url: url,
+						dataType: "json",
+						beforeSend: function() {
+							$(".search-query").val("Loading..");
+						},
+						success: function(data){
+							var addy = data.results[1].formatted_address;
+							//console.log(data.results);
+							//var address = addy[1].short_name + ", " + addy[2].short_name;
+							$(".search-query").val(addy);
+						},
+						error: function() {
+							$(".search-query").val("Something went wrong :( .. try again.");
+						}
+					});
+					$(".latlon").text(latlong);
+				});
+			}
+			jQuery(document).ready(function(){
+				if (typeof google != 'undefined') {
+					initialize();					
+				}
+			});
+		}
+		
 		$(".update_location").live("click", function(e){
 			e.preventDefault();
 			$(".location_description").html("Getting Update...");
 			_$local.pullGeolocation();
 		});
-		_$local.getGeolocation();
-
+		_$local.getGeolocation(function(){
+			_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])			
+			$(".search-query").val(_$local.returnGeolocation()['street']);
+			$(".latlon").html(_$local.returnGeolocation()['lat'] + ", " + _$local.returnGeolocation()['lon']);
+		});
 	});
 
 })(jQuery)
