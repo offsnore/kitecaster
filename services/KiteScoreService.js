@@ -102,6 +102,7 @@ app.current_weather = function(lat, lon, callback){
 	});
 };
 
+// the API might return data in different format. This if for handling the hourly response
 app.processHourly = function(model, spot, hourly, callback) {
    console.log('processing model and hourly data and returning some scores');
    console.log('here\'s our hourly data: ' + hourly.hourly_forecast.length);
@@ -121,7 +122,6 @@ app.processHourly = function(model, spot, hourly, callback) {
       console.log('scores have been builted: ' + scores.length);
       callback(err, scores);  
    });
-   callback(null, 'hourly scores array hooray');
 };
 
 
@@ -133,7 +133,6 @@ buildKiteScore = function(model, spot, windData, callback) {
    var windLowMid = ( windLowMin + windLowMax ) / 2;
    var windMedMin = model.wind_med.min;
    var windMedMax = model.wind_med.max;
-   // mid divided in 3s
    var windMedMid = ( windMedMin + windMedMax ) / 2;
    var windHighMin = model.wind_high.min;
    var windHighMax = model.wind_high.max;
@@ -163,6 +162,7 @@ buildKiteScore = function(model, spot, windData, callback) {
          } else kiteScore = TOO_LIGHT;
       }
       else if (speed <= windMedMax) {  
+		 // map wind into 3 steps of medium
          var step =(windMedRange / 3);
          if ((speed + step) < windMedMid) {
             kiteScore = MED_LOW;
@@ -175,6 +175,7 @@ buildKiteScore = function(model, spot, windData, callback) {
          }
       } 
       else if (speed <= windHighMax) {
+	  // map wind into 3 steps of high
          var step =(windHighRange / 3);
          if ((speed + step) < windHighMid) {
             kiteScore = HIGH_LOW;
@@ -194,8 +195,30 @@ buildKiteScore = function(model, spot, windData, callback) {
       }
       
       // TODO: change score based on wind direction. generic search (query for location) without a spot cannot account for specific wind direction.
-      data['kiteScore'] = kiteScore;
-      console.log(wdir.dir  +':' + speed + ', score: ' + kiteScore );
+      if (spot) {
+         console.log('wind dir: ' + JSON.stringify(wdir));
+         var dir = wdir.dir;
+         var windDirDegrees = compassDegrees[dir];
+         console.log('degree mapping: ' + windDirDegrees);
+         
+         console.log(wdir.dir  +':' + speed + ', score: ' + kiteScore );
+         console.log('spot wind dirs: ' + JSON.stringify(spot.wind_directions));
+         var closestDir = 360;;
+         spot.wind_directions.forEach(function(direction) {
+            var spotWindDegree = compassDegrees[direction];
+            var diff = Math.abs(spotWindDegree - windDirDegrees)
+            // get minimum difference
+            if ( diff <  closestDir) {
+               closestDir = spotWindDegree;
+            }
+         })
+         var closestDifference = Math.abs(closestDir - windDirDegrees);
+         // normalize the difference into 1/8 points to subtract from kitescore
+         var kiteScoreSubtraction = closestDifference / 45;
+         console.log('taking off ' + kiteScoreSubtraction + ' because the closest wind dir is ' + closestDir + ' and wind degree is ' + windDirDegrees);
+         kiteScore -= closestDifference / 45; 
+      }
+      data['kiteScore'] = Math.round(kiteScore);
       scores.push(data);
    });
    callback(null, scores);
