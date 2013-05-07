@@ -19,6 +19,9 @@
 			"frontend_url" : "stage.kitecaster.com",
 			"port" : "7508"
 		},
+		"user" : {
+			"port" : "7509"
+		},
 		"kitescore": {
 			"port" : "8503"
 		},

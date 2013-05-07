@@ -657,10 +657,8 @@
 					var queryParams = {
 							where: json
 						};
-					
 					// the -include will link up objects in the DB and return object field values
 					queryParams['include'] = "spotPointer";
-					
 					Datastore.records.object("Subscribe", queryParams, function(err, response, body, success) {
 						if (body.length == 0) {
 							obj = {};
@@ -695,18 +693,21 @@
 			try {
 				json = JSON.parse(data);
 				valid = validate(json, subscribeSchema);
-		
 				if (valid.length > 0 ) {
 					res.statusCode = 400;
 					res.send('Error validating spot schema:' + JSON.stringify(valid));
 					return;
 				} else {
 					try {
-						json.spotId = id;
-						Datastore.records.createobject("Subscribe", json, function(err, response){
-							// @todo build better error handling from Parse-com return
-							res.send(200, 'Spot has been subscribed!');
-						});
+						json.spotId = id.toString();
+						Datastore.records.createobject("Subscribe", json, function(err, response, body){
+							if (body.error) {
+								res.send(400, body.error);
+							} else {
+								// @todo build better error handling from Parse-com return
+								res.send(200, 'Spot has been subscribed!');
+							}
+						}, false);
 					} catch (e) {
 						console.log("An unexpected error occured in the SpotAPI: " + JSON.stringify(e));
 					}					

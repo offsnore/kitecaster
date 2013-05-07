@@ -167,6 +167,7 @@ exports.mainIndex = function(req, res) {
 	}
 	var geo_location = lookup.geolookup.getCurrent(req);
 	var profile_data = {};
+	var session_id;
 
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){		
@@ -176,11 +177,13 @@ exports.mainIndex = function(req, res) {
 
 		var localdata = body[0];		
 		var user_id = localdata.objectId;
+		var session_id = localdata.UserPointer.objectId;
 		
 //		var user_id = localdata.objectId;
 		var params = {
 //			localdata: localdata,
 			user_id: user_id,
+			session_id: session_id,
 			spot_url: nconf.get('api:spot:frontend_url'),
 			kite_url: nconf.get('api:kite:frontend_url'),
 			page: {
@@ -242,6 +245,10 @@ function clone(obj){
     return temp;
 }
 
+function getSession() {
+	
+}
+
 // Spots Page for Application
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
 exports.mainSpot = function(req, res) {
@@ -253,8 +260,8 @@ exports.mainSpot = function(req, res) {
 	var geo_location = lookup.geolookup.getCurrent(req);
 
 	// get Session Details
-	var session_id = nconf.get('site:fakedSession');
-	var user_id = session_id;
+	var session_id, user_id; // = nconf.get('site:fakedSession');
+//	var user_id = session_id;
 
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
@@ -264,9 +271,11 @@ exports.mainSpot = function(req, res) {
 
 		var localdata = body[0];		
 		var user_id = localdata.objectId;
+		var session_id = localdata.UserPointer.objectId;
 	
 		var params = {
 			user_id: user_id,
+			session_id: session_id,
 			spot_url: nconf.get('api:spot:frontend_url'),
 			page: {
 				active: 'Spots',

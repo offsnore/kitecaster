@@ -112,7 +112,6 @@ var restify = require('restify')
 				'userId': queryParts.userId
 			}
 		};
-		console.log(queryParams);
 		// Use DataStore Instead
 		Datastore.records.object("Subscribe", queryParams, function(err, response, body, success) {
 			//res.send(body);
