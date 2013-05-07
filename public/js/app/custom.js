@@ -292,7 +292,7 @@
 				$.ajax({
 					dataType: "json",
 					data: {
-						userId: _$user_id
+						userId: _$session_id
 					},
 					url: url,
 					success: function(data) {
