@@ -413,7 +413,7 @@
 			var send_url = $(that).attr('action');
 			var method = $(this).attr('method') || "PUT";
 			var data = {
-				'userId': _$userId
+				'userId': _$session_id
 			};
 			var data = JSON.stringify(data);
 			$.ajax({
