@@ -1,0 +1,62 @@
+extends main-layout
+
+block script_include
+	script(src='/js/lib/jquery.validate.min.js', type='text/javaScript')
+	script(src='/js/app/frontend.js', type='text/javaScript')
+
+block content
+	#kitecasterapp
+		.container-fluid
+			if(msg)
+				.row-fluid
+					.span4
+					.span4
+						.alert
+							button(type='button', class='close', data-dismiss='alert') &times;
+							h3| An error occured:
+							h4 #{msg}
+					.span4
+			if(txt)
+				.row-fluid
+					.span4
+					.span4
+						.alert.alert-info
+							button(type='button', class='close', data-dismiss='alert') &times;
+							h4 #{txt}
+					.span4
+			.row-fluid
+				.span4
+				.span4.well
+					.row-fluid
+						.span12
+							form(method='post', action='/register', id='register-form', enctype='application/x-www-form-urlencoded').form-input
+								fieldset
+									legend 
+										h2 Register for an Account
+								.control-group
+									label.control-label First Name
+									.controls
+										input(type='text', class='span10', id='firstname', name='firstname', placeholder='Enter your name')
+								.control-group
+									label.control-label Last Name
+									.controls
+										input(type='text', class='span10', id='lastname', name='lastname', placeholder='Enter your last name')
+								.control-group
+									label.control-label Email Address
+									.controls
+										input(type='text', class='span10', id='email', name='email', placeholder='Enter your email address')
+								.control-group
+									label.control-label Password
+									.controls
+										input(type='password', class='span10', id='password', name='password', placeholder='Enter your password')
+								.control-group
+									label.control-label Confirm Password
+									.controls
+										input(type='password', class='span10', id='password_confirm', name='password_confirm', placeholder='Confirm your password')
+								.control-group
+									.controls
+										br
+								.control-group
+									.controls
+										input(type='submit', class='btn btn-success', value='Register!')
+				.span4

@@ -50,6 +50,73 @@ exports.test = function(req, res){
   res.render('test', { title: 'Test Page Demos' });
 };
 
+exports.registerIndex = function(req, res) {
+	var queryParams = require('url').parse(req.url, true).query
+	var params = {
+		txt: false,
+		msg: false,
+		title: ""
+	};
+	if (queryParams.msg) {
+		params.msg = queryParams.msg;
+	}
+	if (queryParams.txt) {
+		params.txt = queryParams.txt;
+	}
+	res.render('register', params);
+};
+
+exports.registerAction = function(req, res) {
+	var nconf = getSettings();
+	var data = req.body;
+	var org_data = data;
+
+	var error, response, session_token;
+
+	Datasession.registerUser(data, res, function(){
+		var _args = arguments;
+		if (_args) {
+			var _params = _args[0];
+		}
+		if (typeof _params[0] != 'undefined') {
+			var response = _params[0];
+		}
+		if (typeof _params[1] != 'undefined') {
+			var error = _params[1];
+		}
+		if (typeof _params[2] != 'undefined') {
+			var session_token = _params[2];
+		}
+		if (error.length > 0) {
+			res.redirect('/register?msg=' + encodeURIComponent(error));			
+		} else {
+			var q = {
+				username: org_data.email,
+				password: org_data.password
+			};
+			Datasession.login(q, function(data){
+				if (data.sessionToken) {
+					data.timestamp = new Date();
+					Datasession.setlogincookie(res, data);
+					res.redirect('/main');
+				} else {
+					res.redirect('/login?msg=' + encodeURIComponent(data.error));			
+				}
+			});
+		}
+	});
+/**
+		if (data.sessionToken) {
+			data.timestamp = new Date();
+			Datasession.setlogincookie(res, data);
+			res.redirect('/main');
+		} else {
+			res.redirect('/login?msg=' + encodeURIComponent(data.error));			
+		}
+	});
+**/
+}
+
 exports.loginIndex = function(req, res) {
 	var queryParams = require('url').parse(req.url, true).query
 	var params = {

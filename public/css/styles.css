@@ -60,6 +60,10 @@ a {
 	display: none;
 }
 
+.form-input .control-group .controls label {
+	min-height: 20px;
+}
+
 .form-input .control-group > *, .form-input .controls > * {
 	font-size: 24px !important;
 	min-height: 42px;
@@ -80,6 +84,20 @@ a {
 	border-radius: 4px;
 	box-shadow: 0px 0px 0px 5px #000, 0px 0px 0px 10px #f5f5f5;
 	-webkit-filter: grayscale(100%) contrast(150%);
+}
+
+label.valid {
+	width: 24px;
+	height: 24px;
+	background: url(/assets/img/valid.png) center center no-repeat;
+	display: inline-block;
+	text-indent: -9999px;
+}
+label.error {
+	font-weight: bold;
+	color: red;
+	padding: 2px 8px;
+	margin-top: 2px;
 }
 
 @media (min-width: 768px) and (max-width: 979px) {
