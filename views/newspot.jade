@@ -33,8 +33,8 @@ block content
 							label.control-label(for='input_location') Location
 							div.controls
 								input(type='hidden', name='location', value='')
-								input(type='hidden', name='lat', value='')
-								input(type='hidden', name='lon', value='')
+								input(type='hidden', name='lat', id='lat', value='')
+								input(type='hidden', name='lon', id='lon', value='')
 								p.latlon Loading...
 								p
 								div#map-canvas(style='height: 300px;')
@@ -88,7 +88,7 @@ block script_include
 		window._$kite_url = '#{kite_url}';
 		window._$spot_id  = '#{spot_id}';
 		window._$session_id = '#{session_id}';
-	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=false')
+	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=true')
 	script(type='text/javascript', src='/js/lib/uploader.js')
 	script(type='text/javascript', src='/js/lib/uploader.xss.js')
 	script(type='text/javascript', src='/js/lib/jquery.uploader.min.js')

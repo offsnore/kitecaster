@@ -480,6 +480,7 @@ exports.editSpot = function(req, res) {
 		var params = {
 			session_id: session_id,
 			spot_id: objectId,
+			google_api_key: nconf.get('api:google:api_key'),
 			spot_url: nconf.get('api:spot:frontend_url'),
 			page: {
 				active: 'Spots',
