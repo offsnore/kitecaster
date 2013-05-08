@@ -25,19 +25,23 @@ block content
 						div.control-group
 							label.control-label(for='input_location') Location Name
 							div.controls
-								- var lon = location().ll[1];
-								- var lat = location().ll[0];
-								- var loc = location().city + ", " + location().region;
-								input(name='name', id='input_location', value=loc).span11.search-query
+								p.span10
+									input(name='name', id='input_location', value='Loading...').span12.search-query
+								p.span0
+									.btn.btn-success Update Location
 						div.control-group
 							label.control-label(for='input_location') Location
 							div.controls
-								input(type='hidden', name='location', value='#{lat}, #{lon}')
-								input(type='hidden', name='lat', value=lat)
-								input(type='hidden', name='lon', value=lon)
-								p.latlon #{lat}, #{lon}
+								input(type='hidden', name='location', value='')
+								input(type='hidden', name='lat', id='lat', value='')
+								input(type='hidden', name='lon', id='lon', value='')
+								p.latlon Loading...
 								p
 								div#map-canvas(style='height: 300px;')
+						div.control-group
+							label.control-lable Upload Cover Image
+							div.controls
+								div(id='bootstrapped-fine-uploader')
 						div.control-group
 							label.control-label(for='input_description') Brief Description
 							div.controls
@@ -45,21 +49,37 @@ block content
 									textarea(name='description', id='input_description', rows=3).span11= data.records.description
 								else
 									textarea(name='description', id='input_description', rows=3).span11
-						div.control-group
+						div.control-group(class='hidden-desktop hidden-tablet')
+							label.control-label Wind Directions
+							div.controls
+								select.selectpicker(multiple, data-style='btn-primary')
+									option.wind_direction| N
+									option.wind_direction| NE
+									option.wind_direction| E
+									option.wind_direction| SE
+									option.wind_direction| S
+									option.wind_direction| SW
+									option.wind_direction| W
+									option.wind_direction| NW
+						div.control-group(class='hidden-phone')
 							label.control-label Wind Directions
 							div.controls
 								div.btn-group(data-toggle='buttons-checkbox')
 									input(type='button', value='N', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
 									input(type='button', value='NE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
 									input(type='button', value='E', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='WE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='W', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='SW', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='S', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
 									input(type='button', value='SE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+									input(type='button', value='S', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+									input(type='button', value='SW', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+									input(type='button', value='W', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+									input(type='button', value='NW', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
 						div.control-group
 							div.controls
 								input(type='submit', value='Save Profile').btn.btn-success
+
+block head_include
+	link(rel='stylesheet', href='/css/uploader.css')
+	link(rel='stylesheet', href='/css/bootstrap.select.min.css')
 
 block script_include
 	script(src='/js/lib/handlebars.js', type='text/javaScript')
@@ -67,45 +87,39 @@ block script_include
 		window._$spot_url = '#{spot_url}';
 		window._$kite_url = '#{kite_url}';
 		window._$spot_id  = '#{spot_id}';
-	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=false')
+		window._$session_id = '#{session_id}';
+	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=true')
+	script(type='text/javascript', src='/js/lib/uploader.js')
+	script(type='text/javascript', src='/js/lib/uploader.xss.js')
+	script(type='text/javascript', src='/js/lib/jquery.uploader.min.js')
+	script(type='text/javascript', src='/js/lib/bootstrap.select.min.js')
 	script(type='text/javascript')
-		function initialize() {
-			var map = new google.maps.Map(
-				document.getElementById('map-canvas'), {
-				center: new google.maps.LatLng(#{geo().lat}, #{geo().lon}),
-				zoom: 11,
-				mapTypeId: google.maps.MapTypeId.ROADMAP
-			});	
-			var marker = new google.maps.Marker({
-				position: new google.maps.LatLng(#{geo().lat}, #{geo().lon}),
-				map: map
-			});
-			google.maps.event.addListener(map, 'click', function(event){
-				var latlong = parseFloat(event.latLng.lat()).toFixed(4) + ", " + parseFloat(event.latLng.lng()).toFixed(4);
-				var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + event.latLng.lat() + "," + event.latLng.lng() + "&sensor=true";
-				$.ajax({
-					url: url,
-					dataType: "json",
-					beforeSend: function() {
-						$(".search-query").val("Loading..");
-					},
-					success: function(data){
-						var addy = data.results[1].formatted_address;
-						//console.log(data.results);
-						//var address = addy[1].short_name + ", " + addy[2].short_name;
-						$(".search-query").val(addy);
-					},
-					error: function() {
-						$(".search-query").val("Something went wrong :( .. try again.");
-					}
-				});
-				$(".latlon").text(latlong);
+		function createUploader() {
+			var uploader = new qq.FineUploader({
+				element: document.getElementById('bootstrapped-fine-uploader'),
+				request: {
+					endpoint: '/media'
+				},
+				text: {
+					uploadButton: '<div><i class="icon-upload icon-white"></i> Upload a Cover Photo</div>'
+				},
+				template: '<div class="qq-uploader span12">' +
+					'<pre class="qq-upload-drop-area span12"><span>{dragZoneText}</span></pre>' +
+					'<div class="qq-upload-button btn btn-success" style="width: auto;">{uploadButtonText}</div>' +
+					'<span class="qq-drop-processing"><span>{dropProcessingText}</span><span class="qq-drop-processing-spinner"></span></span>' +
+					'<ul class="qq-upload-list" style="margin-top: 10px; text-align: center;"></ul>' +
+					'</div>',
+				classes: {
+					success: 'alert alert-success',
+					fail: 'alert alert-error'
+				}
 			});
 		}
+		window.onload = createUploader;
+	script(type='text/javascript')
 		jQuery(document).ready(function(){
-			google.maps.event.addDomListener(window, 'load', initialize);
-		});
-	
+			$('.selectpicker').selectpicker();
+		});	
 
 block scripts
 	script(type='text/x-handlebars-template', id='spotnew-template')

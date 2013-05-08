@@ -20,16 +20,19 @@ block content
 
 block script_include
 	script(src='/js/lib/handlebars.js', type='text/javaScript')
+	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=true')
 	script(type='text/javascript')
 		window._$spot_url = '#{spot_url}';
 		window._$spot_id  = '#{spot_id}';
-
+		window._$session_id = '#{session_id}';
+		if (!window._$local) window._$local = {};
+		window._$local['load_spot'] = true;
 block scripts
 	script(type='text/x-handlebars-template', id='spotedit-template')
 		form(action='/spot/{{ spotId }}', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send
 			input(type='hidden', name='spotId', id='spotId', value='{{ spotId }}')
 			div.well
-				h3 Modify Spot 
+				h3 Modify Spot
 				div.control-group
 					div.controls
 						div.warning_msg
@@ -45,11 +48,10 @@ block scripts
 					label.control-label(for='input_location') Location
 					div.controls
 						input(type='hidden', name='location', value='{{location.latitude}},{{location.longitude}}')
-						input(type='hidden', name='lat', value='{{location.latitude}}')
-						input(type='hidden', name='lon', value='{{location.longitude}}')
+						input(type='hidden', name='lat', id='lat', value='{{location.latitude}}')
+						input(type='hidden', name='lon', id='lon', value='{{location.longitude}}')
 						{{location.latitude}}, {{location.longitude}}
-						p
-						<iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="//maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;geocode=&amp;q={{location.latitude}},+{{location.longitude}}&amp;aq=&amp;sll={{location.latitude}},{{location.longitude}}&amp;sspn=0.381404,0.637207&amp;t=h&amp;ie=UTF8&amp;z=14&amp;ll={{location.latitude}},{{location.longitude}}&amp;output=embed"></iframe><br /><small><a href="//maps.google.com/maps?f=q&amp;source=embed&amp;hl=en&amp;geocode=&amp;q={{location.latitude}},+{{location.longitude}}&amp;aq=&amp;sll=27.982881,-82.454453&amp;sspn=0.381404,0.637207&amp;t=h&amp;ie=UTF8&amp;z=14&amp;ll=37.5991,-122.5158" style="color:#0000FF;text-align:left">View Larger Map</a></small>
+						div#map-canvas(style='height: 300px;')
 				div.control-group
 					label.control-label(for='input_description') Brief Description
 					div.controls

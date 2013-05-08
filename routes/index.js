@@ -318,47 +318,61 @@ exports.newSpot = function(req, res) {
 		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
 	var geo_location = lookup.geolookup.getCurrent(req);
+	var session_id;
 
-	var params = {
-		spot_id: 0,
-		kite_url: null,
-		spot_url: nconf.get('api:spot:frontend_url'),
-		google_api_key: nconf.get('api:google:api_key'),
-		page: {
-			active: 'Spots',
-		},
-		title: nconf.get('site:frontend:title'),
-		credits: "testing",
-		body: {
-			content: {
-				pageinfo: "first entry into spots page"
+	// this is how we get User Data ..
+	Datasession.getuser(req, function(err, response, body){
+		if (body.length == 0) {
+			return kickOut(res, "Please login again, it seems your session has expired.");
+		}
+
+		var localdata = body[0];		
+		var user_id = localdata.objectId;
+		var session_id = localdata.UserPointer.objectId;
+
+		var params = {
+			session_id: session_id,
+			spot_id: 0,
+			kite_url: null,
+			spot_url: nconf.get('api:spot:frontend_url'),
+			google_api_key: nconf.get('api:google:api_key'),
+			page: {
+				active: 'Spots',
 			},
-			widgets: []
-		},
-	    dateNow: function() {
-	        var dateNow = new Date();
-	        var dd = dateNow.getDate();
-	        var monthSingleDigit = dateNow.getMonth() + 1,
-	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
-	        var yy = dateNow.getFullYear().toString().substr(2);
-	
-	        return (mm + '/' + dd + '/' + yy);
-	    },
-	    geo: function(){
-			var g = geo_location;
-	    	var lat = g.ll[0];
-	    	var lon = g.ll[1];
-			return {
-				lat: lat,
-				lon: lon
-			}
-	    },
-	    location: function() {
-	    	return geo_location;
-	    },
-	    data: {}
-	}	
-	res.render('newspot', params);
+			title: nconf.get('site:frontend:title'),
+			credits: "testing",
+			body: {
+				content: {
+					pageinfo: "first entry into spots page"
+				},
+				widgets: []
+			},
+		    dateNow: function() {
+		        var dateNow = new Date();
+		        var dd = dateNow.getDate();
+		        var monthSingleDigit = dateNow.getMonth() + 1,
+		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+		        var yy = dateNow.getFullYear().toString().substr(2);
+		
+		        return (mm + '/' + dd + '/' + yy);
+		    },
+		    geo: function(){
+				var g = geo_location;
+		    	var lat = g.ll[0];
+		    	var lon = g.ll[1];
+				return {
+					lat: lat,
+					lon: lon
+				}
+		    },
+		    location: function() {
+		    	return geo_location;
+		    },
+		    data: {}
+		}	
+		res.render('newspot', params);
+
+	});
 };
 
 /**
@@ -373,57 +387,73 @@ exports.viewSpot = function(req, res) {
 		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
 	var geo_location = lookup.geolookup.getCurrent(req);
-	var objectId = req.params[0];
-	if (objectId == '') {
-		errorPage(res, "We were unable to locate this spot (missing ID).");
-	}
 
-	// get Session Details
-	var session_id = nconf.get('site:fakedSession');
-	var user_id = session_id;
+	var session_id;
 
-	var params = {
-		user_id: user_id,
-		spot_id: objectId,
-		spot_url: nconf.get('api:spot:frontend_url'),
-		google_api_key: nconf.get('api:google:api_key'),
-		page: {
-			active: 'Spots',
-		},
-		title: nconf.get('site:frontend:title'),
-		credits: "testing",
-		body: {
-			content: {
-				pageinfo: "first entry into spots page"
-			},
-			widgets: []
-		},
-		data: {
-			records: {}
-		},
-	    dateNow: function() {
-	        var dateNow = new Date();
-	        var dd = dateNow.getDate();
-	        var monthSingleDigit = dateNow.getMonth() + 1,
-	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
-	        var yy = dateNow.getFullYear().toString().substr(2);
+	// this is how we get User Data ..
+	Datasession.getuser(req, function(err, response, body){
+		if (body.length == 0) {
+			return kickOut(res, "Please login again, it seems your session has expired.");
+		}
+
+		var localdata = body[0];		
+		var user_id = localdata.objectId;
+		var session_id = localdata.UserPointer.objectId;
+
+		var objectId = req.params[0];
+		if (objectId == '') {
+			errorPage(res, "We were unable to locate this spot (missing ID).");
+		}
 	
-	        return (mm + '/' + dd + '/' + yy);
-	    },
-	    geo: function(){
-			var g = geo_location;
-	    	var lat = g.ll[0];
-	    	var lon = g.ll[1];
-			return {
-				lat: lat,
-				lon: lon
-			}
-	    },
-	    location: function() {
-	    	return geo_location;
-	    }
-	}
-	res.render('viewspot', params);
+		// get Session Details
+//		var session_id = nconf.get('site:fakedSession');
+//		var user_id = session_id;
+	
+		var params = {
+			session_id: session_id,
+			user_id: user_id,
+			spot_id: objectId,
+			session_id: session_id,
+			spot_url: nconf.get('api:spot:frontend_url'),
+			google_api_key: nconf.get('api:google:api_key'),
+			page: {
+				active: 'Spots',
+			},
+			title: nconf.get('site:frontend:title'),
+			credits: "testing",
+			body: {
+				content: {
+					pageinfo: "first entry into spots page"
+				},
+				widgets: []
+			},
+			data: {
+				records: {}
+			},
+		    dateNow: function() {
+		        var dateNow = new Date();
+		        var dd = dateNow.getDate();
+		        var monthSingleDigit = dateNow.getMonth() + 1,
+		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+		        var yy = dateNow.getFullYear().toString().substr(2);
+		
+		        return (mm + '/' + dd + '/' + yy);
+		    },
+		    geo: function(){
+				var g = geo_location;
+		    	var lat = g.ll[0];
+		    	var lon = g.ll[1];
+				return {
+					lat: lat,
+					lon: lon
+				}
+		    },
+		    location: function() {
+		    	return geo_location;
+		    }
+		}
+		res.render('viewspot', params);
+	});
 
 //	Datastore.records.find("Spots", objectId, function(records){
 //		res.render('newspot', params);
@@ -442,42 +472,60 @@ exports.editSpot = function(req, res) {
 	if (nconf.get('site:development') !== false) {
 		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
+	
+	var session_id;
+	
 	var geo_location = lookup.geolookup.getCurrent(req);
 	var objectId = req.params[0];
 	if (objectId == '') {
 		errorPage(res, "We were unable to locate this spot (missing ID).");
 	}
-	var params = {
-		spot_id: objectId,
-		spot_url: nconf.get('api:spot:frontend_url'),
-		page: {
-			active: 'Spots',
-		},
-		title: nconf.get('site:frontend:title'),
-		credits: "testing",
-		body: {
-			content: {
-				pageinfo: "first entry into spots page"
+
+	// this is how we get User Data ..
+	Datasession.getuser(req, function(err, response, body){
+		if (body.length == 0) {
+			return kickOut(res, "Please login again, it seems your session has expired.");
+		}
+
+		var localdata = body[0];		
+		var user_id = localdata.objectId;
+		var session_id = localdata.UserPointer.objectId;
+
+		var params = {
+			session_id: session_id,
+			spot_id: objectId,
+			google_api_key: nconf.get('api:google:api_key'),
+			spot_url: nconf.get('api:spot:frontend_url'),
+			page: {
+				active: 'Spots',
 			},
-			widgets: []
-		},
-		data: {
-			records: {}
-		},
-	    dateNow: function() {
-	        var dateNow = new Date();
-	        var dd = dateNow.getDate();
-	        var monthSingleDigit = dateNow.getMonth() + 1,
-	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
-	        var yy = dateNow.getFullYear().toString().substr(2);
-	
-	        return (mm + '/' + dd + '/' + yy);
-	    },
-	    location: function() {
-	    	return geo_location;
-	    }
-	}
-	res.render('editspot', params);
+			title: nconf.get('site:frontend:title'),
+			credits: "testing",
+			body: {
+				content: {
+					pageinfo: "first entry into spots page"
+				},
+				widgets: []
+			},
+			data: {
+				records: {}
+			},
+		    dateNow: function() {
+		        var dateNow = new Date();
+		        var dd = dateNow.getDate();
+		        var monthSingleDigit = dateNow.getMonth() + 1,
+		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+		        var yy = dateNow.getFullYear().toString().substr(2);
+		
+		        return (mm + '/' + dd + '/' + yy);
+		    },
+		    location: function() {
+		    	return geo_location;
+		    }
+		}
+		res.render('editspot', params);
+
+	});
 
 //	Datastore.records.find("Spots", objectId, function(records){
 //		res.render('newspot', params);

@@ -1,6 +1,23 @@
 // Custom Handler used to Handle Custom Calls and functionality
 (function($){	
+
+	if (typeof _$local == 'undefined') {
+		_$local = {
+			load_spot: false,
+			spot: {}
+		};
+	}
+
 	$(document).ready(function($){
+
+		function detectBrowser() {
+			var useragent = navigator.userAgent;
+			var mapdiv = document.getElementById("map-canvas");
+			if (useragent.indexOf('iPhone') != -1 || useragent.indexOf('Android') != -1 ) {
+				mapdiv.style.width = '100%';
+				mapdiv.style.height = '100%';
+			}
+		}
 
 		$.fn.serializeObject = function() {
 		    var o = {};
@@ -34,6 +51,57 @@
 				}
 			}
 		}
+
+		// Easy method for a Call to nearby Spots
+		function loadnearby() {
+			if (typeof _$local.map != 'undefined') {
+				$.ajax({
+					url: '/spot/' + _$spot_id + "?discover=true",
+					datatype: "json",
+					success: function(data){
+						$(data).each(function(i, item){
+							_$local.map.loadSpots(item.location.latitude, item.location.longitude, item.name);
+						});
+					}
+				});
+			}
+		}
+
+		// Easy method for a Call to Weather Forecast
+		function loadForecast(spot_id) {
+			var spot = spot_id || _$spot_id;
+				
+			if (!spot) {
+				return false;
+			}
+			
+			var url = "http://" + _$spot_url + "/checkin/weather/" + spot;
+			var parent = "#spot-" + spot;
+			$.ajax({
+				type: 'GET',
+				dataType: "json",
+				data: {
+					userId: _$user_id
+				},
+				url: url,
+				success: function(data) {
+					var current_forecast = {};
+					if (data) {
+						var current_forecast = data.simpleforecast.forecastday[0];								
+						current_forecast.details = data.txt_forecast.forecastday[0].fcttext;
+						current_forecast.google_image_url = data.google_image_url;
+					}
+					var obj = $("#spotweather-template");
+					var source = obj.html();
+					var template = Handlebars.compile(source);
+					$(".active_weather", parent).html(template(current_forecast));
+				}, 
+				error: function() {
+					$(".active_weather", parent).html("Current kiters unavailable at the moment.");
+				}
+			});					
+		}
+
 
 		$("div.btn-group input[type='button']").click(function(){
 			var hidden_label = $(this).attr('name').toString().split("_")[1];
@@ -125,6 +193,9 @@
 						var template = Handlebars.compile(source);
 						$(".spot_container").html(template(data));
 						loadWindConditions();
+						window._$local.spot['lat'] = parseFloat(jQuery("#lat").val());
+						window._$local.spot['lon'] = parseFloat(jQuery("#lon").val());
+						_$local.initializeGeomap(_$local.spot['lat'], _$local.spot['lon'])
 					},
 					error: function() {
 						//console.log('oops');	
@@ -169,6 +240,12 @@
 							$(".active_users").prepend("<p>You were here just now.</p>");
 						},
 						error: function() {
+							$(".active_users").prepend("<div class='alert helpful'>There was an issue checking you in, please try again.</div>");
+							setTimeout(function(){
+								$(".helpful").fadeOut(500, function(){
+									$(this).remove();
+								});
+							}, 1000);
 							//console.log('oops');	
 						}
 					});
@@ -231,57 +308,6 @@
 				var template = Handlebars.compile(source);
 				$(".spot_container").html(template({}));
 			}
-			
-			// Easy method for a Call to nearby Spots
-			function loadnearby() {
-				if (typeof _$local.map != 'undefined') {
-					$.ajax({
-						url: '/spot/' + _$spot_id + "?discover=true",
-						datatype: "json",
-						success: function(data){
-							$(data).each(function(i, item){
-								_$local.map.loadSpots(item.location.latitude, item.location.longitude, item.name);
-							});
-						}
-					});
-				}
-			}
-
-			// Easy method for a Call to Weather Forecast
-			function loadForecast(spot_id) {
-				var spot = spot_id || _$spot_id;
-					
-				if (!spot) {
-					return false;
-				}
-				
-				var url = "http://" + _$spot_url + "/checkin/weather/" + spot;
-				var parent = "#spot-" + spot;
-				$.ajax({
-					type: 'GET',
-					dataType: "json",
-					data: {
-						userId: _$user_id
-					},
-					url: url,
-					success: function(data) {
-						var current_forecast = {};
-						if (data) {
-							var current_forecast = data.simpleforecast.forecastday[0];								
-							current_forecast.details = data.txt_forecast.forecastday[0].fcttext;
-							current_forecast.google_image_url = data.google_image_url;
-						}
-						var obj = $("#spotweather-template");
-						var source = obj.html();
-						var template = Handlebars.compile(source);
-						$(".active_weather", parent).html(template(current_forecast));
-					}, 
-					error: function() {
-						$(".active_weather", parent).html("Current kiters unavailable at the moment.");
-					}
-				});					
-			}
-
 		}
 
 		// Logic To Handle Spitting out the Spot Themselves		
@@ -292,7 +318,7 @@
 				$.ajax({
 					dataType: "json",
 					data: {
-						userId: _$user_id
+						userId: _$session_id
 					},
 					url: url,
 					success: function(data) {
@@ -413,7 +439,7 @@
 			var send_url = $(that).attr('action');
 			var method = $(this).attr('method') || "PUT";
 			var data = {
-				'userId': _$userId
+				'userId': _$session_id
 			};
 			var data = JSON.stringify(data);
 			$.ajax({
@@ -458,23 +484,38 @@
 				return hlist;
 			});
 		}
-		
-		if (typeof _$local == 'undefined') {
-			_$local = {};
-		}
-		
-		_$local.getGeolocation = function() {
+				
+		// GeoLocation Stuff
+		_$local.geolocal = {};
+		_$local.getGeolocation = function(callback) {
+			if (typeof _$session_id == 'undefined') {
+				return false;
+			}
 			// @todo - check for new Location
 			var url = "/user/location?userObjectId=" + encodeURIComponent(_$session_id);
 			// lets check our DB first
 			$.getJSON(url, function(data){
 				if (data.length > 0) {
 					var data = data[0];
+					_$local.geolocal = data;
 					_$local.parseGeoFormat(data);
+					if (typeof callback == 'function') {
+						callback(data);
+					}
 				} else {
 					_$local.pullGeolocation();
 				}
 			});
+		}
+		
+		_$local.returnGeolocation = function() {
+			if (_$local.geolocal.length == 0) {
+				return _$local.getGeolocation(function(data){
+					return $data; // geolocal before being set
+				});
+			} else {
+				return _$local.geolocal;				
+			}
 		}
 		
 		_$local.parseGeoFormat = function(data) {
@@ -488,7 +529,7 @@
 		}
 		
 		_$local.pullGeolocation = function() {
-			// attempt w Html5 first
+				// attempt w Html5 first
 			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(function(geo){
 					var lat = geo.coords.latitude;
@@ -498,6 +539,7 @@
 					$.getJSON(url, function(data){
 						_$local.parseGeoFormat(data);
 						var location = data.results[0].formatted_address;
+						_$local.geolocal = data.results[0];
 						$.ajax({
 							url: '/user/location',
 							type: 'PUT',
@@ -511,15 +553,88 @@
 						});
 					});
 				});
+			} else {
+				$(".location_description").html("<p class='alert'>It seems we can't verify your location. <br /><input type='text' placeholder='Please enter a nearby city name or zipcode....' id='nearby_search' class='input-block-level nearby_search' /></p>");
+				typeahead_register();
 			}
 		}
+		
+		function typeahead_register() {
+			$(".nearby_search").typeahead({
+				source: ['Englewood, FL', '34223', 'Tampa, FL', '33611'],
+				items: 9,
+				minLength: 2
+			});
+		}
+		
+		_$local.initializeGeomap = function(lat, lon) {
+			var lat = lat;
+			var lon = lon;
+
+			if (!lat && !lon) {
+				return false;
+			}
+
+			$("#lat").val(lat);
+			$("#lon").val(lon);
+
+			detectBrowser();
+
+			function initialize() {
+				var map = new google.maps.Map(
+					document.getElementById('map-canvas'), {
+					center: new google.maps.LatLng(lat, lon),
+					zoom: 11,
+					mapTypeId: google.maps.MapTypeId.ROADMAP
+				});	
+				var marker = new google.maps.Marker({
+					position: new google.maps.LatLng(lat, lon),
+					map: map
+				});
+				google.maps.event.addListener(map, 'click', function(event){
+					var latlong = parseFloat(event.latLng.lat()).toFixed(4) + ", " + parseFloat(event.latLng.lng()).toFixed(4);
+					var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + event.latLng.lat() + "," + event.latLng.lng() + "&sensor=true";
+					$.ajax({
+						url: url,
+						dataType: "json",
+						beforeSend: function() {
+							$(".search-query").val("Loading..");
+						},
+						success: function(data){
+							var addy = data.results[1].formatted_address;
+							//console.log(data.results);
+							//var address = addy[1].short_name + ", " + addy[2].short_name;
+							$(".search-query").val(addy);
+						},
+						error: function() {
+							$(".search-query").val("Something went wrong :( .. try again.");
+						}
+					});
+					$(".latlon").text(latlong);
+				});
+			}
+			jQuery(document).ready(function(){
+				if (typeof google != 'undefined') {
+					initialize();					
+				}
+			});
+		}
+		
 		$(".update_location").live("click", function(e){
 			e.preventDefault();
+			$(this).addClass("hidden");
 			$(".location_description").html("Getting Update...");
 			_$local.pullGeolocation();
 		});
-		_$local.getGeolocation();
-
+		if (_$local.load_spot === true) {
+			_$local.initializeGeomap(_$local.spot['lat'], _$local.spot['lat'])
+		} else {
+			_$local.getGeolocation(function(){
+				_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])			
+				$(".search-query").val(_$local.returnGeolocation()['street']);
+				$(".latlon").html(_$local.returnGeolocation()['lat'] + ", " + _$local.returnGeolocation()['lon']);
+			});
+		}
 	});
 
 })(jQuery)
