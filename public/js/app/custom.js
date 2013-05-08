@@ -488,6 +488,9 @@
 		// GeoLocation Stuff
 		_$local.geolocal = {};
 		_$local.getGeolocation = function(callback) {
+			if (typeof _$session_id == 'undefined') {
+				return false;
+			}
 			// @todo - check for new Location
 			var url = "/user/location?userObjectId=" + encodeURIComponent(_$session_id);
 			// lets check our DB first
