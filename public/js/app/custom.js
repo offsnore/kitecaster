@@ -1,5 +1,13 @@
 // Custom Handler used to Handle Custom Calls and functionality
 (function($){	
+
+	if (typeof _$local == 'undefined') {
+		_$local = {
+			load_spot: false,
+			spot: {}
+		};
+	}
+
 	$(document).ready(function($){
 
 		function detectBrowser() {
@@ -185,6 +193,9 @@
 						var template = Handlebars.compile(source);
 						$(".spot_container").html(template(data));
 						loadWindConditions();
+						window._$local.spot['lat'] = parseFloat(jQuery("#lat").val());
+						window._$local.spot['lon'] = parseFloat(jQuery("#lon").val());
+						_$local.initializeGeomap(_$local.spot['lat'], _$local.spot['lon'])
 					},
 					error: function() {
 						//console.log('oops');	
@@ -467,13 +478,9 @@
 				return hlist;
 			});
 		}
-		
-		if (typeof _$local == 'undefined') {
-			_$local = {};
-		}
-		
+				
+		// GeoLocation Stuff
 		_$local.geolocal = {};
-		
 		_$local.getGeolocation = function(callback) {
 			// @todo - check for new Location
 			var url = "/user/location?userObjectId=" + encodeURIComponent(_$session_id);
@@ -514,7 +521,7 @@
 		
 		_$local.pullGeolocation = function() {
 				// attempt w Html5 first
-			if (false) {
+			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(function(geo){
 					var lat = geo.coords.latitude;
 					var lon = geo.coords.longitude;
@@ -554,6 +561,13 @@
 		_$local.initializeGeomap = function(lat, lon) {
 			var lat = lat;
 			var lon = lon;
+
+			if (!lat && !lon) {
+				return false;
+			}
+
+			$("#lat").val(lat);
+			$("#lon").val(lon);
 
 			detectBrowser();
 
@@ -603,11 +617,15 @@
 			$(".location_description").html("Getting Update...");
 			_$local.pullGeolocation();
 		});
-		_$local.getGeolocation(function(){
-			_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])			
-			$(".search-query").val(_$local.returnGeolocation()['street']);
-			$(".latlon").html(_$local.returnGeolocation()['lat'] + ", " + _$local.returnGeolocation()['lon']);
-		});
+		if (_$local.load_spot === true) {
+			_$local.initializeGeomap(_$local.spot['lat'], _$local.spot['lat'])
+		} else {
+			_$local.getGeolocation(function(){
+				_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])			
+				$(".search-query").val(_$local.returnGeolocation()['street']);
+				$(".latlon").html(_$local.returnGeolocation()['lat'] + ", " + _$local.returnGeolocation()['lon']);
+			});
+		}
 	});
 
 })(jQuery)
