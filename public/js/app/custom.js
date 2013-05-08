@@ -2,6 +2,15 @@
 (function($){	
 	$(document).ready(function($){
 
+		function detectBrowser() {
+			var useragent = navigator.userAgent;
+			var mapdiv = document.getElementById("map-canvas");
+			if (useragent.indexOf('iPhone') != -1 || useragent.indexOf('Android') != -1 ) {
+				mapdiv.style.width = '100%';
+				mapdiv.style.height = '100%';
+			}
+		}
+
 		$.fn.serializeObject = function() {
 		    var o = {};
 		    var a = this.serializeArray();
@@ -504,8 +513,8 @@
 		}
 		
 		_$local.pullGeolocation = function() {
-			// attempt w Html5 first
-			if (navigator.geolocation) {
+				// attempt w Html5 first
+			if (false) {
 				navigator.geolocation.getCurrentPosition(function(geo){
 					var lat = geo.coords.latitude;
 					var lon = geo.coords.longitude;
@@ -528,12 +537,26 @@
 						});
 					});
 				});
+			} else {
+				$(".location_description").html("<p class='alert'>It seems we can't verify your location. <br /><input type='text' placeholder='Please enter a nearby city name or zipcode....' id='nearby_search' class='input-block-level nearby_search' /></p>");
+				typeahead_register();
 			}
+		}
+		
+		function typeahead_register() {
+			$(".nearby_search").typeahead({
+				source: ['Englewood, FL', '34223', 'Tampa, FL', '33611'],
+				items: 9,
+				minLength: 2
+			});
 		}
 		
 		_$local.initializeGeomap = function(lat, lon) {
 			var lat = lat;
 			var lon = lon;
+
+			detectBrowser();
+
 			function initialize() {
 				var map = new google.maps.Map(
 					document.getElementById('map-canvas'), {
@@ -576,6 +599,7 @@
 		
 		$(".update_location").live("click", function(e){
 			e.preventDefault();
+			$(this).addClass("hidden");
 			$(".location_description").html("Getting Update...");
 			_$local.pullGeolocation();
 		});
