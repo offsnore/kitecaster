@@ -240,6 +240,12 @@
 							$(".active_users").prepend("<p>You were here just now.</p>");
 						},
 						error: function() {
+							$(".active_users").prepend("<div class='alert helpful'>There was an issue checking you in, please try again.</div>");
+							setTimeout(function(){
+								$(".helpful").fadeOut(500, function(){
+									$(this).remove();
+								});
+							}, 1000);
 							//console.log('oops');	
 						}
 					});
