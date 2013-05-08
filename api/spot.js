@@ -318,7 +318,7 @@
 				mode = queryParts.mode;
 			}
 			var arr = queryParts.keywords.split(/,/);
-			console.log(queryParams.red);
+			//console.log(queryParams.red);
 			if (mode === "compound") {
 				var params = "{ \"$or\":[";
 				arr.forEach(function(item){
@@ -830,29 +830,32 @@
 						} else {
 							var objectId = body[0].objectId;
 							json.spotPointer = {"__type":"Pointer","className":"Spot","objectId": objectId};
-							json.spotId = id;
-
+							json.spotId = parseInt(id);
 							var query = {
 								where: {
-									session_id: json.userId
+									objectId: json.userId
 								}
 							};
-
 							Datastore.records.object("Profiles", query, function(err, response, body){
 								if (body.length == 0) {
 									res.statusCode = 400;
 									res.end("umm couldnt find your profile .. weird.");
-//									res.send(400);
 									return false;
 								} else {
 
 									var objectId = body[0].objectId;
 									json.profilePointer = {"__type":"Pointer","className":"Profiles","objectId": objectId};
 								
-									Datastore.records.createobject("Checkin", json, function(err, response){
-										// @todo, check check it complete, check for others in the same area
-										res.send(200, 'You\'ve been checked into this Spot.');
-									});
+									Datastore.records.createobject("Checkin", json, function(err, response, body){
+										if (body.error) {
+											res.statusCode = 400;
+											res.end(body.error);
+											return false;
+										} else {
+											// @todo, check check it complete, check for others in the same area
+											res.send(200, 'You\'ve been checked into this Spot.');
+										}
+									}, false);
 								}
 							});
 						}
@@ -887,7 +890,7 @@
 				try {
 					var queryParams = json;
 					queryParams['where'] = {
-						spotId: id
+						spotId: parseInt(id)
 					};
 					// the -include will link up objects in the DB and return object field values
 					queryParams['include'] = "spotPointer";
