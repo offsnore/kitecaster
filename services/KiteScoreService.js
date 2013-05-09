@@ -22,18 +22,22 @@ var app = module.exports;
 
 var compassDegrees = {
    'North'  : 0,
+   'N'  : 0,
    'NNE': 23,
    'NE' : 45,
    'ENE': 68,
    'East'  : 90,
+   'E'  : 90,
    'ESE': 113,
    'SE' : 135,
    'SSE': 158,
    'South'  : 180,
+   'S'  : 180,
    'SSW': 203,
    'SW' : 255,
    'WSW': 248,
    'West'  : 270,
+   'W'  : 270,
    'WNW': 293,
    'NW' : 315,
    'NNW': 338  
