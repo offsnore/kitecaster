@@ -109,7 +109,7 @@ app.current_weather = function(lat, lon, callback){
 // the API might return data in different format. This if for handling the hourly response
 app.processHourly = function(model, spot, hourly, callback) {
    console.log('processing model and hourly data and returning some scores');
-   console.log('here\'s our hourly data: ' + hourly.hourly_forecast.length);
+   //console.log('here\'s our hourly data: ' + hourly.hourly_forecast.length);
    //console.log('here\'s our model: ' + model);
    var windData = [];
    hourly.hourly_forecast.forEach(function(hour) {
@@ -200,7 +200,7 @@ buildKiteScore = function(model, spot, windData, callback) {
       
       // TODO: change score based on wind direction. generic search (query for location) without a spot cannot account for specific wind direction.
       if (spot) {
-         console.log('wind dir: ' + JSON.stringify(wdir));
+         //console.log('wind dir: ' + JSON.stringify(wdir));
          var dir = wdir.dir;
          var windDirDegrees = compassDegrees[dir];
          console.log('degree mapping: ' + windDirDegrees);

@@ -160,7 +160,7 @@ server.get('score/today', function(req, res) {
          console.log('getting spotId: ' + spotId);
          if (spotId) {
              SpotService.getSpot(spotId, function(err, spot) {
-               console.log('Got model: ' + JSON.stringify(spot));
+               console.log('Got spot: ' + JSON.stringify(spot));
                callback(err, JSON.parse(spot));                              
             });
          } 
