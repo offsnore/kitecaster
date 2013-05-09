@@ -25,6 +25,8 @@ var options = {
    colorize : "true"
 };
 
+var HOURLY_1DAY = "hourly", HOURLY_7DAY = "7day", HOURLY_10DAY = "10day";
+
 var defaultModel;
 
 nconf.argv()
@@ -174,8 +176,7 @@ server.get('score/today', function(req, res) {
          var lon = spot.location.longitude;
          var latLonQuery = lat + ',' + lon;
          console.log('wunder.hourly with query: ' + latLonQuery);
-         wunder.hourly(latLonQuery, function(err, response) {
-            console.log('got here in kitescore.js:'.red);
+         pullWeather(HOURLY_1DAY,lat, lon, function(err, response) {
             var jsonModel = JSON.parse(defaultModel);
             if (me.model != null && response != null) {
                var model = JSON.parse(me.model);
@@ -190,7 +191,24 @@ server.get('score/today', function(req, res) {
                res.end();
             }
             return;
-       });
+ 
+         });
+         /*wunder.hourly(latLonQuery, function(err, response) {
+            var jsonModel = JSON.parse(defaultModel);
+            if (me.model != null && response != null) {
+               var model = JSON.parse(me.model);
+               var hourly = JSON.parse(response);
+               KiteScoreService.processHourly(model, spot, hourly, function(err, scores) {
+                  //console.log('processHourly response: ' + scores);
+                  res.send(200, scores);
+                  res.end();
+               });
+            } else {console.error('uhhh');
+               res.send(500, "Invalid server response");
+               res.end();
+            }
+            return;
+       });*/
       });
    }
    else if (queryParts.query) {
@@ -232,6 +250,52 @@ server.get('score/10day', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
    var lat, lon;
 });
+
+pullWeather = function(mode, lat, lon,  callback) {
+   var latLonQuery = lat + ',' + lon;
+   if (mode = HOURLY_1DAY) {
+       wunder.hourly(latLonQuery, function(err, response) {
+            console.log('got here in kitescore.js:'.red);
+            var jsonModel = JSON.parse(defaultModel);
+            if ( response != null ) {
+//               var weather = JSON.parse(response);
+               callback(null, response);
+            } else {
+               callback("invalid response");
+            }
+            return;
+       });
+
+    }
+    else if (mode = HOURLY_7DAY) {
+       wunder.hourly7day(latLonQuery, function(err, response) {
+            console.log('got here in kitescore.js:'.red);
+            var jsonModel = JSON.parse(defaultModel);
+            if ( response != null ) {
+               var weather = JSON.parse(response);
+               callback(null, weather);
+            } else {
+               callback("invalid response");
+            }
+            return;
+       });
+
+    } 
+    else if (mode = HOURLY_10DAY) {
+       wunder.hourly10day(latLonQuery, function(err, response) {
+            console.log('got here in kitescore.js:'.red);
+            var jsonModel = JSON.parse(defaultModel);
+            if ( response != null ) {
+               var weather = JSON.parse(response);
+               callback(null, weather);
+            } else {
+               callback("invalid response");
+            }
+            return;
+       });
+
+    } 
+};
 
 
 
