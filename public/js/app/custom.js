@@ -120,7 +120,7 @@
 			return [x,y];
 		}
 		
-		function loadKitescore(spot_id) {
+		function loadKitescore(spot_id, override_id) {
 			var spot = spot_id || _$spot_id;
 			if (!spot) {
 				return false;
@@ -136,9 +136,18 @@
 				url: url,
 				success: function(data) {
 					var graphId = parent + "-graph";
+					if (override_id) {
+						var graphId = override_id;
+					}
 					var d = parseForGraph(data);
 					var graph = jQuery("<div></div>").attr('id', graphId);
-					$(parent).append(jQuery("<h3></h3>").text("KiteScore (Kite Ability of This Spot)"));
+					var title = jQuery("<h3></h3>").text("KiteScore (Kite Ability of This Spot)");
+					if (override_id) {
+						var parent = $("#" + override_id).parent();
+						$("#" + override_id).html("");
+					} else {
+						$(parent).append(title);						
+					}
 					$(parent).append(graph);
 					loadGraphic(graphId, d);
 				}
@@ -296,6 +305,7 @@
 						if (typeof initialize == 'function') {	
 							initialize(data.location.latitude, data.location.longitude);
 							loadnearby();
+							loadKitescore(_$spot_id, 'kitescore_spot');
 						}
 					},
 					error: function() {
