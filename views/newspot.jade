@@ -42,6 +42,7 @@ block content
 							label.control-lable Upload Cover Image
 							div.controls
 								div(id='bootstrapped-fine-uploader')
+								#success-image
 						div.control-group
 							label.control-label(for='input_description') Brief Description
 							div.controls
@@ -109,6 +110,13 @@ block script_include
 					'<span class="qq-drop-processing"><span>{dropProcessingText}</span><span class="qq-drop-processing-spinner"></span></span>' +
 					'<ul class="qq-upload-list" style="margin-top: 10px; text-align: center;"></ul>' +
 					'</div>',
+				callbacks: {
+					onComplete: function(id, fileName, responseJson) {
+						if (responseJson.success) {
+							$("#success-image").html("<img src='" + responseJson.url + "' height='200' class='previewCover' /><input type='hidden' name='cover_image' id='cover_image' value='" + responseJson.url + "' />");
+						}
+					}
+				},
 				classes: {
 					success: 'alert alert-success',
 					fail: 'alert alert-error'

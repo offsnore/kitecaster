@@ -3,6 +3,7 @@ var redis = require('redis')
   , crypto = require('crypto')
   , winston = require('winston')
   , ParseObject = require('kaiseki')
+  , fs = require('fs')
   , Parse = require('parse-api').Parse;
 
 var app = module.exports.records = {};
@@ -56,6 +57,21 @@ app.find = app.getCurrent = function(db, key, callback) {
 			callback(app.results);
 		}
 	});
+}
+
+app.file = function(filename, callback) {
+	var parseApp = new ParseObject(nconf.get('parse:appId'), nconf.get('parse:restKey'));	
+
+	fs.exists(filename, function(exists){
+		if (!exists) {
+			console.log("Unable to find file: " + filename);
+		} else {
+			parseApp.uploadFile(filename, function(err, res, body, success) {
+				callback(body.url, body.name);
+			});
+		}
+	});
+
 }
 
 /**

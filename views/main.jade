@@ -54,8 +54,6 @@ block script_include
 block scripts
 	script(type='text/x-handlebars-template', id='spotweather-template')
 		p
-			img(src='{{google_image_url}}').multiple-borders
-		p
 			img(src='{{icon_url}}')
 		p
 			{{details}}
@@ -74,6 +72,10 @@ block scripts
 		.feed(name='feed', id='spot-{{ spotId }}').well
 			h3.header 
 				a(href='/main/spots/view/{{ spotId }}') {{ name }}
+			{{#if cover_image}}
+			p
+				img(src='{{ cover_image }}').multiple-borders.preview_image_main
+			{{/if}}
 			.active_weather
 				h4 Loading Forecast...
 			.score
