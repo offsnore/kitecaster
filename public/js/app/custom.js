@@ -143,7 +143,6 @@
 					var graph = jQuery("<div></div>").attr('id', graphId);
 					var title = jQuery("<h3></h3>").text("KiteScore (Kite Ability of This Spot)");
 					if (override_id) {
-						var parent = $("#" + override_id).parent();
 						$("#" + override_id).html("");
 					} else {
 						$(parent).append(title);						
