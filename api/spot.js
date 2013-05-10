@@ -1,9 +1,13 @@
 	var restify = require('restify')
+	,	fs = require('fs')
 	,	nconf = require('nconf')
 	,   validate = require('jsonschema').validate
 	,   Parse = require('kaiseki')
+	,	fileparse = require('ajax-file-parse')
 	,   winston = require('winston')
 	,   redis = require("redis")
+	,   formidable = require('formidable')
+	,   util = require('util')
 	,   colors = require('colors')
 	,   client = redis.createClient()
 	,   async = require('async')
@@ -560,26 +564,54 @@
 
 	// breaking convention b/c browsers SUCK
 	server.post('/media', function(req, res){
-	
-		console.log("uploading image..");
-        var fName = req.header('x-file-name');
-        var fSize = req.header('x-file-size');
-        var fType = req.header('x-file-type');
 
-//        var ws = fs.createWriteStream('./'+fName)
-        req.on('data', function(data) {
-            console.log(data);
-  //          ws.write(data);
-        });
-        req.on('end', function() {
+		var form = new formidable.IncomingForm(), files = [], fields = [];
+
+		form.on('field', function(field, value){
+			fields.push([field, value]);
+		});
+		
+		form.on('file', function(field, file) {
+			files.push([field, file]);
+		});
+		
+		form.on('progress', function(bytes, expected) {});
+
+		form.on('end', function(){
+			for (var x in files) {
+				var file_object = files[x];
+				for (var y in file_object) {
+					var file = file_object[y];
+					if (typeof file.name == 'undefined') {
+						continue;
+					}
+					var file_path = file.path;
+					Datastore.records.file(file_path, function(url){
+						if (url) {
+							var body_url= url;
+						}
+						console.log(url);
+			            res.writeHead(200, { 'Content-Type': 'application/json' });
+			            res.end(JSON.stringify({
+				            success: true,
+				            url: body_url
+			            }));
+					});
+					// @todo - Make this unique ID be used instead of the FileName and save the file details to the 'Parse.com' DB
+					//var file_new_path = require('path').resolve(__dirname, '../public/media') + '/' + file.name;
+					//fs.createReadStream(file_path).pipe(fs.createWriteStream(file_new_path));
+				}
+			}
+		});
+
+//		form.parse(req, function(err, fields, files){
+//			res.end(util.inspect({fields: fields, files: files}));
+//		});
+
+        req.on('end', function() {        
             console.log('All Done!!!!');
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({
-	            success: true
-            }));
         });
 		
-//		res.send("Error.");
 	});
 
 	/**

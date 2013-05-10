@@ -100,9 +100,24 @@ label.error {
 	margin-top: 2px;
 }
 
+.previewCover {
+	height: 250px;
+}	
+
+.preview_image_main {
+	height: 250px;
+}
+
+
 @media (min-width: 768px) and (max-width: 979px) {
 	.nav li {
 		font-size: 1.5em;
+	}
+	.previewCover {
+		height: 250px;
+	}
+	.preview_image_main {
+		height: 250px;
 	}
 }
 
@@ -118,7 +133,14 @@ label.error {
 		display: none;
 		visibility: hidden;
 	}
-	
+
+	.previewCover {
+		width: 100%;
+	}
+
+	.preview_image_main {
+		width: 100%;	
+	}
 	
 	/** make checkboxes go into button-ish selectors **/
 	.btn-group > .btn {
