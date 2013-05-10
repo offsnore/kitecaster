@@ -567,6 +567,8 @@
 
 		var form = new formidable.IncomingForm(), files = [], fields = [];
 
+		console.log(form);
+
 		form.on('field', function(field, value){
 			fields.push([field, value]);
 		});
