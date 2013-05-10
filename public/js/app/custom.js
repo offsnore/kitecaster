@@ -698,6 +698,8 @@
 							$(".search-query").val("Something went wrong :( .. try again.");
 						}
 					});
+					$("#lat").val(event.latLng.lat());
+					$("#lon").val(event.latLng.lng());
 					$(".latlon").text(latlong);
 				});
 			}
