@@ -21,22 +21,23 @@ var restify = require('restify'),
     ;
     
     
-var options = {
-   colorize : "true"
-};
-
-var HOURLY_1DAY = "hourly", HOURLY_7DAY = "7day", HOURLY_10DAY = "10day";
-
-var defaultModel;
-
-nconf.argv()
-       .env()
-       .file({ file: '../settings.json' }); 
-       
-var wundegroundAPI = nconf.get('weather:apis:wunderground');
-console.log('wunderground key: '.red + wundegroundAPI); 
-
-var wunder = new wundernode(wundegroundAPI, false);
+	var options = {
+	   colorize : "true"
+	};
+	
+	var HOURLY_1DAY = "hourly", HOURLY_7DAY = "7day", HOURLY_10DAY = "10day";
+	
+	var defaultModel;
+	
+	nconf.argv()
+	       .env()
+	       .file({ file: require('path').resolve(__dirname, '../settings.json') });
+	       
+	var wundegroundAPI = nconf.get('weather:apis:wunderground');
+	
+	console.log('wunderground key: ' + wundegroundAPI); 
+	
+	var wunder = new wundernode(wundegroundAPI, false);
 
 
 var api = {};
@@ -77,10 +78,9 @@ server.listen(restPort, function() {
 });
 
 process.argv.forEach(function (val, index, array) {
-  if (val === '-p')
-   {
-      restPort = array[index+1] || DEFAULT_PORT;
-   }
+	if (val === '-p') {
+		restPort = array[index+1] || DEFAULT_PORT;
+	}
 }); 
 
 server.get('score/api', function(req, res) {
@@ -137,8 +137,6 @@ server.get('score/today', function(req, res) {
       console.log('Valid entry, get score for query');
       if (lat && lon) {
       } 
-      
-      
    }
    
    console.log('modelId/spotId check: ' + modelId + '/' + spotId);

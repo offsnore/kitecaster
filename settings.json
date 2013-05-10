@@ -23,7 +23,7 @@
 			"port" : "7509"
 		},
 		"kitescore": {
-			"port" : "8503"
+			"port" : "7503"
 		},
 		"google": {
 			"api_key": "AIzaSyDBD7vGX-y9pO8PP8bHCOQlKztjWzcJNf8"
