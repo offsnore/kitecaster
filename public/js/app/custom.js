@@ -25,6 +25,9 @@
 				xs.push(i);
 				ys.push(0);
 			}
+			for (var i = 0; i < data_input[1].length; i++) {
+				data_input[1][i] = ( data_input[1][i] < 0  ? 0 : data_input[1][i] );
+			}
 			var r = Raphael(spotId),
 			data  = data_input[1],
 			axisy = ["", ""],
