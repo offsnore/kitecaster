@@ -94,35 +94,30 @@ server.get('score/today', function(req, res) {
    var me = this;
    
    console.log('default model? '.red + JSON.stringify(defaultModel));
-
    
    var queryParams = {
          //limit : limit,
          count: true        
          };
 
-
-   // location parameters
-   if (queryParts.geoloc) {
-      logger.debug('geoloc: '.red + queryParts.geoloc);
-      lat = Number(queryParts.geoloc.split(/,/)[0]);
-      lon = Number(queryParts.geoloc.split(/,/)[1]);
-   }
-   else if (queryParts.lat && queryParts.lon) {
-      lat = Number(queryParts.lat);
-      lon = Number(queryParts.lon);
-   }
-   else if (queryParts.spotId) {
-      spotId = queryParts.spotId;   
-      
-   }
+	// location parameters
+	if (queryParts.geoloc) {
+		logger.debug('geoloc: '.red + queryParts.geoloc);
+		lat = Number(queryParts.geoloc.split(/,/)[0]);
+		lon = Number(queryParts.geoloc.split(/,/)[1]);
+	} else if (queryParts.lat && queryParts.lon) {
+		lat = Number(queryParts.lat);
+		lon = Number(queryParts.lon);
+	} else if (queryParts.spotId) {
+		spotId = queryParts.spotId; 
+	}
    
    // modeId check
    if (queryParts.modelId) {
       modelId = queryParts.modelId;
       // need wait library to load model before continuing (callback hell?)
-   }   else { // set model to the default
-
+   }   else { 
+   // set model to the default
       me.model = defaultModel;
       console.log('setting model to defaultModel:\n' + JSON.stringify(defaultModel));
    }
@@ -150,8 +145,9 @@ server.get('score/today', function(req, res) {
                console.log('Got model: ' + JSON.stringify(model));
                callback(err, JSON.parse(model));                              
             });
+         } else {
+	     	callback(null, JSON.parse(defaultModel));   
          }
-         else callback(null, JSON.parse(defaultModel));
       },
       function(callback) {
          // get spot if specified
@@ -161,8 +157,9 @@ server.get('score/today', function(req, res) {
                console.log('Got spot: ' + JSON.stringify(spot));
                callback(err, JSON.parse(spot));                              
             });
-         } 
-         else callback("no spot ID Specified", null);
+         } else {
+	         callback("no spot ID Specified", null);
+         }
       }],
       function(err, results) {
          console.log('results from gathering model and spot: ' );  
@@ -184,12 +181,12 @@ server.get('score/today', function(req, res) {
                   res.send(200, scores);
                   res.end();
                });
-            } else {console.error('uhhh');
-               res.send(500, "Invalid server response");
-               res.end();
+            } else {
+            	console.error('uhhh');
+            	res.send(500, "Invalid server response");
+            	res.end();
             }
-            return;
- 
+            return; 
          });
          /*wunder.hourly(latLonQuery, function(err, response) {
             var jsonModel = JSON.parse(defaultModel);
