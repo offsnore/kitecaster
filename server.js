@@ -69,6 +69,7 @@ parseApp.find('EmailObject', {}, function (err, response) {
 });
 
 app.configure(function(){
+
   app.set('port',  app.settings.env.PORT || nconf.get('env:port') || 8000);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
@@ -76,8 +77,8 @@ app.configure(function(){
 //  app.enable("jsonp callback");
   app.use(express.favicon());
   app.use(express.logger('dev'));
-  app.use(express.bodyParser());
   app.use(express.methodOverride());
+  app.use(express.bodyParser({ keepExtensions: false, uploadDir: __dirname + '/public/uploads' }));
   app.use(express.cookieParser('your secret here'));
   app.use(express.session());
   app.use(app.router);
