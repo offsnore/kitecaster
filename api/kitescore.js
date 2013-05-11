@@ -21,24 +21,27 @@ var restify = require('restify'),
     ;
     
     
-	var options = {
-	   colorize : "true"
-	};
-	
-	var HOURLY_1DAY = "hourly", HOURLY_7DAY = "7day", HOURLY_10DAY = "10day";
-	
-	var defaultModel;
-	
-	nconf.argv()
-	       .env()
-	       .file({ file: require('path').resolve(__dirname, '../settings.json') });
-	       
-	var wundegroundAPI = nconf.get('weather:apis:wunderground');
-	
-	console.log('wunderground key: ' + wundegroundAPI); 
-	
-	var wunder = new wundernode(wundegroundAPI, false);
+var options = {
+   colorize : "true"
+};
 
+var HOURLY_1DAY = "hourly", HOURLY_7DAY = "7day", HOURLY_10DAY = "10day";
+
+var defaultModel;
+
+nconf.argv()
+       .env()
+       .file({ file: require('path').resolve(__dirname, '../settings.json') });
+       
+var wundegroundAPI = nconf.get('weather:apis:wunderground');
+
+console.log('wunderground key: ' + wundegroundAPI); 
+
+
+
+var rateCount = 	nconf.get('weather:apis:rate:count'), rateTime = nconf.get('weather:apis:rate:time');;
+var wunder = new wundernode(wundegroundAPI, false, rateCount, rateTime);
+var expiration_time = nconf.get("api:kitescore:expiration_time");
 
 var api = {};
 api.queryParams = {
@@ -208,15 +211,27 @@ server.get('score/today', function(req, res) {
    }
    else if (queryParts.query) {
       // first query for location
-      console.log('querying forecast for query location: ' + queryParts.query);
+      console.log('querying forecast for query location: '.red + queryParts.query);
+      var redisKey = "kitescore:query:" + queryParts.query;
+      client.get(redisKey, function (err, reply) {
+        if (reply)  {
+         console.log('redis key found, returning reply'); 
+         res.send(200, JSON.parse(reply));
+         }
+      });
       wunder.hourly(queryParts.query, function(err, response) {
-            console.log('got here in kitescore.js:'.red);
             var jsonModel = JSON.parse(defaultModel);
             if (me.model != null && response != null) {
                var model = me.model;
                var hourly = JSON.parse(response);
                KiteScoreService.processHourly(jsonModel, null, hourly, function(err, scores) {
                   //console.log('processHourly response: ' + scores);
+                  client.set(redisKey, JSON.stringify(scores),function(err, replies) {
+                     client.expire(redisKey, expiration_time, function (err, replies) {
+               			console.log('expire set for ' + redisKey + ' to ' + expiration_time + ' seconds.');
+               		});
+
+                  });
                   res.send(200, scores);
                   res.end();
                });
@@ -248,6 +263,12 @@ server.get('score/10day', function(req, res) {
 
 pullWeather = function(mode, lat, lon,  callback) {
    var latLonQuery = lat + ',' + lon;
+   var redisKey = "kitescore:" +  mode  + ":" +  lat+ ":" +  lon;
+   console.log('redis key for kitescore: '.red + redisKey);
+   // This will return a JavaScript String
+   client.get(redisKey, function (err, reply) {
+        console.log('redis reply: '.red + reply.toString()); // Will print `OK`
+   });   
    if (mode = HOURLY_1DAY) {
        wunder.hourly(latLonQuery, function(err, response) {
             console.log('got here in kitescore.js:'.red);

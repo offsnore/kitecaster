@@ -31,7 +31,7 @@ app.find = app.getCurrent = function(db, key, callback) {
 	} else {
 		var hashkey = JSON.stringify(db) + key;
 	}
-	var hashkey = crypto.createHash("md5").update(hashkey).digest("hex");
+	//var hashkey = crypto.createHash("md5").update(hashkey).digest("hex");
 	client.get(hashkey, function(err, reply) {
 		if (reply) {
 			app.results = JSON.parse(reply);

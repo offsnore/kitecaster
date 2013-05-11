@@ -23,7 +23,8 @@
 			"port" : "7509"
 		},
 		"kitescore": {
-			"port" : "7503"
+			"port" : "7503",
+			"expiration_time" : 60
 		},
 		"google": {
 			"api_key": "AIzaSyDBD7vGX-y9pO8PP8bHCOQlKztjWzcJNf8"
@@ -33,7 +34,7 @@
 		"socketio.port" : "9001"      
 	},
 	"redis" : {
-		"expireTime":"60"
+		"expireTime":"900" 
 	},
 	"spot" : {
 		"defaultLimit": "10"
@@ -41,7 +42,12 @@
 	"weather" : {
 		"apis" : {
 			"wunderground": "6fff3f96703a32cb",     
-			"debug": false
+			"debug": false,
+			"rate" : {
+   			"count" : 8,
+   			"time"  : "minute"
+			}
+			
 		}
 	},
 	"site": {
