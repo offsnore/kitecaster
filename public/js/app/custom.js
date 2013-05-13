@@ -588,10 +588,10 @@
 
 		if (typeof Handlebars != 'undefined') {
 			Handlebars.registerHelper('ifCond', function(v1, v2, options) {
-			  if(v1 == v2) {
-			    return options.fn(this);
-			  }
-			  return options.inverse(this);
+				if(v1 == v2) {
+					return options.fn(this);
+				}
+				return options.inverse(this);
 			});
 
 			Handlebars.registerHelper('looper', function(list, delimiter, options) {

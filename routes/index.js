@@ -492,6 +492,7 @@ exports.editSpot = function(req, res) {
 		var session_id = localdata.UserPointer.objectId;
 
 		var params = {
+			user_id: user_id,
 			session_id: session_id,
 			spot_id: objectId,
 			google_api_key: nconf.get('api:google:api_key'),

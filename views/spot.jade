@@ -58,8 +58,10 @@ block scripts
 		{{#each results}}
 		{{#if spotId}}
 		.feed.well
+			{{#ifCond belongsTo '#{session_id}'}}
 			a.btn.btn-info(href='/main/spots/edit/{{spotId}}') Modify Spot
 			&nbsp;
+			{{/ifCond}}
 			a.btn.btn-warning(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe Subscribe
 			h3.header {{ name }}
 			.wind_directions

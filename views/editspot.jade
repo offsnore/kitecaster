@@ -31,6 +31,7 @@ block scripts
 	script(type='text/x-handlebars-template', id='spotedit-template')
 		form(action='/spot/{{ spotId }}', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send
 			input(type='hidden', name='spotId', id='spotId', value='{{ spotId }}')
+			input(type='hidden', name='belongsTo', id='spotId', value='#{session_id}')
 			div.well
 				h3 Modify Spot
 				div.control-group
