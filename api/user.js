@@ -123,6 +123,34 @@
 			},
 		}
 	};
+
+	var updateProfileSchema = {
+		"id": "/UpdateProfileSchema",
+		"type": "object",
+		"properties": {
+			"name": {
+				"type": "string",
+				"required" : true
+			},
+			"email": {
+				"type": "string",
+				"required" : true
+			},
+			"gender" : {
+				"type" : "string"
+			},
+			"lastname" : {
+				"type" : "string",
+				"required" : true
+			},
+			"weight" : {
+				"type" : "string"
+			},
+			"travel_distance" : {
+				"type" : "string"
+			}
+		}
+	};
 	
 	server.get('user/location', function(req, res) {
 		var id = req.params.userId;
@@ -149,6 +177,7 @@
 		}
 	});
 	
+	// yes, we know this is using PUT (when it should be POST)
 	server.put('user/location', function(req, res) {
 		var id = req.params.id;
 		var data = "";
@@ -181,7 +210,46 @@
 				});
 			}
 		});
-
+	});
+	
+	// @Todo - Make this use the session cookie (b/c its needed to be secure)
+	server.put('user/profile/:id', function(req, res) {
+		var queryParts = require('url').parse(req.url, true).query;
+		var id = req.params.id;
+		var data = "";
+		req.on('data', function(chunk) {
+			data += chunk;
+		});
+		req.on('end', function() {
+			var json, valid;
+			try {
+				// @todo pick this up instead of being passed in
+				//var session = Datasession.getsession(req);
+				//console.log(session);
+				json = JSON.parse(data);
+			} catch (err) {
+				console.log('Error parsing data: ' + err);
+				res.send(400, err);
+				return;
+			} 
+			valid = validate(json, updateProfileSchema);
+			if (valid.length > 0) {
+				console.log('Error validating profile schema:\n', JSON.stringify(valid));
+				res.send(500, 'Error validating profile schema:\n' + JSON.stringify(valid));
+				return;
+			} else {
+				var user = Datasession.getuserbyauth(id, function(err, response, body){
+					if (body) {
+						var objectId = body[0].objectId;
+						Datastore.records.objectupdate("Profiles", objectId, json, function(err, response, body, success){
+							res.set("Content-Type", "application/json");
+							res.end(JSON.stringify({"status":"Your profile has been updated."}));
+							return;
+						});
+					}
+				});
+			}
+		});
 	});
 	
 	
