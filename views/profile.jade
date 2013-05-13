@@ -5,6 +5,9 @@ mixin widget(name, header, pageinfo)
 		h2(class="header")= header
 		div(class="content")= pageinfo
 
+block script_include
+	script(src='/js/lib/jquery.validate.min.js', type='text/javaScript')
+
 block content
 	#kitecasterapp
 		.title
@@ -14,16 +17,17 @@ block content
 			if (body.status)
 				div
 					h3.well.btn-success= body.status
+			div.row-fluid.message.hidden.well.btn-success
 			each info in body.content
 				h2= info
 			each widget in body.widgets
 				mixin widget(widget.name, widget.header, widget.content, widget.filename)
-			form(action='/main/profile/save', method='post').form-horizontal
+			form(action='/user/profile/#{session_id}', id='profile-form', method='PUT').form-horizontal.ajax-send
 				div.well
 					div.control-group
 						label.control-label(for='input_email') Email Address
 						div.controls
-							input(name='name', id='input_email', value=data.profile_data.email)
+							input(name='email', id='input_email', value=data.profile_data.email)
 					div.control-group
 						label.control-label(for='input_firstname') First Name
 						div.controls
@@ -64,6 +68,9 @@ block content
 									if (data.profile_data.gender == "female")
 										input(type='button', value='Male', name='input_gender', id='male').btn.btn-primary Male
 										input(type='button', value='Female', name='input_gender', id='female').btn.btn-primary.active Female
+									if (!data.profile_data.gender)
+										input(type='button', value='Male', name='input_gender', id='male').btn.btn-primary Male
+										input(type='button', value='Female', name='input_gender', id='female').btn.btn-primary Female
 									input(type='hidden', name='gender', id='gender', value=data.profile_data.gender)
 								else
 									input(type='button', value='Male', name='input_gender', id='male').btn.btn-primary Male
