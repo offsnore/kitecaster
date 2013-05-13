@@ -51,7 +51,8 @@ block scripts
 						input(type='hidden', name='location', value='{{location.latitude}},{{location.longitude}}')
 						input(type='hidden', name='lat', id='lat', value='{{location.latitude}}')
 						input(type='hidden', name='lon', id='lon', value='{{location.longitude}}')
-						{{location.latitude}}, {{location.longitude}}
+						.latlon
+							{{location.latitude}}, {{location.longitude}}
 						div#map-canvas(style='height: 300px;')
 				div.control-group
 					label.control-label(for='input_description') Brief Description

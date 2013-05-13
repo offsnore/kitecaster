@@ -27,6 +27,8 @@ block script_include
 		window._$spot_id  = '#{spot_id}';
 		window._$user_id = '#{user_id}';
 		window._$session_id = '#{session_id}';
+		window._$local['ignore_geo'] = true;
+
 	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=false')
 	script(type='text/javascript')
 		function initialize(lat, lon) {
@@ -36,6 +38,7 @@ block script_include
 				var d_lat = lat;
 				var d_lon = lon;
 			}
+			console.log(d_lat, d_lon);
 			var map = new google.maps.Map(
 				document.getElementById('map-canvas'), {
 				center: new google.maps.LatLng(d_lat, d_lon),
@@ -74,7 +77,7 @@ block script_include
 			});
 			google.maps.event.addListener(map, 'click', function(event){
 				var latlong = parseFloat(event.latLng.lat()).toFixed(4) + ", " + parseFloat(event.latLng.lng()).toFixed(4);
-				var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + event.latLng.lat() + "," + event.latLng.lng() + "&sensor=true";
+				var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + event.latLng.lat() + "," + event.latLng.lng() + "&sensor=false";
 				$.ajax({
 					url: url,
 					dataType: "json",

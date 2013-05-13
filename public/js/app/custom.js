@@ -717,7 +717,7 @@
 				});
 				google.maps.event.addListener(map, 'click', function(event){
 					var latlong = parseFloat(event.latLng.lat()).toFixed(4) + ", " + parseFloat(event.latLng.lng()).toFixed(4);
-					var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + event.latLng.lat() + "," + event.latLng.lng() + "&sensor=true";
+					var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + event.latLng.lat() + "," + event.latLng.lng() + "&sensor=false";
 					$.ajax({
 						url: url,
 						dataType: "json",
@@ -755,11 +755,13 @@
 		if (_$local.load_spot === true) {
 			_$local.initializeGeomap(_$local.spot['lat'], _$local.spot['lat'])
 		} else {
-			_$local.getGeolocation(function(){
-				_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])			
-				$(".search-query").val(_$local.returnGeolocation()['street']);
-				$(".latlon").html(_$local.returnGeolocation()['lat'] + ", " + _$local.returnGeolocation()['lon']);
-			});
+			if (typeof _$local.ignore_geo == 'undefined') {
+				_$local.getGeolocation(function(){
+					_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])			
+					$(".search-query").val(_$local.returnGeolocation()['street']);
+					$(".latlon").html(_$local.returnGeolocation()['lat'] + ", " + _$local.returnGeolocation()['lon']);
+				});
+			}
 		}
 	});
 
