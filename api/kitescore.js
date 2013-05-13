@@ -267,7 +267,11 @@ pullWeather = function(mode, lat, lon,  callback) {
    console.log('redis key for kitescore: '.red + redisKey);
    // This will return a JavaScript String
    client.get(redisKey, function (err, reply) {
-        console.log('redis reply: '.red + reply.toString()); // Will print `OK`
+   		if (reply) {
+	        console.log('redis reply: '.red + reply.toString()); // Will print `OK`	   		
+   		} else {
+	   		console.log('redis found no key.');
+   		}
    });   
    if (mode = HOURLY_1DAY) {
        wunder.hourly(latLonQuery, function(err, response) {
