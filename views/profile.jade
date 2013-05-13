@@ -21,6 +21,10 @@ block content
 			form(action='/main/profile/save', method='post').form-horizontal
 				div.well
 					div.control-group
+						label.control-label(for='input_email') Email Address
+						div.controls
+							input(name='name', id='input_email', value=data.profile_data.email)
+					div.control-group
 						label.control-label(for='input_firstname') First Name
 						div.controls
 							if (data.profile_data) 
@@ -48,7 +52,7 @@ block content
 								input(type='hidden', name='travel_distance', id='travel_distance', value=data.profile_data.travel_distance)
 								br
 								div.echo
-								p.measurement Miles
+								p.measurement #{data.profile_data.travel_distance} Miles
 					div.control-group
 						label.control-label Gender
 						div.controls

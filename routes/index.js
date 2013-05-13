@@ -625,36 +625,64 @@ exports.newSpotSave = function(req, res) {
 }
 
 
+// @todo Move this into an API for APP usage later
 // Profile Page for Application
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
 exports.mainProfile = function(req, res) {
-
 	// get Session Details
 	var session_id = nconf.get('site:fakedSession');
 	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
-	var profile_data = {};
-	parseApp.find('Profiles', {'session_id': session_id}, function (err, response) {
-		if (response.results.length > 0) {
-			var profile_data = response.results[0];
+	var session_id;
+	var geo_location = lookup.geolookup.getCurrent(req);
+	var objectId = req.params[0];
+	if (objectId == '') {
+		errorPage(res, "We were unable to locate this spot (missing ID).");
+	}
+	// this is how we get User Data ..
+	Datasession.getuser(req, function(err, response, body){
+		if (body.length == 0) {
+			return kickOut(res, "Please login again, it seems your session has expired.");
 		}
-		var params = {
-			page: {
-				active: 'Profile',
-			},
-			data: {
-				profile_data: profile_data			
-			},
-			title: nconf.get('site:frontend:title'),
-			credits: "testing",
-			body: {
-				content: {
-					pageinfo: "Please fill out your profile",
-				},
-				widgets: []
+		var localdata = body[0];		
+		var user_id = localdata.objectId;
+		var session_id = localdata.UserPointer.objectId;
+
+		var query = {
+			'where': {
+				'UserPointer': {
+					"__type": "Pointer",
+					"className" : "_User",
+					"objectId" : session_id
+				}
 			}
-		}
-		res.render('profile', params);
+		};
+		var profile_data = {};
+		Datastore.records.object('Profiles', query, function(err, response, body, success) {
+			if (body.length < 0) {
+				errorPage(res, "We were unable to locate this page.");
+				return false;
+			}
+			var profile_data = body[0];
+			var params = {
+				page: {
+					active: 'Profile',
+				},
+				data: {
+					profile_data: profile_data
+				},
+				title: nconf.get('site:frontend:title'),
+				credits: '',
+				body: {
+					content: {
+						pageinfo: "Please fill in your Profile",
+					},
+					widgets: []
+				}
+			};
+			res.render('profile', params);
+		});
 	});
+
 };
 
 /**
