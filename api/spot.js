@@ -354,37 +354,15 @@
 			
 		}
 
-		function extend(a, b){
-		    for(var key in b)
-		        if(b.hasOwnProperty(key))
-		            a[key] = b[key];
-		    return a;
-		}
-		
-		function extend2(){
-		    for(var i=1; i<arguments.length; i++)
-		        for(var key in arguments[i])
-		            if(arguments[i].hasOwnProperty(key))
-		                arguments[0][key] = arguments[i][key];
-		    return arguments[0];
-		}
-
 		if (lat && lon) {
 			queryParams.limit = limit;
 			queryParams.count = true;
-			
 			if (queryParams.where) {
 				queryParams.where = JSON.parse(queryParams.where);				
 			}
-
 			if (!queryParams.where) {
 				queryParams.where = {};
-			}
-			
-//			queryParams.where = {
-//				location: false
-//			};
-			
+			}			
 			queryParams.where.location = {
 					"$nearSphere" : {
 						__type: 'GeoPoint',
@@ -393,8 +371,6 @@
 						limit : limit
 					}
 			};
-
-			console.log(JSON.stringify(queryParams));
 		}
 	   
 		if (typeof queryParams.where != 'undefined' && typeof queryParams.where.location != 'undefined' && distanceFormat != null) {
