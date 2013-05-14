@@ -113,7 +113,6 @@ app.processHourly = function(model, spot, hourly, callback) {
    //console.log('here\'s our model: ' + model);
    var windData = [];
    hourly.hourly_forecast.forEach(function(hour) {
-/*       console.log('hour data: ' + JSON.stringify(hour)); */
       var wind = {};
       wind.time = hour.FCTTIME;
       wind.wdir = hour.wdir;
@@ -121,9 +120,7 @@ app.processHourly = function(model, spot, hourly, callback) {
       wind.wx   = hour.wx;
       windData.push(wind);
    });
-//   console.log('wind data:\n'.yellow + JSON.stringify(windData[0]));
    buildKiteScore(model, spot, windData, function(err, scores) {
-      console.log('scores have been builted: ' + scores.length);
       callback(err, scores);  
    });
 };

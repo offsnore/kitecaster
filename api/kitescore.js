@@ -137,9 +137,9 @@ server.get('score/today', function(req, res) {
    if (spotId) {
    async.parallel([
       function(callback) {
-         // get model if specified
-         console.log('getting modelId: ' + modelId);
+         // get model if specified        
          if (modelId){
+            console.log('getting modelId: ' + modelId);
             ModelService.getModel(modelId, function(err, model) {
                console.log('Got model: ' + JSON.stringify(model));
                callback(err, JSON.parse(model));                              
@@ -176,13 +176,12 @@ server.get('score/today', function(req, res) {
                var model = JSON.parse(me.model);
                var hourly = JSON.parse(response);
                KiteScoreService.processHourly(model, spot, hourly, function(err, scores) {
-                  console.log('processHourly responsded, scores: '.red  + JSON.stringify(scores));
-                  res.send(200, scores);
-                  res.end();
-                  return;
+                  res.writeHead(200, {
+                     'Content-Type' : 'application/json'
+                  });
+                  res.end(JSON.stringify(scores));                  
                });
             } else {
-            	console.error('uhhh problem'.red);
             	res.send(500, "Invalid server response");
             	res.end();
             }
