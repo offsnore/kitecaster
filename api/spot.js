@@ -373,7 +373,7 @@
 			}
 		}
 	   
-		if (queryParams.where.location && distanceFormat != null) {
+		if (typeof queryParams.where != 'undefined' && typeof queryParams.where.location != 'undefined' && distanceFormat != null) {
 			logger.error('here, queryParams:' + JSON.stringify(queryParams));
 			if (distanceFormat.indexOf('K') != -1) {
 				queryParams.where.location.$maxDistanceInKilometers = distance;
