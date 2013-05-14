@@ -24,7 +24,7 @@
 		},
 		"kitescore": {
 			"port" : "7503",
-			"expiration_time" : 60
+			"expiration_time" : 300
 		},
 		"google": {
 			"api_key": "AIzaSyDBD7vGX-y9pO8PP8bHCOQlKztjWzcJNf8"
