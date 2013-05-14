@@ -16,9 +16,9 @@ var client = redis.createClient();
 var redisExpireTime = 600;//parseInt(nconf.get('redis:expireTime'));
 
 
-SpotService.getNearestSpots = function(queryParams, callback){
+SpotService.getSpotByQuery = function(queryParams, callback){
    // Me no follow -_-
-   Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
+  /* Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
 			if (body.length == 0) {
 				obj = {"error":"Spot" + id + "not found."};
 			} else {
@@ -71,7 +71,7 @@ SpotService.getNearestSpots = function(queryParams, callback){
 				jsonp.send(req, res, obj);
 			}
 		});
-   callback(err, spot)
+   callback(err, spot)*/
 };
 
 SpotService.getSpot = function(id, callback) {
