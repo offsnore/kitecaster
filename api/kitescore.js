@@ -264,64 +264,64 @@ pullWeather = function(mode, lat, lon,  callback) {
    console.log('redis key for kitescore: '.red + redisKey);
    // This will return a JavaScript String
    client.get(redisKey, function (err, reply) { 
-        console.log('redis reply: '.red + reply); // Will print `OK`
         if (reply) {
            console.log('found redis key, responding with reply');
            callback(null, reply);
+           return;
+        }
+        else {
+              if (mode = HOURLY_1DAY) {
+          wunder.hourly(latLonQuery, function(err, response) {
+               var jsonModel = JSON.parse(defaultModel);
+               if ( response != null ) {
+                  var weather = JSON.parse(response);
+                  var weatherStr = JSON.stringify(weather);            
+                  client.set(redisKey,  JSON.stringify(weather),function(err, replies) {
+                        client.expire(redisKey, expiration_time, function (err, replies) {
+                  			console.log('expire set for ' + redisKey + ' to ' + expiration_time + ' seconds.');
+                  		});
+                  callback(null, response);
+                  });
+               }
+                   
+               
+               else {
+                  callback("invalid response");
+               }
+          });
+   
+       }
+       else if (mode = HOURLY_7DAY) {
+          wunder.hourly7day(latLonQuery, function(err, response) {
+               console.log('got here in kitescore.js:'.red);
+               var jsonModel = JSON.parse(defaultModel);
+               if ( response != null ) {
+                  var weather = JSON.parse(response);
+                  callback(null, weather);
+               } else {
+                  callback("invalid response");
+               }
+          });
+   
+       } 
+       else if (mode = HOURLY_10DAY) {
+          wunder.hourly10day(latLonQuery, function(err, response) {
+               console.log('got here in kitescore.js:'.red);
+               var jsonModel = JSON.parse(defaultModel);
+               if ( response != null ) {
+                  var weather = JSON.parse(response);
+                  callback(null, weather);
+               } else {
+                  callback("invalid response");
+               }
+          });
+   
+       } 
+
         }
     });
       
-   if (mode = HOURLY_1DAY) {
-       wunder.hourly(latLonQuery, function(err, response) {
-            console.log('got here in kitescore.js:'.red);
-            var jsonModel = JSON.parse(defaultModel);
-            if ( response != null ) {
-               var weather = JSON.parse(response);
-               var weatherStr = JSON.stringify(weather);
-               console.log('weather: '.red + weatherStr);
-               client.set(redisKey,  JSON.stringify(weather),function(err, replies) {
-                     client.expire(redisKey, expiration_time, function (err, replies) {
-               			console.log('expire set for ' + redisKey + ' to ' + expiration_time + ' seconds.');
-               		});
-               		console.log('response before fail: '.yellow + response);
-               callback(null, response);
-               });
-            }
-                
-            
-            else {
-               callback("invalid response");
-            }
-       });
-
-    }
-    else if (mode = HOURLY_7DAY) {
-       wunder.hourly7day(latLonQuery, function(err, response) {
-            console.log('got here in kitescore.js:'.red);
-            var jsonModel = JSON.parse(defaultModel);
-            if ( response != null ) {
-               var weather = JSON.parse(response);
-               callback(null, weather);
-            } else {
-               callback("invalid response");
-            }
-       });
-
-    } 
-    else if (mode = HOURLY_10DAY) {
-       wunder.hourly10day(latLonQuery, function(err, response) {
-            console.log('got here in kitescore.js:'.red);
-            var jsonModel = JSON.parse(defaultModel);
-            if ( response != null ) {
-               var weather = JSON.parse(response);
-               callback(null, weather);
-            } else {
-               callback("invalid response");
-            }
-       });
-
-    } 
-};
+   };
 
 
 
