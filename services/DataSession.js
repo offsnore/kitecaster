@@ -62,14 +62,15 @@ app.getuserbyauth = function(session_token, callback_method) {
 	};
 	var parseApp = new ParseObject(nconf.get('parse:appId'), nconf.get('parse:restKey'));	
 	parseApp.getUser(session.objectId, function(err, res, body, success){
-		console.log(err, body);
 		if (!err) {
 			// Gets the most up-to-date Info based on DataStore Logic
 			var q = {};
 			q['include'] = "UserPointer";
 			q['where'] = {"UserPointer":{"__type":"Pointer","className":"_User","objectId": body.objectId}};
 			Datastore.records.object("Profiles", q, function(err, response, body) {
-				callback_method(err, response, body);
+				if (typeof callback_method == 'function') {
+					callback_method(err, response, body);
+				}
 			});
 		}
 	});

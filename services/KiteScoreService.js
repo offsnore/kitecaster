@@ -121,7 +121,7 @@ app.processHourly = function(model, spot, hourly, callback) {
       wind.wx   = hour.wx;
       windData.push(wind);
    });
-   console.log('wind data:\n'.yellow + JSON.stringify(windData[0]));
+//   console.log('wind data:\n'.yellow + JSON.stringify(windData[0]));
    buildKiteScore(model, spot, windData, function(err, scores) {
       console.log('scores have been builted: ' + scores.length);
       callback(err, scores);  
@@ -203,10 +203,9 @@ buildKiteScore = function(model, spot, windData, callback) {
          //console.log('wind dir: ' + JSON.stringify(wdir));
          var dir = wdir.dir;
          var windDirDegrees = compassDegrees[dir];
-         console.log('degree mapping: ' + windDirDegrees);
-         
-         console.log(wdir.dir  +':' + speed + ', score: ' + kiteScore );
-         console.log('spot wind dirs: ' + JSON.stringify(spot.wind_directions));
+         //console.log('degree mapping: ' + windDirDegrees);
+         //console.log(wdir.dir  +':' + speed + ', score: ' + kiteScore );
+         //console.log('spot wind dirs: ' + JSON.stringify(spot.wind_directions));
          var closestDir = 360;;
          spot.wind_directions.forEach(function(direction) {
             var spotWindDegree = compassDegrees[direction];
@@ -219,7 +218,7 @@ buildKiteScore = function(model, spot, windData, callback) {
          var closestDifference = Math.abs(closestDir - windDirDegrees);
          // normalize the difference into 1/8 points to subtract from kitescore
          var kiteScoreSubtraction = closestDifference / 45;
-         console.log('taking off ' + kiteScoreSubtraction + ' because the closest wind dir is ' + closestDir + ' and wind degree is ' + windDirDegrees);
+         //console.log('taking off ' + kiteScoreSubtraction + ' because the closest wind dir is ' + closestDir + ' and wind degree is ' + windDirDegrees);
          kiteScore -= closestDifference / 45; 
       }
       data['kiteScore'] = Math.round(kiteScore);

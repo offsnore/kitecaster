@@ -31,6 +31,7 @@ block scripts
 	script(type='text/x-handlebars-template', id='spotedit-template')
 		form(action='/spot/{{ spotId }}', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send
 			input(type='hidden', name='spotId', id='spotId', value='{{ spotId }}')
+			input(type='hidden', name='belongsTo', id='spotId', value='#{session_id}')
 			div.well
 				h3 Modify Spot
 				div.control-group
@@ -50,7 +51,8 @@ block scripts
 						input(type='hidden', name='location', value='{{location.latitude}},{{location.longitude}}')
 						input(type='hidden', name='lat', id='lat', value='{{location.latitude}}')
 						input(type='hidden', name='lon', id='lon', value='{{location.longitude}}')
-						{{location.latitude}}, {{location.longitude}}
+						.latlon
+							{{location.latitude}}, {{location.longitude}}
 						div#map-canvas(style='height: 300px;')
 				div.control-group
 					label.control-label(for='input_description') Brief Description

@@ -141,11 +141,10 @@ app.objectupdate = function(db, objectId, query, callback) {
 				return false;
 			}
 
-			// no callback becuase it can finish whenever it wants :)			
-			base.setobject(db, body);
-			
-			callback(err, res, body, success);
-			
+			base.setobject(db, query, body, false, function(){
+				callback(err, res, body, success);
+			});
+
 			// @todo - include Redis back into here
 			//var redis_key = base.createkey(db, query);
 			//var redisKey = 'spot:id:' + spot.spotId;
@@ -356,7 +355,6 @@ base.setobject = function(db, query, object, expires, callback) {
 	var expiration_time = expires || nconf.get("redis:expireTime") || 60;
 	var diff, date_end, date_start;
 	var setobject = JSON.stringify(object);
-//	console.log('setting ' + key + ' - ' + setobject);
 	client.set(key, setobject, function(err, replies) {            
 		date_end = new Date().getUTCMilliseconds();
 		diff = date_end - date_start;

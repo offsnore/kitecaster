@@ -10,6 +10,39 @@
 
 	$(document).ready(function($){
 
+		if (typeof $("#profile-form")[0] != 'undefined') {
+			$('#profile-form').validate({
+				rules: {
+					name: {
+						minlength: 2,
+						required: true
+					},
+					lastname: {
+						minlength: 2,
+						required: true
+					},
+					// @todo, check for existing emails
+					email: {
+						required: true,
+						email: true
+					},
+					weight: {
+						minlength: 2,
+						digits: true,
+						required: true
+					}
+				},
+				highlight: function(element) {
+					$(element).closest('.control-group').removeClass('success').addClass('error');
+				},
+				success: function(element) {
+					element
+					.text('OK!').addClass('valid')
+					.closest('.control-group').removeClass('error').addClass('success');
+				}
+			});
+		}
+
 		function detectBrowser() {
 			var useragent = navigator.userAgent;
 			var mapdiv = document.getElementById("map-canvas");
@@ -198,8 +231,8 @@
 			//$("")
 		});
 		var default_value = 150;
-		if ($("#travel_distance").length > 0) {
-			var default_value = $("#travel_distance").val().toFixed(0);
+		if (typeof $("#travel_distance")[0] != 'undefiend') {
+			var default_value = $("#travel_distance").val();
 		}
 		if ($.fn.slider) {
 			$(".distance").slider({
@@ -463,6 +496,9 @@
 				dataType: "json",
 				data: data,
 				success: function(response) {
+					if (response.status) {
+						var response = response.status;
+					}
 					$(".message").removeClass("hidden").html("<h3>" + response + "</h3>");
 					window.setTimeout(function(){
 						$(".message").fadeOut(500, function(){
@@ -552,10 +588,10 @@
 
 		if (typeof Handlebars != 'undefined') {
 			Handlebars.registerHelper('ifCond', function(v1, v2, options) {
-			  if(v1 == v2) {
-			    return options.fn(this);
-			  }
-			  return options.inverse(this);
+				if(v1 == v2) {
+					return options.fn(this);
+				}
+				return options.inverse(this);
 			});
 
 			Handlebars.registerHelper('looper', function(list, delimiter, options) {
@@ -681,7 +717,7 @@
 				});
 				google.maps.event.addListener(map, 'click', function(event){
 					var latlong = parseFloat(event.latLng.lat()).toFixed(4) + ", " + parseFloat(event.latLng.lng()).toFixed(4);
-					var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + event.latLng.lat() + "," + event.latLng.lng() + "&sensor=true";
+					var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + event.latLng.lat() + "," + event.latLng.lng() + "&sensor=false";
 					$.ajax({
 						url: url,
 						dataType: "json",
@@ -719,11 +755,13 @@
 		if (_$local.load_spot === true) {
 			_$local.initializeGeomap(_$local.spot['lat'], _$local.spot['lat'])
 		} else {
-			_$local.getGeolocation(function(){
-				_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])			
-				$(".search-query").val(_$local.returnGeolocation()['street']);
-				$(".latlon").html(_$local.returnGeolocation()['lat'] + ", " + _$local.returnGeolocation()['lon']);
-			});
+			if (typeof _$local.ignore_geo == 'undefined') {
+				_$local.getGeolocation(function(){
+					_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])			
+					$(".search-query").val(_$local.returnGeolocation()['street']);
+					$(".latlon").html(_$local.returnGeolocation()['lat'] + ", " + _$local.returnGeolocation()['lon']);
+				});
+			}
 		}
 	});
 
