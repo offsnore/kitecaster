@@ -88,6 +88,11 @@ block scripts
 				|We found {{count}} results within your selected radius.
 		{{#each results}}
 		.feed(name='feed', id='spot-{{ spotId }}').well
+			{{#ifCond belongsTo '#{session_id}'}}
+			a.btn.btn-info(href='/main/spots/edit/{{spotId}}') Modify Spot
+			&nbsp;
+			{{/ifCond}}
+			a.btn.btn-warning(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe Subscribe
 			h3.header
 				a(href='/main/spots/view/{{ spotId }}') {{ name }}
 			h3.latlon
