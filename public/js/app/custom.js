@@ -4,8 +4,149 @@
 	if (typeof _$local == 'undefined') {
 		_$local = {
 			load_spot: false,
+			discover_nearby: false,
+			discover_radius: 100,
 			spot: {}
 		};
+
+		function detectBrowser() {
+			var useragent = navigator.userAgent;
+			var mapdiv = document.getElementById("map-canvas");
+			if (useragent.indexOf('iPhone') != -1 || useragent.indexOf('Android') != -1 ) {
+				mapdiv.style.width = '100%';
+				mapdiv.style.height = '100%';
+			}
+		}
+
+		// GeoLocation Stuff
+		_$local.geolocal = {};
+		_$local.getGeolocation = function(callback) {
+			if (typeof _$session_id == 'undefined') {
+				return false;
+			}
+			// @todo - check for new Location
+			var url = "/user/location?userObjectId=" + encodeURIComponent(_$session_id);
+			// lets check our DB first
+			$.getJSON(url, function(data){
+				if (data.length > 0) {
+					var data = data[0];
+					_$local.geolocal = data;
+					_$local.parseGeoFormat(data);
+					if (typeof callback == 'function') {
+						callback(data);
+					}
+				} else {
+					_$local.pullGeolocation();
+				}
+			});
+		}
+		
+		_$local.returnGeolocation = function() {
+			if (_$local.geolocal.length == 0) {
+				return _$local.getGeolocation(function(data){
+					return $data; // geolocal before being set
+				});
+			} else {
+				return _$local.geolocal;				
+			}
+		}
+		
+		_$local.parseGeoFormat = function(data) {
+			var location;
+			if (typeof data.results != 'undefined') {
+				location = data.results[0].formatted_address;
+			} else {
+				location = data.street;
+			}
+			$(".location_description").html(location+" ");
+		}
+		
+		_$local.pullGeolocation = function() {
+				// attempt w Html5 first
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(function(geo){
+					var lat = geo.coords.latitude;
+					var lon = geo.coords.longitude;
+					var latlong = parseFloat(lat).toFixed(4) + ", " + parseFloat(lon).toFixed(4);
+					var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&sensor=true";
+					$.getJSON(url, function(data){
+						_$local.parseGeoFormat(data);
+						var location = data.results[0].formatted_address;
+						_$local.geolocal = data.results[0];
+						$.ajax({
+							url: '/user/location',
+							type: 'PUT',
+							dataType: "json",
+							data: JSON.stringify({
+								userObjectId: _$session_id,
+								lat: parseFloat(lat),
+								lon: parseFloat(lon),
+								street: location
+							})
+						});
+					});
+				});
+			} else {
+				$(".location_description").html("<p class='alert'>It seems we can't verify your location. <br /><input type='text' placeholder='Please enter a nearby city name or zipcode....' id='nearby_search' class='input-block-level nearby_search' /></p>");
+				typeahead_register();
+			}
+		}
+
+		_$local.initializeGeomap = function(lat, lon) {
+			var lat = lat;
+			var lon = lon;
+
+			if (!lat && !lon) {
+				return false;
+			}
+
+			$("#lat").val(lat);
+			$("#lon").val(lon);
+
+			detectBrowser();
+
+			function initialize() {
+				var map = new google.maps.Map(
+					document.getElementById('map-canvas'), {
+					center: new google.maps.LatLng(lat, lon),
+					zoom: 11,
+					mapTypeId: google.maps.MapTypeId.ROADMAP
+				});	
+				var marker = new google.maps.Marker({
+					position: new google.maps.LatLng(lat, lon),
+					map: map
+				});
+				google.maps.event.addListener(map, 'click', function(event){
+					var latlong = parseFloat(event.latLng.lat()).toFixed(4) + ", " + parseFloat(event.latLng.lng()).toFixed(4);
+					var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + event.latLng.lat() + "," + event.latLng.lng() + "&sensor=false";
+					$.ajax({
+						url: url,
+						dataType: "json",
+						beforeSend: function() {
+							$(".search-query").val("Loading..");
+						},
+						success: function(data){
+							var addy = data.results[1].formatted_address;
+							//console.log(data.results);
+							//var address = addy[1].short_name + ", " + addy[2].short_name;
+							$(".search-query").val(addy);
+						},
+						error: function() {
+							$(".search-query").val("Something went wrong :( .. try again.");
+						}
+					});
+					$("#lat").val(event.latLng.lat());
+					$("#lon").val(event.latLng.lng());
+					$(".latlon").text(latlong);
+				});
+			}
+			jQuery(document).ready(function(){
+				if (typeof google != 'undefined') {
+					initialize();					
+				}
+			});
+		}
+
 	}
 
 	$(document).ready(function($){
@@ -41,15 +182,6 @@
 					.closest('.control-group').removeClass('error').addClass('success');
 				}
 			});
-		}
-
-		function detectBrowser() {
-			var useragent = navigator.userAgent;
-			var mapdiv = document.getElementById("map-canvas");
-			if (useragent.indexOf('iPhone') != -1 || useragent.indexOf('Android') != -1 ) {
-				mapdiv.style.width = '100%';
-				mapdiv.style.height = '100%';
-			}
 		}
 
 		function loadGraphic(spotId, data_input) {
@@ -429,20 +561,21 @@
 				$(".spot_container").html(template({}));
 			}
 		}
-
-		// Logic To Handle Spitting out the Spot Themselves		
-		if (typeof _$kite_url != 'undefined') {
-			if (typeof $("#kitespot-template")[0] != 'undefined') {
-				var obj = $("#kitespot-template");
-				var url = "http://" + _$kite_url + "/kite";
+		
+		function loadDiscoverBy(_$kite_url) {
+			_$local.getGeolocation(function(){
+				var url = "http://" + _$kite_url + "/spot";
 				$.ajax({
 					dataType: "json",
 					data: {
+						discover_nearby: true,
+						lat: _$local.geolocal.lat,
+						lon: _$local.geolocal.lon,
+						miles: _$local.discover_radius,
 						userId: _$session_id
 					},
 					url: url,
 					success: function(data) {
-						var data = {'results': data};
 						var source = obj.html();
 						var template = Handlebars.compile(source);
 						$(".spot_container").html(template(data));
@@ -455,6 +588,48 @@
 						//console.log('oops');	
 					}
 				});
+			});
+		}
+
+		// Logic To Handle Spitting out the Spot Themselves		
+		if (typeof _$kite_url != 'undefined') {
+			$(".browse").live("change", function(e){
+				e.preventDefault();
+				var that = this;
+				_$local.discover_radius = $(that).find(":selected").val();
+				$(".spot_container").html("Loading...");
+				$(".radius_distance").html(_$local.discover_radius);
+				loadDiscoverBy(_$kite_url);
+			});
+
+			if (typeof $("#kitespot-template")[0] != 'undefined') {
+				var obj = $("#kitespot-template");
+				// discover nearby uses a different approach to getting 'spots'
+				if (_$local.discover_nearby === true) {
+					loadDiscoverBy(_$kite_url);
+ 				} else {
+					var url = "http://" + _$kite_url + "/kite";
+					$.ajax({
+						dataType: "json",
+						data: {
+							userId: _$session_id
+						},
+						url: url,
+						success: function(data) {
+							var data = {'results': data};
+							var source = obj.html();
+							var template = Handlebars.compile(source);
+							$(".spot_container").html(template(data));
+							$(data.results).each(function(i, item){
+								loadForecast(item.spotId);
+								loadKitescore(item.spotId);
+							});
+						},
+						error: function() {
+							//console.log('oops');	
+						}
+					});
+				}
 			}
 		}
 
@@ -609,140 +784,12 @@
 			});
 		}
 				
-		// GeoLocation Stuff
-		_$local.geolocal = {};
-		_$local.getGeolocation = function(callback) {
-			if (typeof _$session_id == 'undefined') {
-				return false;
-			}
-			// @todo - check for new Location
-			var url = "/user/location?userObjectId=" + encodeURIComponent(_$session_id);
-			// lets check our DB first
-			$.getJSON(url, function(data){
-				if (data.length > 0) {
-					var data = data[0];
-					_$local.geolocal = data;
-					_$local.parseGeoFormat(data);
-					if (typeof callback == 'function') {
-						callback(data);
-					}
-				} else {
-					_$local.pullGeolocation();
-				}
-			});
-		}
-		
-		_$local.returnGeolocation = function() {
-			if (_$local.geolocal.length == 0) {
-				return _$local.getGeolocation(function(data){
-					return $data; // geolocal before being set
-				});
-			} else {
-				return _$local.geolocal;				
-			}
-		}
-		
-		_$local.parseGeoFormat = function(data) {
-			var location;
-			if (typeof data.results != 'undefined') {
-				location = data.results[0].formatted_address;
-			} else {
-				location = data.street;
-			}
-			$(".location_description").html(location+" ");
-		}
-		
-		_$local.pullGeolocation = function() {
-				// attempt w Html5 first
-			if (navigator.geolocation) {
-				navigator.geolocation.getCurrentPosition(function(geo){
-					var lat = geo.coords.latitude;
-					var lon = geo.coords.longitude;
-					var latlong = parseFloat(lat).toFixed(4) + ", " + parseFloat(lon).toFixed(4);
-					var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&sensor=true";
-					$.getJSON(url, function(data){
-						_$local.parseGeoFormat(data);
-						var location = data.results[0].formatted_address;
-						_$local.geolocal = data.results[0];
-						$.ajax({
-							url: '/user/location',
-							type: 'PUT',
-							dataType: "json",
-							data: JSON.stringify({
-								userObjectId: _$session_id,
-								lat: parseFloat(lat),
-								lon: parseFloat(lon),
-								street: location
-							})
-						});
-					});
-				});
-			} else {
-				$(".location_description").html("<p class='alert'>It seems we can't verify your location. <br /><input type='text' placeholder='Please enter a nearby city name or zipcode....' id='nearby_search' class='input-block-level nearby_search' /></p>");
-				typeahead_register();
-			}
-		}
 		
 		function typeahead_register() {
 			$(".nearby_search").typeahead({
 				source: ['Englewood, FL', '34223', 'Tampa, FL', '33611'],
 				items: 9,
 				minLength: 2
-			});
-		}
-		
-		_$local.initializeGeomap = function(lat, lon) {
-			var lat = lat;
-			var lon = lon;
-
-			if (!lat && !lon) {
-				return false;
-			}
-
-			$("#lat").val(lat);
-			$("#lon").val(lon);
-
-			detectBrowser();
-
-			function initialize() {
-				var map = new google.maps.Map(
-					document.getElementById('map-canvas'), {
-					center: new google.maps.LatLng(lat, lon),
-					zoom: 11,
-					mapTypeId: google.maps.MapTypeId.ROADMAP
-				});	
-				var marker = new google.maps.Marker({
-					position: new google.maps.LatLng(lat, lon),
-					map: map
-				});
-				google.maps.event.addListener(map, 'click', function(event){
-					var latlong = parseFloat(event.latLng.lat()).toFixed(4) + ", " + parseFloat(event.latLng.lng()).toFixed(4);
-					var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + event.latLng.lat() + "," + event.latLng.lng() + "&sensor=false";
-					$.ajax({
-						url: url,
-						dataType: "json",
-						beforeSend: function() {
-							$(".search-query").val("Loading..");
-						},
-						success: function(data){
-							var addy = data.results[1].formatted_address;
-							//console.log(data.results);
-							//var address = addy[1].short_name + ", " + addy[2].short_name;
-							$(".search-query").val(addy);
-						},
-						error: function() {
-							$(".search-query").val("Something went wrong :( .. try again.");
-						}
-					});
-					$("#lat").val(event.latLng.lat());
-					$("#lon").val(event.latLng.lng());
-					$(".latlon").text(latlong);
-				});
-			}
-			jQuery(document).ready(function(){
-				if (typeof google != 'undefined') {
-					initialize();					
-				}
 			});
 		}
 		

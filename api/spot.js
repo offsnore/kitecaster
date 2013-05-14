@@ -268,6 +268,8 @@
 
 		// If Search is by Lat/Long
 		} else if (queryParts.lat && queryParts.lon) {
+			//lat = Number(queryParts.lat);
+			//lon = Number(queryParts.lon);
 			lat = Number(queryParts.lat);
 			lon = Number(queryParts.lon);
 			redisKey = addToRedisKey(redisKey,  'latlon', [lat, lon]);
@@ -352,7 +354,7 @@
 			
 		}
 
-		if (lat && lon) {      
+		if (lat && lon) {
 			// query with parameters
 			queryParams = {
 				limit : limit,
@@ -371,7 +373,7 @@
 			}
 		}
 	   
-		if (distanceFormat != null) {
+		if (queryParams.where.location && distanceFormat != null) {
 			logger.error('here, queryParams:' + JSON.stringify(queryParams));
 			if (distanceFormat.indexOf('K') != -1) {
 				queryParams.where.location.$maxDistanceInKilometers = distance;
@@ -389,7 +391,8 @@
 
 		// Use DataStore Instead
 		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
-			jsonp.send(req, res, body);
+			// work around for half of the system using jsonp / json-return
+			jsonp.send(req, res, body);				
 		});
 
 	});
