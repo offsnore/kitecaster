@@ -268,6 +268,8 @@
 
 		// If Search is by Lat/Long
 		} else if (queryParts.lat && queryParts.lon) {
+			//lat = Number(queryParts.lat);
+			//lon = Number(queryParts.lon);
 			lat = Number(queryParts.lat);
 			lon = Number(queryParts.lon);
 			redisKey = addToRedisKey(redisKey,  'latlon', [lat, lon]);
@@ -352,26 +354,26 @@
 			
 		}
 
-		if (lat && lon) {      
-			// query with parameters
-			queryParams = {
-				limit : limit,
-				count: true,
-				where : {
-					location: {
-						"$nearSphere" : {
-								__type: 'GeoPoint',
-								latitude: lat,
-								longitude: lon,
-								limit : limit
-							}
-						//,"$maxDistanceInMiles": distance
-						}
-				}
+		if (lat && lon) {
+			queryParams.limit = limit;
+			queryParams.count = true;
+			if (queryParams.where) {
+				queryParams.where = JSON.parse(queryParams.where);				
 			}
+			if (!queryParams.where) {
+				queryParams.where = {};
+			}			
+			queryParams.where.location = {
+					"$nearSphere" : {
+						__type: 'GeoPoint',
+						latitude: lat,
+						longitude: lon,
+						limit : limit
+					}
+			};
 		}
 	   
-		if (distanceFormat != null) {
+		if (typeof queryParams.where != 'undefined' && typeof queryParams.where.location != 'undefined' && distanceFormat != null) {
 			logger.error('here, queryParams:' + JSON.stringify(queryParams));
 			if (distanceFormat.indexOf('K') != -1) {
 				queryParams.where.location.$maxDistanceInKilometers = distance;
@@ -389,7 +391,8 @@
 
 		// Use DataStore Instead
 		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
-			jsonp.send(req, res, body);
+			// work around for half of the system using jsonp / json-return
+			jsonp.send(req, res, body);				
 		});
 
 	});

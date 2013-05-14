@@ -105,16 +105,6 @@ exports.registerAction = function(req, res) {
 			});
 		}
 	});
-/**
-		if (data.sessionToken) {
-			data.timestamp = new Date();
-			Datasession.setlogincookie(res, data);
-			res.redirect('/main');
-		} else {
-			res.redirect('/login?msg=' + encodeURIComponent(data.error));			
-		}
-	});
-**/
 }
 
 exports.loginIndex = function(req, res) {
@@ -234,6 +224,72 @@ exports.mainIndex = function(req, res) {
 	// Gets the most up-to-date Info based on DataStore Logic
 //	Datastore.records.getCurrent("Profiles", {"session_id": session_id}, function(data){
 //	});
+};
+
+/**
+ * Discover Spots Relative To Local Geo
+ */
+exports.discoverSpot = function(req, res) {
+	var nconf = getSettings();
+	// only for Dev
+	if (nconf.get('site:development') !== false) {
+		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
+	}
+	var geo_location = lookup.geolookup.getCurrent(req);
+	var profile_data = {};
+	var session_id;
+
+	// this is how we get User Data ..
+	Datasession.getuser(req, function(err, response, body){		
+		if (body.length == 0) {
+			return kickOut(res, "Please login again, it seems your session has expired.");
+		}
+		var localdata = body[0];
+		var user_id = localdata.objectId;
+		var session_id = localdata.UserPointer.objectId;
+		var params = {
+			user_id: user_id,
+			session_id: session_id,
+			spot_url: nconf.get('api:spot:frontend_url'),
+			kite_url: nconf.get('api:kite:frontend_url'),
+			page: {
+				active: 'Home',
+			},
+			title: nconf.get('site:frontend:title'),
+			credits: "testing",
+			body: {
+				content: {
+					pageinfo: "first entry into page",
+				},
+				widgets: [
+					{
+						name: "feed",
+						header: "feed info",
+						content: ""
+					}
+				]
+			},
+			data: {
+				profile_data: profile_data
+			},
+		    dateNow: function(date) {
+			    if (date) {
+				    var dateValue = new Date(date);
+				    return moment(dateValue).fromNow();
+			    }
+		        var dateNow = new Date();
+		        var dd = dateNow.getDate();
+		        var monthSingleDigit = dateNow.getMonth() + 1,
+		            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+		        var yy = dateNow.getFullYear().toString().substr(2);
+		        return (mm + '/' + dd + '/' + yy);
+		    },
+		    location: function() {
+		    	return geo_location;
+		    }
+		};
+		res.render('discover', params);
+	});
 };
 
 function clone(obj){

@@ -24,6 +24,19 @@ mixin sort()
 			option(value='0') Score Only
 			option(value='1') Distance from #{location().city}, #{location().region}
 			option(value='2') Score & Distance from #{location().city}, #{location().region}
+
+mixin distance()
+	.sort.well
+		h3 
+			|Browsing Radius 
+			select.span3.browse
+				option(value='25') 25 Miles
+				option(value='50') 50 Miles
+				option(value='100', selected='selected') 100 Miles
+				option(value='150') 150 Miles
+				option(value='300') 300 Miles
+				option(value='500') 500 Miles
+				option(value='1000') 1000 Miles
 		
 block content
 	#holder
@@ -37,8 +50,9 @@ block content
 					span.location_description Loading.. 
 				a(href='#').update_location (Not your location? Update It!)
 			p
-				a.btn.btn-large.btn-success(href='/main/discover/spots') Discover Spots near this Area
-			mixin sort
+				h3
+					| Showing you spots within <span class='radius_distance'>100</span> miles of your location:
+			mixin distance
 			div.row-fluid.spot_container
 				h3 Loading ...
 
@@ -49,6 +63,7 @@ block script_include
 		window._$spot_url = '#{kite_url}';
 		window._$user_id = '#{user_id}';
 		window._$session_id = '#{session_id}';
+		window._$local['discover_nearby'] = true;
 		window._$spot_id = false;
 
 block scripts
@@ -68,10 +83,20 @@ block scripts
 		{{/if}}
 
 	script(type='text/x-handlebars-template', id='kitespot-template')
+		.feed.well
+			h3.header
+				|We found {{count}} results within your selected radius.
 		{{#each results}}
 		.feed(name='feed', id='spot-{{ spotId }}').well
-			h3.header 
+			{{#ifCond belongsTo '#{session_id}'}}
+			a.btn.btn-info(href='/main/spots/edit/{{spotId}}') Modify Spot
+			&nbsp;
+			{{/ifCond}}
+			a.btn.btn-warning(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe Subscribe
+			h3.header
 				a(href='/main/spots/view/{{ spotId }}') {{ name }}
+			h3.latlon
+				| Lat: {{location.latitude}}, Long: {{location.longitude}}
 			{{#if cover_image}}
 			p
 				img(src='{{ cover_image }}').multiple-borders.preview_image_main
@@ -82,6 +107,5 @@ block scripts
 				.onestars
 		{{ else }}
 		.feed(name='feed').well
-			h3 You arent subscribed to any spots! 
-			a(href='/main/spots') Check out some spots in your area!
+			h3 We were unable to find and spots within this location, try expanding your search radius! 
 		{{/each}}

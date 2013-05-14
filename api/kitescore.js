@@ -64,7 +64,6 @@ var server = restify.createServer();
 
 ModelService.getModel(1, function(error, modelJson) {
    defaultModel = modelJson;
-   console.log('set defaultModel: '.yellow + JSON.stringify(defaultModel));
 });
 
 //-----
@@ -95,9 +94,6 @@ server.get('score/today', function(req, res) {
    var lat, lon, query, spotId, modelId, model;
    console.log("queryparts: " + JSON.stringify(queryParts));   
    var me = this;
-   
-   console.log('default model? '.red + JSON.stringify(defaultModel));
-   
    var queryParams = {
          //limit : limit,
          count: true        
@@ -122,7 +118,7 @@ server.get('score/today', function(req, res) {
    }   else { 
    // set model to the default
       me.model = defaultModel;
-      console.log('setting model to defaultModel:\n' + JSON.stringify(defaultModel));
+//      console.log('setting model to defaultModel:\n' + JSON.stringify(defaultModel));
    }
    
    var validEntry = (spotId != null ||  (lat != null && lon != null) || queryParts.query != null);
@@ -141,9 +137,9 @@ server.get('score/today', function(req, res) {
    if (spotId) {
    async.parallel([
       function(callback) {
-         // get model if specified
-         console.log('getting modelId: ' + modelId);
+         // get model if specified        
          if (modelId){
+            console.log('getting modelId: ' + modelId);
             ModelService.getModel(modelId, function(err, model) {
                console.log('Got model: ' + JSON.stringify(model));
                callback(err, JSON.parse(model));                              
@@ -180,12 +176,12 @@ server.get('score/today', function(req, res) {
                var model = JSON.parse(me.model);
                var hourly = JSON.parse(response);
                KiteScoreService.processHourly(model, spot, hourly, function(err, scores) {
-                  //console.log('processHourly response: ' + scores);
-                  res.send(200, scores);
-                  res.end();
+                  res.writeHead(200, {
+                     'Content-Type' : 'application/json'
+                  });
+                  res.end(JSON.stringify(scores));                  
                });
             } else {
-            	console.error('uhhh');
             	res.send(500, "Invalid server response");
             	res.end();
             }
@@ -211,12 +207,12 @@ server.get('score/today', function(req, res) {
    }
    else if (queryParts.query) {
       // first query for location
-      console.log('querying forecast for query location: '.red + queryParts.query);
       var redisKey = "kitescore:query:" + queryParts.query;
       client.get(redisKey, function (err, reply) {
         if (reply)  {
-         console.log('redis key found, returning reply'); 
-         res.send(200, JSON.parse(reply));
+            console.log('redis key found, returning reply'); 
+            res.send(200, JSON.parse(reply));
+            return;
          }
       });
       wunder.hourly(queryParts.query, function(err, response) {
@@ -262,28 +258,40 @@ server.get('score/10day', function(req, res) {
 });
 
 pullWeather = function(mode, lat, lon,  callback) {
+   console.log('pullWeather called, mode: '.red + mode + ', lat: ' + lat + ', lon: ' + lon);
    var latLonQuery = lat + ',' + lon;
    var redisKey = "kitescore:" +  mode  + ":" +  lat+ ":" +  lon;
    console.log('redis key for kitescore: '.red + redisKey);
    // This will return a JavaScript String
-   client.get(redisKey, function (err, reply) {
-   		if (reply) {
-	        console.log('redis reply: '.red + reply.toString()); // Will print `OK`	   		
-   		} else {
-	   		console.log('redis found no key.');
-   		}
-   });   
+   client.get(redisKey, function (err, reply) { 
+        console.log('redis reply: '.red + reply); // Will print `OK`
+        if (reply) {
+           console.log('found redis key, responding with reply');
+           callback(null, reply);
+        }
+    });
+      
    if (mode = HOURLY_1DAY) {
        wunder.hourly(latLonQuery, function(err, response) {
             console.log('got here in kitescore.js:'.red);
             var jsonModel = JSON.parse(defaultModel);
             if ( response != null ) {
-//               var weather = JSON.parse(response);
+               var weather = JSON.parse(response);
+               var weatherStr = JSON.stringify(weather);
+               console.log('weather: '.red + weatherStr);
+               client.set(redisKey,  JSON.stringify(weather),function(err, replies) {
+                     client.expire(redisKey, expiration_time, function (err, replies) {
+               			console.log('expire set for ' + redisKey + ' to ' + expiration_time + ' seconds.');
+               		});
+               		console.log('response before fail: '.yellow + response);
                callback(null, response);
-            } else {
+               });
+            }
+                
+            
+            else {
                callback("invalid response");
             }
-            return;
        });
 
     }
@@ -297,7 +305,6 @@ pullWeather = function(mode, lat, lon,  callback) {
             } else {
                callback("invalid response");
             }
-            return;
        });
 
     } 
@@ -311,7 +318,6 @@ pullWeather = function(mode, lat, lon,  callback) {
             } else {
                callback("invalid response");
             }
-            return;
        });
 
     } 

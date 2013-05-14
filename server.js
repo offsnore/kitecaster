@@ -129,6 +129,8 @@ app.post('/register', routes.registerAction);
 app.get('/main', routes.mainIndex);
 app.get('/main/spots', routes.mainSpot);
 
+app.get('/main/discover/spots', routes.discoverSpot);
+
 app.get('/main/spots/new', routes.newSpot);
 app.post('/main/spots/new/save', routes.newSpotSave);
 
