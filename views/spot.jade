@@ -54,6 +54,9 @@ block script_include
 		window._$session_id = '#{session_id}';
 
 block scripts
+	script(type='text/x-handlebars-template', id='spots-error-template')
+		.well.alert
+			h3 Oops, it seems there was an error loading this section. Please sit tight while we try and reload the section in a few moments.
 	script(type='text/x-handlebars-template', id='spots-template')
 		{{#each results}}
 		{{#if spotId}}

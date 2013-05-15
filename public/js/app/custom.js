@@ -9,6 +9,18 @@
 			spot: {}
 		};
 
+		// Handles getting distance between Spot Location and You (or a 2nd spot i suppose), defaults to miles
+		_$local.getDistanceFrom = function(lat1, lon1, lat2, lon2, type) {
+			if (!type) {
+				var type = "miles";
+			}
+			var lat1 = lat1.toRad(); var lat2 = lat2.toRad();
+			var lon1 = lon1.toRad(); var lon2 = lon2.toRad();
+			var R = (type == "km") ? 6371 : 3959;
+			var d = Math.acos(Math.sin(lat1)*Math.sin(lat2) + Math.cos(lat1)*Math.cos(lat2) * Math.cos(lon2-lon1)) * R;
+			return ((d > 0) ? d.toFixed(0) : 0) + " " + type;
+		}
+
 		function detectBrowser() {
 			var useragent = navigator.userAgent;
 			var mapdiv = document.getElementById("map-canvas");
@@ -561,33 +573,12 @@
 				$(".spot_container").html(template({}));
 			}
 		}
-		
-		function loadDiscoverBy(_$kite_url) {
+				
+		function loadDiscoverBy(_$kite_url, callback) {
 			_$local.getGeolocation(function(){
-				var url = "http://" + _$kite_url + "/spot";
-				$.ajax({
-					dataType: "json",
-					data: {
-						discover_nearby: true,
-						lat: _$local.geolocal.lat,
-						lon: _$local.geolocal.lon,
-						miles: _$local.discover_radius,
-						userId: _$session_id
-					},
-					url: url,
-					success: function(data) {
-						var source = obj.html();
-						var template = Handlebars.compile(source);
-						$(".spot_container").html(template(data));
-						$(data.results).each(function(i, item){
-							loadForecast(item.spotId);
-							loadKitescore(item.spotId);
-						});
-					},
-					error: function() {
-						//console.log('oops');	
-					}
-				});
+				if (typeof callback == 'function') {
+					callback();
+				}
 			});
 		}
 
@@ -599,24 +590,20 @@
 				_$local.discover_radius = $(that).find(":selected").val();
 				$(".spot_container").html("Loading...");
 				$(".radius_distance").html(_$local.discover_radius);
-				loadDiscoverBy(_$kite_url);
-			});
 
-			if (typeof $("#kitespot-template")[0] != 'undefined') {
-				var obj = $("#kitespot-template");
-				// discover nearby uses a different approach to getting 'spots'
-				if (_$local.discover_nearby === true) {
-					loadDiscoverBy(_$kite_url);
- 				} else {
-					var url = "http://" + _$kite_url + "/kite";
+				loadDiscoverBy(_$kite_url, function(){
+					var url = "http://" + _$kite_url + "/spot";
 					$.ajax({
 						dataType: "json",
 						data: {
+							discover_nearby: true,
+							lat: _$local.geolocal.lat,
+							lon: _$local.geolocal.lon,
+							miles: _$local.discover_radius,
 							userId: _$session_id
 						},
 						url: url,
 						success: function(data) {
-							var data = {'results': data};
 							var source = obj.html();
 							var template = Handlebars.compile(source);
 							$(".spot_container").html(template(data));
@@ -629,10 +616,95 @@
 							//console.log('oops');	
 						}
 					});
+				});
+
+			});
+
+			if (typeof $("#kitespot-template")[0] != 'undefined') {
+				var obj = $("#kitespot-template");
+				// discover nearby uses a different approach to getting 'spots'
+				if (_$local.discover_nearby === true) {
+					loadDiscoverBy(_$kite_url, function(){
+						var url = "http://" + _$kite_url + "/spot";
+						$.ajax({
+							dataType: "json",
+							data: {
+								discover_nearby: true,
+								lat: _$local.geolocal.lat,
+								lon: _$local.geolocal.lon,
+								miles: _$local.discover_radius,
+								userId: _$session_id
+							},
+							url: url,
+							success: function(data) {
+								var source = obj.html();
+								var template = Handlebars.compile(source);
+								$(".spot_container").html(template(data));
+								$(data.results).each(function(i, item){
+									loadForecast(item.spotId);
+									loadKitescore(item.spotId);
+								});
+							},
+							error: function() {
+								//console.log('oops');	
+							}
+						});
+					});
+ 				} else {
+ 					loadDiscoverBy(_$kite_url, function(){
+						var url = "http://" + _$kite_url + "/kite";
+						$.ajax({
+							dataType: "json",
+							data: {
+								userId: _$session_id,
+								lat: _$local.geolocal.lat,
+								lon: _$local.geolocal.lon
+							},
+							url: url,
+							success: function(data) {
+								$(data).each(function(i, item){
+									item.distanceFrom = _$local.getDistanceFrom(_$local.geolocal.lat, _$local.geolocal.lon, item.location.latitude, item.location.longitude);
+								});
+								var data = {'results': data};
+								var source = obj.html();
+								var template = Handlebars.compile(source);
+								$(".spot_container").html(template(data));
+								$(data.results).each(function(i, item){
+									loadForecast(item.spotId);
+	//								loadKitescore(item.spotId);
+								});
+							},
+							error: function() {
+								var data = {};
+								var source = $("#spots-error-template").html();
+								var template = Handlebars.compile(source);
+								$(".spot_container").html(template);
+								setCountdown(59, function(){
+									document.location.reload();
+								});
+							}
+						});
+ 					});
 				}
 			}
 		}
-
+		
+		function setCountdown(count, callback) {
+			if (!count) var count = 60;
+			var obj = $(".countdown");
+			var counter = setInterval(function(){
+				count = count-1;
+				if (count <= 0) {
+					clearInterval(counter);
+					if (typeof callback == 'function') {
+						callback();
+					}
+					return;
+				}
+				obj.html(count + " seconds...");
+			}, 1000);
+		}
+		
 		// Handle all the 'onSubmit' for ajax requests
 		$(document).on("submit", "form.ajax-send", function(e){
 			e.preventDefault();
@@ -810,7 +882,18 @@
 				});
 			}
 		}
+
 	});
+
+	// Required by getDistanceFrom()
+	String.prototype.toRad = function() {
+		return this * (Math.PI / 180);
+	}
+
+	// Required by getDistanceFrom()
+	Number.prototype.toRad = function() {
+		return this * (Math.PI / 180);
+	}
 
 })(jQuery)
 

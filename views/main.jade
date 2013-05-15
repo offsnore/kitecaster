@@ -18,12 +18,13 @@ mixin feed(name, score, date)
 			if (score == "1") 
 				.onestars
 mixin sort()
-	.sort.well
-		h3 Sort By
-		select.span3
-			option(value='0') Score Only
-			option(value='1') Distance from #{location().city}, #{location().region}
-			option(value='2') Score & Distance from #{location().city}, #{location().region}
+	.sort
+		h3 
+			|Sort By 
+			select.span3.sortBy
+				option(value='0') Distance from Current Location
+				option(value='1') Score Only
+				option(value='2') Score & Distance from #{location().city}, #{location().region}
 		
 block content
 	#holder
@@ -32,13 +33,14 @@ block content
 			h1= title
 		include includes/navigation
 		.content
-			p 
-				Your Location: 
-					span.location_description Loading.. 
-				a(href='#').update_location (Not your location? Update It!)
-			p
-				a.btn.btn-large.btn-success(href='/main/discover/spots') Discover Spots near this Area
-			mixin sort
+			.well
+				p 
+					Your Location: 
+						span.location_description Loading.. 
+					a(href='#').update_location (Not your location? Update It!)
+				p
+					a.btn.btn-large.btn-success(href='/main/discover/spots') Discover Spots near this Area
+				mixin sort
 			div.row-fluid.spot_container
 				h3 Loading ...
 
@@ -52,6 +54,13 @@ block script_include
 		window._$spot_id = false;
 
 block scripts
+	script(type='text/x-handlebars-template', id='spots-error-template')
+		.well.alert
+			h3 Oops, it seems there was an error loading this section. Please sit tight while we try and reload the section in a few moments.
+			div
+				|Attempting to reconnect in 
+				span.countdown
+
 	script(type='text/x-handlebars-template', id='spotweather-template')
 		p
 			img(src='{{icon_url}}')
@@ -78,6 +87,8 @@ block scripts
 			{{/if}}
 			.active_weather
 				h4 Loading Forecast...
+			h4.distance
+				|You are within approximately {{distanceFrom}} from this spot.
 			.score
 				.onestars
 		{{ else }}
