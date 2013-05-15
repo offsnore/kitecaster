@@ -318,11 +318,11 @@
 					}
 					var d = parseForGraph(data);
 					var graph = jQuery("<div></div>").attr('id', graphId);
-					var title = jQuery("<h3></h3>").text("KiteScore (Kite Ability of This Spot)");
+					//var title = jQuery("<h3></h3>").text("KiteScore (Kite Ability of This Spot)");
 					if (override_id) {
 						$("#" + override_id).html("");
 					} else {
-						$(parent).append(title);						
+						//$(parent).append(title);						
 					}
 					$(parent).append(graph);
 					loadGraphic(graphId, d);
