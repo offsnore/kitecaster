@@ -671,7 +671,7 @@
 								$(".spot_container").html(template(data));
 								$(data.results).each(function(i, item){
 									loadForecast(item.spotId);
-	//								loadKitescore(item.spotId);
+									loadKitescore(item.spotId);
 								});
 							},
 							error: function() {
