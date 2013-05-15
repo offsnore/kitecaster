@@ -81,7 +81,10 @@ app.file = function(filename, callback) {
  * @param callback	method
  */
 app.object = function(db, query, callback) {
-	var parseApp = new ParseObject(nconf.get('parse:appId'), nconf.get('parse:restKey'));
+   var appId = nconf.get('parse:appId');
+   var restKey = nconf.get('parse:restKey');
+   console.log('appId/restKey: '.magenta + appId + '/' + restKey);
+	var parseApp = new ParseObject(appId, restKey);
 
 	// abstract logic to base()
 	/**
@@ -102,10 +105,12 @@ app.object = function(db, query, callback) {
 				body = res.body;
 				callback(null, res, body, success);
 			} else {
+			   console.log('getting parse object for query: '.magenta + JSON.stringify(query));
 				parseApp.getObjects(db, query, function(err, response, body, success) {
 					if (err) {
 						throw Error("An error occured: ", JSON.stringify(err));
 					} else {
+					   console.log('parse response: '.magenta + JSON.stringify(body));
 						app.results = response;
 						base.setobject(db, query, body);
 						callback(err, response, body, success);

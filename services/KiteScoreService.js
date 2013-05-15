@@ -141,10 +141,12 @@ buildKiteScore = function(model, spot, windData, callback) {
    var windLowRange = windLowMax - windLowMin;
    var windMedRange = windMedMax - windMedMin;
    var windHighRange = windHighMax - windHighMin; 
-   console.log('windLowMin/Max/Mid' + windLowMin + '/' + windLowMax +'/' + windLowMid);
+   /*
+console.log('windLowMin/Max/Mid' + windLowMin + '/' + windLowMax +'/' + windLowMid);
    console.log('windMedMin/Max/Mid' + windMedMin + '/' + windMedMax +'/' + windMedMid);
    console.log('windHighMin/Max/Mid' + windHighMin + '/' + windHighMax +'/' + windHighMid);
    
+*/
    var kiteScore = 0;
    
    // ignore direction first, just map speeds
