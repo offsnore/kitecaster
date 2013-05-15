@@ -66,11 +66,9 @@ block content
 					div.control-group
 						label.control-label(for='input_weight') Distance Willing to Travel for Wind
 						div.controls
-							div.distance
-								input(type='hidden', name='travel_distance', id='travel_distance', value=data.profile_data.travel_distance)
-								br
-								div.echo
-								p.measurement #{data.profile_data.travel_distance} Miles
+							select(data-style='btn-primary', name='travel_distance').selectpicker
+								each item in distances
+									option(value=item.value, selected=item.value == data.profile_data.travel_distance) #{item.label}
 					div.control-group
 						label.control-label Gender
 						div.controls
