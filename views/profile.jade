@@ -61,6 +61,7 @@ block content
 						label.control-label(for='input_weight') Kite Size
 						div.controls
 							select(data-style='btn-primary', name='kite_size').selectpicker
+								option Choose One
 								each item in kites
 									option(value=item.value, selected=item.value == data.profile_data.kite_size) #{item.label}
 					div.control-group
