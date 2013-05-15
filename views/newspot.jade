@@ -32,6 +32,7 @@ block content
 						div.control-group
 							label.control-label(for='input_location') Location
 							div.controls
+								input(type='hidden', name='belongsTo', value='#{session_id}')
 								input(type='hidden', name='location', value='')
 								input(type='hidden', name='lat', id='lat', value='')
 								input(type='hidden', name='lon', id='lon', value='')
