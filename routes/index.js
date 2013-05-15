@@ -720,6 +720,28 @@ exports.mainProfile = function(req, res) {
 				data: {
 					profile_data: profile_data
 				},
+				distances: [
+						{
+							'value' : '50',
+							'label' : '50 Miles'
+						},
+						{
+							'value' : '100',
+							'label' : '100 Miles'
+						},
+						{
+							'value' : '200',
+							'label' : '200 miles'
+						},
+						{
+							'value' : '500',
+							'label' : '500 Miles'
+						},
+						{
+							'value' : '5000',
+							'label' : 'Any distance'
+						}
+				],
 				kites: [
 						{
 							'value' : 'small',
