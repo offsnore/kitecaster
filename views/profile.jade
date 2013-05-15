@@ -5,8 +5,16 @@ mixin widget(name, header, pageinfo)
 		h2(class="header")= header
 		div(class="content")= pageinfo
 
+block head_include
+	link(rel='stylesheet', href='/css/bootstrap.select.min.css')
+
 block script_include
-	script(src='/js/lib/jquery.validate.min.js', type='text/javaScript')
+	script(type='text/javaScript', src='/js/lib/jquery.validate.min.js')
+	script(type='text/javascript', src='/js/lib/bootstrap.select.min.js')
+	script(type='text/javascript')
+		jQuery(document).ready(function(){
+			$('.selectpicker').selectpicker();
+		});
 
 block content
 	#kitecasterapp
@@ -49,6 +57,12 @@ block content
 								input(name='weight', id='input_weight', placeholder='Enter your Weight', value=data.profile_data.weight).span2
 							else
 								input(name='weight', id='input_weight', placeholder='Enter your Weight', value="").span2							
+					div.control-group
+						label.control-label(for='input_weight') Kite Size
+						div.controls
+							select(data-style='btn-primary', name='kite_size').selectpicker
+								each item in kites
+									option(value=item.value, selected=item.value == data.profile_data.kite_size) #{item.label}
 					div.control-group
 						label.control-label(for='input_weight') Distance Willing to Travel for Wind
 						div.controls
