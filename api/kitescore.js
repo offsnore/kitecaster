@@ -73,7 +73,6 @@ var restPort;
 if (nconf.get('api:kitescore:port'))
    restPort = nconf.get('api:kitescore:port');
 else restPort = DEFAULT_PORT;
-console.log('restport: ' + restPort);
 
 server.listen(restPort, function() {
   console.log('%s listening at %s'.blue, server.name, server.url);
@@ -92,7 +91,6 @@ server.get('score/api', function(req, res) {
 server.get('score/today', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
    var lat, lon, query, spotId, modelId, model;
-   console.log("queryparts: " + JSON.stringify(queryParts));   
    var me = this;
    var queryParams = {
          //limit : limit,
@@ -127,7 +125,6 @@ server.get('score/today', function(req, res) {
       res.send(400, "Bad request, must specify location or spot");
       return;
    } else {
-      console.log('Valid entry, get score for query');
       if (lat && lon) {
       } 
    }
@@ -137,9 +134,7 @@ server.get('score/today', function(req, res) {
       function(callback) {
          // get model if specified        
          if (modelId){
-            console.log('getting modelId: ' + modelId);
             ModelService.getModel(modelId, function(err, model) {
-               console.log('Got model: ' + JSON.stringify(model));
                callback(err, JSON.parse(model));                              
             });
          } else {
@@ -148,7 +143,6 @@ server.get('score/today', function(req, res) {
       },
       function(callback) {
          // get spot if specified
-         console.log('getting spotId: ' + spotId);
          if (spotId) {
              SpotService.getSpot(parseInt(spotId), function(err, spot) {
                callback(err, spot[0]);                              
@@ -158,7 +152,6 @@ server.get('score/today', function(req, res) {
          }
       }],
       function(err, results) {
-         console.log('results from gathering model and spot: ' );  
          model = results[0];
          spot = results[1];
          var lat = spot.location.latitude;

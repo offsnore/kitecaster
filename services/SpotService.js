@@ -80,15 +80,12 @@ SpotService.getSpot = function(id, callback) {
 				spotId: id
 			}
 		};
-		console.log('SpotService.getSpot, queryParams: ' + JSON.stringify(queryParams));
 		DataStore.records.object("Spot", queryParams, function(err, response, body, success) {
-		   console.log('body: ' + response + '/');
 			if (body.length == 0) {
 				obj = {"error":"Spot " + id + "not found."};
 			} else {
 				obj = body;
 			}
-			console.log('queryParams: ' + JSON.stringify(queryParams));
 			// gets Spots within certain distance of THIS spot (for mapping)		
 			callback(err, obj);
 

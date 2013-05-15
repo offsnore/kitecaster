@@ -83,7 +83,6 @@ app.file = function(filename, callback) {
 app.object = function(db, query, callback) {
    var appId = nconf.get('parse:appId');
    var restKey = nconf.get('parse:restKey');
-   console.log('appId/restKey: '.magenta + appId + '/' + restKey);
 	var parseApp = new ParseObject(appId, restKey);
 
 	// abstract logic to base()
@@ -105,12 +104,10 @@ app.object = function(db, query, callback) {
 				body = res.body;
 				callback(null, res, body, success);
 			} else {
-			   console.log('getting parse object for query: '.magenta + JSON.stringify(query));
 				parseApp.getObjects(db, query, function(err, response, body, success) {
 					if (err) {
 						throw Error("An error occured: ", JSON.stringify(err));
 					} else {
-					   console.log('parse response: '.magenta + JSON.stringify(body));
 						app.results = response;
 						base.setobject(db, query, body);
 						callback(err, response, body, success);
@@ -223,7 +220,6 @@ app.deleteobject = function(db, query, callback) {
 //			}
 //			var object = bodyJson[0];
 //			var id = object.objectId;
-//			logger.info('spotParseId to delete: '.red + id );
 //			parseApp.deleteObject(db, id, function(err, response, body, success){
 //				callback(err, response, body, success);
 //			});

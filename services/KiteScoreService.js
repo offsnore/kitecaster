@@ -108,9 +108,6 @@ app.current_weather = function(lat, lon, callback){
 
 // the API might return data in different format. This if for handling the hourly response
 app.processHourly = function(model, spot, hourly, callback) {
-   console.log('processing model and hourly data and returning some scores');
-   //console.log('here\'s our hourly data: ' + hourly.hourly_forecast.length);
-   //console.log('here\'s our model: ' + model);
    var windData = [];
    hourly.hourly_forecast.forEach(function(hour) {
       var wind = {};
