@@ -81,7 +81,9 @@ app.file = function(filename, callback) {
  * @param callback	method
  */
 app.object = function(db, query, callback) {
-	var parseApp = new ParseObject(nconf.get('parse:appId'), nconf.get('parse:restKey'));
+   var appId = nconf.get('parse:appId');
+   var restKey = nconf.get('parse:restKey');
+	var parseApp = new ParseObject(appId, restKey);
 
 	// abstract logic to base()
 	/**
@@ -218,7 +220,6 @@ app.deleteobject = function(db, query, callback) {
 //			}
 //			var object = bodyJson[0];
 //			var id = object.objectId;
-//			logger.info('spotParseId to delete: '.red + id );
 //			parseApp.deleteObject(db, id, function(err, response, body, success){
 //				callback(err, response, body, success);
 //			});

@@ -73,7 +73,6 @@ var restPort;
 if (nconf.get('api:kitescore:port'))
    restPort = nconf.get('api:kitescore:port');
 else restPort = DEFAULT_PORT;
-console.log('restport: ' + restPort);
 
 server.listen(restPort, function() {
   console.log('%s listening at %s'.blue, server.name, server.url);
@@ -92,13 +91,12 @@ server.get('score/api', function(req, res) {
 server.get('score/today', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
    var lat, lon, query, spotId, modelId, model;
-   console.log("queryparts: " + JSON.stringify(queryParts));   
    var me = this;
    var queryParams = {
          //limit : limit,
          count: true        
          };
-
+   
 	// location parameters
 	if (queryParts.geoloc) {
 		logger.debug('geoloc: '.red + queryParts.geoloc);
@@ -122,26 +120,21 @@ server.get('score/today', function(req, res) {
    }
    
    var validEntry = (spotId != null ||  (lat != null && lon != null) || queryParts.query != null);
-   console.log('validEntry?: ' + validEntry);
    
    if ( !validEntry ) {
       res.send(400, "Bad request, must specify location or spot");
       return;
    } else {
-      console.log('Valid entry, get score for query');
       if (lat && lon) {
       } 
    }
-   
-   console.log('modelId/spotId check: ' + modelId + '/' + spotId);
+
    if (spotId) {
    async.parallel([
       function(callback) {
          // get model if specified        
          if (modelId){
-            console.log('getting modelId: ' + modelId);
             ModelService.getModel(modelId, function(err, model) {
-               console.log('Got model: ' + JSON.stringify(model));
                callback(err, JSON.parse(model));                              
             });
          } else {
@@ -150,22 +143,17 @@ server.get('score/today', function(req, res) {
       },
       function(callback) {
          // get spot if specified
-         console.log('getting spotId: ' + spotId);
          if (spotId) {
-             SpotService.getSpot(spotId, function(err, spot) {
-               console.log('Got spot: ' + JSON.stringify(spot));
-               callback(err, JSON.parse(spot));                              
+             SpotService.getSpot(parseInt(spotId), function(err, spot) {
+               callback(err, spot[0]);                              
             });
          } else {
 	         callback("no spot ID Specified", null);
          }
       }],
       function(err, results) {
-         console.log('results from gathering model and spot: ' );  
          model = results[0];
          spot = results[1];
-         console.log('model: ' + JSON.stringify(model));
-         console.log('spot: ' + JSON.stringify(spot));
          var lat = spot.location.latitude;
          var lon = spot.location.longitude;
          var latLonQuery = lat + ',' + lon;
@@ -258,69 +246,63 @@ server.get('score/10day', function(req, res) {
 });
 
 pullWeather = function(mode, lat, lon,  callback) {
-   console.log('pullWeather called, mode: '.red + mode + ', lat: ' + lat + ', lon: ' + lon);
    var latLonQuery = lat + ',' + lon;
    var redisKey = "kitescore:" +  mode  + ":" +  lat+ ":" +  lon;
-   console.log('redis key for kitescore: '.red + redisKey);
    // This will return a JavaScript String
    client.get(redisKey, function (err, reply) { 
-        console.log('redis reply: '.red + reply); // Will print `OK`
         if (reply) {
-           console.log('found redis key, responding with reply');
            callback(null, reply);
         }
-    });
+        else {
+           if (mode = HOURLY_1DAY) {
+             wunder.hourly(latLonQuery, function(err, response) {
+                  var jsonModel = JSON.parse(defaultModel);
+                  if ( response != null ) {
+                     var weather = JSON.parse(response);
+                     var weatherStr = JSON.stringify(weather);
+                     client.set(redisKey,  JSON.stringify(weather),function(err, replies) {
+                           client.expire(redisKey, expiration_time, function (err, replies) {
+
+                     		});
+                     callback(null, response);
+                     });
+                  }
+                      
+                  
+                  else {
+                     callback("invalid response");
+                  }
+             });
       
-   if (mode = HOURLY_1DAY) {
-       wunder.hourly(latLonQuery, function(err, response) {
-            console.log('got here in kitescore.js:'.red);
-            var jsonModel = JSON.parse(defaultModel);
-            if ( response != null ) {
-               var weather = JSON.parse(response);
-               var weatherStr = JSON.stringify(weather);
-               console.log('weather: '.red + weatherStr);
-               client.set(redisKey,  JSON.stringify(weather),function(err, replies) {
-                     client.expire(redisKey, expiration_time, function (err, replies) {
-               			console.log('expire set for ' + redisKey + ' to ' + expiration_time + ' seconds.');
-               		});
-               		console.log('response before fail: '.yellow + response);
-               callback(null, response);
-               });
-            }
-                
-            
-            else {
-               callback("invalid response");
-            }
-       });
-
-    }
-    else if (mode = HOURLY_7DAY) {
-       wunder.hourly7day(latLonQuery, function(err, response) {
-            console.log('got here in kitescore.js:'.red);
-            var jsonModel = JSON.parse(defaultModel);
-            if ( response != null ) {
-               var weather = JSON.parse(response);
-               callback(null, weather);
-            } else {
-               callback("invalid response");
-            }
-       });
-
-    } 
-    else if (mode = HOURLY_10DAY) {
-       wunder.hourly10day(latLonQuery, function(err, response) {
-            console.log('got here in kitescore.js:'.red);
-            var jsonModel = JSON.parse(defaultModel);
-            if ( response != null ) {
-               var weather = JSON.parse(response);
-               callback(null, weather);
-            } else {
-               callback("invalid response");
-            }
-       });
-
-    } 
+          }
+          else if (mode = HOURLY_7DAY) {
+             wunder.hourly7day(latLonQuery, function(err, response) {
+                  var jsonModel = JSON.parse(defaultModel);
+                  if ( response != null ) {
+                     var weather = JSON.parse(response);
+                     callback(null, weather);
+                  } else {
+                     callback("invalid response");
+                  }
+             });
+      
+          } 
+          else if (mode = HOURLY_10DAY) {
+             wunder.hourly10day(latLonQuery, function(err, response) {
+                  var jsonModel = JSON.parse(defaultModel);
+                  if ( response != null ) {
+                     var weather = JSON.parse(response);
+                     callback(null, weather);
+                  } else {
+                     callback("invalid response");
+                  }
+             });
+      
+          } 
+           
+        }
+    });  
+   
 };
 
 

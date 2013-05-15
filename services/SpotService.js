@@ -3,6 +3,7 @@ var   redis = require("redis"),
       logger = require('winston'),
       nconf = require('nconf'),
       Parse = require('kaiseki'),
+      jsonp = require('jsonp-handler'),
       DataStore = require('./DataStore')
 ;
 var SpotService = {};
@@ -13,7 +14,6 @@ nconf.argv()
 
 var parse = new Parse( nconf.get('parse:appId'),  nconf.get('parse:restKey')); 
 var client = redis.createClient();
-var redisExpireTime = 600;//parseInt(nconf.get('redis:expireTime'));
 
 
 SpotService.getSpotByQuery = function(queryParams, callback){
@@ -75,6 +75,23 @@ SpotService.getSpotByQuery = function(queryParams, callback){
 };
 
 SpotService.getSpot = function(id, callback) {
+		var queryParams = {
+			where: {
+				spotId: id
+			}
+		};
+		DataStore.records.object("Spot", queryParams, function(err, response, body, success) {
+			if (body.length == 0) {
+				obj = {"error":"Spot " + id + "not found."};
+			} else {
+				obj = body;
+			}
+			// gets Spots within certain distance of THIS spot (for mapping)		
+			callback(err, obj);
+
+			
+		});
+   /* broked
    var redisKey = 'spot:id:' + id;
    client.exists(redisKey , function (err, reply){
       if (reply === 1){
@@ -84,30 +101,33 @@ SpotService.getSpot = function(id, callback) {
          });
       }
       else if (reply === 0) {
+         console.log('redis key not found for ID: ' + id);
          var queryParams = {
             where: {spotId : parseInt(id)   },
          };
-         console.log('queryParams: ' + JSON.stringify(queryParams));
+         console.log('spot queryParams: ' + JSON.stringify(queryParams));
          parse.getObjects('Spot', queryParams , function(err, response, body, success) {
-            console.log('found object = ', body, 'success: ' , success);
+            console.log('found spot= ', body, 'success: ' , success);
             
-            var bodyJson = JSON.parse(JSON.stringify(body));
             if (body.length == 0) {
                callback("spot " + id + " doesn't exist", null);
             }
             else {
-               client.set(redisKey,  JSON.stringify(bodyJson[0]), function (err, response, body, success) {
+               client.set(redisKey,  JSON.stringify(body), function (err, response, body, success) {
+                  console.log('client.set: ' + JSON.stringify(body));
                   client.expire(redisKey, redisExpireTime, function (err, replies) {
                      console.log('expire set for ' + redisKey + ' to ' + redisExpireTime + ' seconds.');
                   });
    
                });
-               callback(null, bodyJson);
+               console.log('WHY HERE, body from Spot ID response: '.rainbow + body);
+               callback(null, body);
             }
             
          });
       }
    });
+   */
 };
 
 module.exports =SpotService;
