@@ -18,6 +18,9 @@ block content
 			div.row-fluid.spot_container
 				h3 Loading...
 
+block head_include
+	link(rel='stylesheet', href='/css/uploader.css')
+
 block script_include
 	script(src='/js/lib/handlebars.js', type='text/javaScript')
 	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=true')
@@ -27,6 +30,42 @@ block script_include
 		window._$session_id = '#{session_id}';
 		if (!window._$local) window._$local = {};
 		window._$local['load_spot'] = true;
+	script(type='text/javascript', src='/js/lib/uploader.js')
+	script(type='text/javascript', src='/js/lib/uploader.xss.js')
+	script(type='text/javascript', src='/js/lib/jquery.uploader.min.js')
+	script(type='text/javascript', src='/js/lib/bootstrap.select.min.js')
+	script(type='text/javascript')
+		function createUploader() {
+			var uploader = new qq.FineUploader({
+				element: document.getElementById('bootstrapped-fine-uploader'),
+				request: {
+					endpoint: '/media'
+				},
+				text: {
+					uploadButton: '<div><i class="icon-upload icon-white"></i> Upload a Cover Photo</div>'
+				},
+				template: '<div class="qq-uploader span12">' +
+					'<pre class="qq-upload-drop-area span12"><span>{dragZoneText}</span></pre>' +
+					'<div class="qq-upload-button btn btn-success" style="width: auto;">{uploadButtonText}</div>' +
+					'<span class="qq-drop-processing"><span>{dropProcessingText}</span><span class="qq-drop-processing-spinner"></span></span>' +
+					'<ul class="qq-upload-list" style="margin-top: 10px; text-align: center;"></ul>' +
+					'</div>',
+				callbacks: {
+					onComplete: function(id, fileName, responseJson) {
+						if (responseJson.success) {
+							console.l
+							$(".cover_image").attr("src", responseJson.url);
+							$("#cover_image").val(responseJson.url);
+						}
+					}
+				},
+				classes: {
+					success: 'alert alert-success',
+					fail: 'alert alert-error'
+				}
+			});
+		}
+
 block scripts
 	script(type='text/x-handlebars-template', id='spotedit-template')
 		form(action='/spot/{{ spotId }}', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send
@@ -54,6 +93,18 @@ block scripts
 						.latlon
 							{{location.latitude}}, {{location.longitude}}
 						div#map-canvas(style='height: 300px;')
+				{{#if cover_image}}
+				div.control-group
+					label.control-label(for='cover_image') Current Cover Image
+					div.controls
+						img(src='{{cover_image}}').cover_image.multiple-borders.preview_image_main
+						input(type='hidden', name='cover_image', id='cover_image', value='{{cover_image}}')
+				{{/if}}
+				div.control-group
+					label.control-lable Upload Cover Image
+					div.controls
+						div(id='bootstrapped-fine-uploader')
+						#success-image
 				div.control-group
 					label.control-label(for='input_description') Brief Description
 					div.controls
@@ -78,3 +129,6 @@ block scripts
 				{{#each wind_directions}}
 					window._$winds.push('{{this}}');
 				{{/each}}
+				if (typeof createUploader == 'function') {
+					createUploader();
+				}

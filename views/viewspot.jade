@@ -128,10 +128,14 @@ block scripts
 			div.well(id='spot-{{ spotId }}')
 				div.control-group
 					div.controls 
-						h3 {{ name }}
+						h3 
+							{{ name }}
+						.btn.btn-success.checkin I'm here! (Check-In)
+				{{#if cover_image}}
 				div.control-group
 					div.controls
-						.btn.btn-success.checkin I'm here! (Check-In)
+						img(src='{{cover_image}}').multiple-borders.preview_image_main
+				{{/if}}
 				div.control-group
 					label.control-label(for='input_location') People NearBy
 					div.controls
