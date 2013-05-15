@@ -686,17 +686,7 @@ exports.newSpotSave = function(req, res) {
 // Profile Page for Application
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
 exports.mainProfile = function(req, res) {
-	// get Session Details
-//	var session_id = nconf.get('site:fakedSession');
-//	var parseApp = new Parse(nconf.get('parse:appId'), nconf.get('parse:master'));
-
 	var session_id;
-//	var geo_location = lookup.geolookup.getCurrent(req);
-//	var objectId = req.params[0];
-//	if (objectId == '') {
-//		errorPage(res, "We were unable to locate this spot (missing ID).");
-//	}
-	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
 			return kickOut(res, "Please login again, it seems your session has expired.");
@@ -730,6 +720,18 @@ exports.mainProfile = function(req, res) {
 				data: {
 					profile_data: profile_data
 				},
+				kites: [
+						{
+							'value' : 'small',
+							'label' : 'Small Kite (5, 6, 7, 8, 9)'
+						},{
+							'value' : 'medium',
+							'label' : 'Medium Kite (10, 11, 12)'
+						},{
+							'value' : 'large',
+							'label' : 'Large Kite (Greater than 12'
+						}
+				],
 				title: nconf.get('site:frontend:title'),
 				credits: '',
 				body: {
