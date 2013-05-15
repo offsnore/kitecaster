@@ -106,12 +106,72 @@ var restify = require('restify')
 			res.send(400, "A valid UserId is required for this API.");
 			return false;
 		}
+		
+		var lat, lon;
+		var queryParams = {};
+
+		// If Search is by GeoLocation
+		if (queryParts.geoloc) {
+			logger.debug('geoloc: '.red + queryParts.geoloc);
+			lat = Number(queryParts.geoloc.split(/,/)[0]);
+			lon = Number(queryParts.geoloc.split(/,/)[1]);	
+		// If Search is by Lat/Long
+		} else if (queryParts.lat && queryParts.lon) {
+			lat = Number(queryParts.lat);
+			lon = Number(queryParts.lon);
+		}
+
+		// If our Search is Done With Miles, K/M, or Radians
+		if (queryParts.miles){
+			distanceFormat = "$maxDistanceInMiles";
+			distance =  Number(queryParts.miles);
+		} else if (queryParts.km) {
+			distanceFormat = "$maxDistanceInKilometers";
+			distance =  Number(queryParts.km);
+		}  else if (queryParts.radians) {
+			distanceFormat = "$maxDistanceInRadians";
+			distance =  Number(queryParts.radians);
+		}
+
+		/**
+		if (lat && lon) {
+			queryParams.limit = limit;
+			queryParams.count = true;
+			if (queryParams.where) {
+				queryParams.where = JSON.parse(queryParams.where);				
+			}
+			if (!queryParams.where) {
+				queryParams.where = {};
+			}			
+			queryParams.where.location = {
+					"$nearSphere" : {
+						__type: 'GeoPoint',
+						latitude: lat,
+						longitude: lon,
+						limit : limit
+					}
+			};
+		}
+		**/
+
+		if (typeof queryParams.where != 'undefined' && typeof queryParams.where.location != 'undefined' && distanceFormat != null) {
+			logger.error('here, queryParams:' + JSON.stringify(queryParams));
+			if (distanceFormat.indexOf('K') != -1) {
+				queryParams.where.location.$maxDistanceInKilometers = distance;
+			} else if (distanceFormat.indexOf('M') != -1) {
+				queryParams.where.location.$maxDistanceInMiles = distance;
+			} else if (distanceFormat.indexOf('R') != -1) {
+				queryParams.where.location.$maxDistanceInRadians = distance;
+			}
+		}
+
 		// @todo add in params for sorting by Score & Distance, Score, Distance
 		var queryParams = {
 			'where': {
 				'userId': queryParts.userId
 			}
 		};
+		
 		// Use DataStore Instead
 		Datastore.records.object("Subscribe", queryParams, function(err, response, body, success) {
 			//res.send(body);
@@ -127,9 +187,22 @@ var restify = require('restify')
 				}
 				var q = {
 					where: {
-						"$or": oro
+						"$or": oro,
 					}
 				};
+
+				if (lat && lon) {
+					q.where.location = {
+						"$nearSphere": {
+							__type: 'GeoPoint',
+							latitude: lat,
+							longitude: lon,
+							limit: 5000 // hardcoded override so that /Parse.com doesnt limit our query
+						},
+						"$maxDistanceInMiles": 5000 // same the override above
+					};				
+				}
+
 				Datastore.records.object("Spot", q, function(err, response, body, success) {
 					res.send(body);
 				});
