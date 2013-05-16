@@ -53,7 +53,8 @@ block script_include
 				callbacks: {
 					onComplete: function(id, fileName, responseJson) {
 						if (responseJson.success) {
-							console.l
+							$(".cover_image").removeClass("hidden");
+							$(".cover_description").addClass("hidden");
 							$(".cover_image").attr("src", responseJson.url);
 							$("#cover_image").val(responseJson.url);
 						}
@@ -93,15 +94,19 @@ block scripts
 						.latlon
 							{{location.latitude}}, {{location.longitude}}
 						div#map-canvas(style='height: 300px;')
-				{{#if cover_image}}
 				div.control-group
 					label.control-label(for='cover_image') Current Cover Image
 					div.controls
-						img(src='{{cover_image}}').cover_image.multiple-borders.preview_image_main
+						{{#if cover_image}}
+						img(src='{{cover_image}}').cover_image.multiple-borders
 						input(type='hidden', name='cover_image', id='cover_image', value='{{cover_image}}')
-				{{/if}}
+						{{else}}
+						h4.cover_description
+							|No current image, Upload a Cover Image for this Spot!
+						img(src='').cover_image.multiple-borders.preview_image_main.hidden
+						input(type='hidden', name='cover_image', id='cover_image', value='')
+						{{/if}}
 				div.control-group
-					label.control-lable Upload Cover Image
 					div.controls
 						div(id='bootstrapped-fine-uploader')
 						#success-image
