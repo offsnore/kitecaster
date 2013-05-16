@@ -12,7 +12,7 @@ var restify = require('restify'),
     //jsonify = require("redis-jsonify"),
     client = redis.createClient(),
     async = require('async'),
-    logger = require('winston'),
+    winston = require('winston'),
     wundernode = require('wundernode'),
     KiteScoreService = require('../services/KiteScoreService'),
     DataStore = require('../services/DataStore'),
@@ -25,6 +25,20 @@ var options = {
    colorize : "true"
 };
 
+
+
+
+var logger = new (winston.Logger)({
+		transports: [
+			new winston.transports.Console({timestamp:true}),
+			new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/kitescore_server.log') })
+		],
+		exceptionHandlers: [
+		   new winston.transports.Console({timestamp:true}),
+			new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/kitescore_server.log') })
+		] 
+	});
+
 var HOURLY_1DAY = "hourly", HOURLY_7DAY = "7day", HOURLY_10DAY = "10day";
 
 var defaultModel;
@@ -35,7 +49,7 @@ nconf.argv()
        
 var wundegroundAPI = nconf.get('weather:apis:wunderground');
 
-console.log('wunderground key: ' + wundegroundAPI); 
+logger.debug('wunderground key: ' + wundegroundAPI); 
 
 
 
@@ -75,7 +89,7 @@ if (nconf.get('api:kitescore:port'))
 else restPort = DEFAULT_PORT;
 
 server.listen(restPort, function() {
-  console.log('%s listening at %s'.blue, server.name, server.url);
+  logger.debug('%s listening at %s'.blue, server.name, server.url);
 });
 
 process.argv.forEach(function (val, index, array) {
@@ -116,7 +130,7 @@ server.get('score/today', function(req, res) {
    }   else { 
    // set model to the default
       me.model = defaultModel;
-//      console.log('setting model to defaultModel:\n' + JSON.stringify(defaultModel));
+//      logger.debug('setting model to defaultModel:\n' + JSON.stringify(defaultModel));
    }
    
    var validEntry = (spotId != null ||  (lat != null && lon != null) || queryParts.query != null);
@@ -157,7 +171,7 @@ server.get('score/today', function(req, res) {
          var lat = spot.location.latitude;
          var lon = spot.location.longitude;
          var latLonQuery = lat + ',' + lon;
-         console.log('wunder.hourly with query: ' + latLonQuery);
+         logger.debug('wunder.hourly with query: ' + latLonQuery);
          pullWeather(HOURLY_1DAY,lat, lon, function(err, response) {
             var jsonModel = JSON.parse(defaultModel);
             if (me.model != null && response != null) {
@@ -181,7 +195,7 @@ server.get('score/today', function(req, res) {
                var model = JSON.parse(me.model);
                var hourly = JSON.parse(response);
                KiteScoreService.processHourly(model, spot, hourly, function(err, scores) {
-                  //console.log('processHourly response: ' + scores);
+                  //logger.debug('processHourly response: ' + scores);
                   res.send(200, scores);
                   res.end();
                });
@@ -198,7 +212,7 @@ server.get('score/today', function(req, res) {
       var redisKey = "kitescore:query:" + queryParts.query;
       client.get(redisKey, function (err, reply) {
         if (reply)  {
-            console.log('redis key found, returning reply'); 
+            logger.debug('redis key found, returning reply'); 
             res.send(200, JSON.parse(reply));
             return;
          }
@@ -209,10 +223,10 @@ server.get('score/today', function(req, res) {
                var model = me.model;
                var hourly = JSON.parse(response);
                KiteScoreService.processHourly(jsonModel, null, hourly, function(err, scores) {
-                  //console.log('processHourly response: ' + scores);
+                  //logger.debug('processHourly response: ' + scores);
                   client.set(redisKey, JSON.stringify(scores),function(err, replies) {
                      client.expire(redisKey, expiration_time, function (err, replies) {
-               			console.log('expire set for ' + redisKey + ' to ' + expiration_time + ' seconds.');
+               			logger.debug('expire set for ' + redisKey + ' to ' + expiration_time + ' seconds.');
                		});
 
                   });
@@ -251,6 +265,7 @@ pullWeather = function(mode, lat, lon,  callback) {
    // This will return a JavaScript String
    client.get(redisKey, function (err, reply) { 
         if (reply) {
+         logger.debug('Weather found in redis for key ' + redisKey);
            callback(null, reply);
         }
         else {
@@ -305,7 +320,12 @@ pullWeather = function(mode, lat, lon,  callback) {
    
 };
 
-
+// Once everything is loaded, start the kitescore service precaching in background
+KiteScoreService.startPrecache(function(err, response) {
+   if (err) logger.error('Error starting precache operation: ' + err);
+   logger.debug('Precaching started: ' + response);
+   
+});
 
 
 

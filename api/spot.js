@@ -15,8 +15,7 @@
 	,	jsonp = require('jsonp-handler')
 //	,	jsonp = require('jsonp-handler')
 	,   Weather = require('../services/KiteScoreService')
-	,   Datastore = require('../services/DataStore')
-	,   logger = require('winston');
+	,   Datastore = require('../services/DataStore');
 	    
 	redisSpotIdKey = 'spot:id:counter';
 	
@@ -443,7 +442,6 @@
 		};
 		var queryParts = require('url').parse(req.url, true).query;
 		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
-		    console.log('Spot body: '.red + body);
 			if (body.length == 0) {
 				obj = {"error":"Spot" + id + "not found."};
 			} else {

@@ -9,7 +9,8 @@ var restify = require('restify'),
    // client = redis.createClient(),
     Datastore = require('./DataStore'),
     async = require('async'),
-    logger = require('winston'),
+    winston = require('winston'),
+    SpotService = require('./SpotService'),
     wundernode = require('wundernode');
 
 var redisSpotIdKey = 'spot:id:counter';
@@ -20,6 +21,17 @@ var options = {
 
 var app = module.exports;
 
+var logger = new (winston.Logger)({
+                transports: [
+                        new winston.transports.Console({timestamp:true})
+                        //new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/kitescore_service.log') })
+                ],
+                exceptionHandlers: [
+                    new winston.transports.Console({timestamp:true})
+                    //,new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/kitescore_service.log') })
+                ]
+        });
+		
 var compassDegrees = {
    'North'  : 0,
    'N'  : 0,
@@ -139,9 +151,9 @@ buildKiteScore = function(model, spot, windData, callback) {
    var windMedRange = windMedMax - windMedMin;
    var windHighRange = windHighMax - windHighMin; 
    /*
-console.log('windLowMin/Max/Mid' + windLowMin + '/' + windLowMax +'/' + windLowMid);
-   console.log('windMedMin/Max/Mid' + windMedMin + '/' + windMedMax +'/' + windMedMid);
-   console.log('windHighMin/Max/Mid' + windHighMin + '/' + windHighMax +'/' + windHighMid);
+logger.debug('windLowMin/Max/Mid' + windLowMin + '/' + windLowMax +'/' + windLowMid);
+   logger.debug('windMedMin/Max/Mid' + windMedMin + '/' + windMedMax +'/' + windMedMid);
+   logger.debug('windHighMin/Max/Mid' + windHighMin + '/' + windHighMax +'/' + windHighMid);
    
 */
    var kiteScore = 0;
@@ -191,17 +203,17 @@ console.log('windLowMin/Max/Mid' + windLowMin + '/' + windLowMax +'/' + windLowM
          kiteScore = TOO_MUCH;
       }
       else {
-         console.log('WTF happened, no kite score determined');
+         logger.debug('WTF happened, no kite score determined');
       }
       
       // TODO: change score based on wind direction. generic search (query for location) without a spot cannot account for specific wind direction.
       if (spot) {
-         //console.log('wind dir: ' + JSON.stringify(wdir));
+         //logger.debug('wind dir: ' + JSON.stringify(wdir));
          var dir = wdir.dir;
          var windDirDegrees = compassDegrees[dir];
-         //console.log('degree mapping: ' + windDirDegrees);
-         //console.log(wdir.dir  +':' + speed + ', score: ' + kiteScore );
-         //console.log('spot wind dirs: ' + JSON.stringify(spot.wind_directions));
+         //logger.debug('degree mapping: ' + windDirDegrees);
+         //logger.debug(wdir.dir  +':' + speed + ', score: ' + kiteScore );
+         //logger.debug('spot wind dirs: ' + JSON.stringify(spot.wind_directions));
          var closestDir = 360;;
          spot.wind_directions.forEach(function(direction) {
             var spotWindDegree = compassDegrees[direction];
@@ -214,7 +226,7 @@ console.log('windLowMin/Max/Mid' + windLowMin + '/' + windLowMax +'/' + windLowM
          var closestDifference = Math.abs(closestDir - windDirDegrees);
          // normalize the difference into 1/8 points to subtract from kitescore
          var kiteScoreSubtraction = closestDifference / 45;
-         //console.log('taking off ' + kiteScoreSubtraction + ' because the closest wind dir is ' + closestDir + ' and wind degree is ' + windDirDegrees);
+         //logger.debug('taking off ' + kiteScoreSubtraction + ' because the closest wind dir is ' + closestDir + ' and wind degree is ' + windDirDegrees);
          kiteScore -= closestDifference / 45; 
       }
       data['kiteScore'] = Math.round(kiteScore);
@@ -222,5 +234,28 @@ console.log('windLowMin/Max/Mid' + windLowMin + '/' + windLowMax +'/' + windLowM
    });
    callback(null, scores);
 }
+
+var cacheRunCount = 0;
+// precache weather related data for spots, in seconds
+app.startPrecache = function(interval, callback) {
+console.log('STARTED PRECACH'.magenta);
+   var secondsInterval;
+   if (interval) 
+      secondsInterval = interval * 1000;
+   // 15 minute default
+   else secondsInterval = 15 * 60 * 1000; 
+      var queryParams = {
+         count : true
+      }
+      logger.debug("Geting all spots response: ");
+   // Use DataStore 
+		/*Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
+   		logger.debug("Get all spots response: " + body.length);
+			callback(err, body);
+		});
+   */
+}
+
+
 
 

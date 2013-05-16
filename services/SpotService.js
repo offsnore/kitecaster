@@ -1,6 +1,6 @@
 var   redis = require("redis"),
       client = redis.createClient(),
-      logger = require('winston'),
+      winston = require('winston'),
       nconf = require('nconf'),
       Parse = require('kaiseki'),
       jsonp = require('jsonp-handler'),
@@ -15,6 +15,16 @@ nconf.argv()
 var parse = new Parse( nconf.get('parse:appId'),  nconf.get('parse:restKey')); 
 var client = redis.createClient();
 
+var logger = new (winston.Logger)({
+                transports: [
+                        new winston.transports.Console({timestamp:true})
+                        //,new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/spot_service.log') })
+                ],
+                exceptionHandlers: [
+                    new winston.transports.Console({timestamp:true}),
+                        //,new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/spot_service.log') })
+                ]
+        });
 
 SpotService.getSpotByQuery = function(queryParams, callback){
    // Me no follow -_-
@@ -74,6 +84,8 @@ SpotService.getSpotByQuery = function(queryParams, callback){
    callback(err, spot)*/
 };
 
+
+
 SpotService.getSpot = function(id, callback) {
 		var queryParams = {
 			where: {
@@ -96,31 +108,31 @@ SpotService.getSpot = function(id, callback) {
    client.exists(redisKey , function (err, reply){
       if (reply === 1){
          client.get(redisKey, function (err, replies) {
-            console.log('redisKey found for ' + redisKey + ': ' + replies);
+            logger.debug('redisKey found for ' + redisKey + ': ' + replies);
             callback(null, replies);
          });
       }
       else if (reply === 0) {
-         console.log('redis key not found for ID: ' + id);
+         logger.debug('redis key not found for ID: ' + id);
          var queryParams = {
             where: {spotId : parseInt(id)   },
          };
-         console.log('spot queryParams: ' + JSON.stringify(queryParams));
+         logger.debug('spot queryParams: ' + JSON.stringify(queryParams));
          parse.getObjects('Spot', queryParams , function(err, response, body, success) {
-            console.log('found spot= ', body, 'success: ' , success);
+            logger.debug('found spot= ', body, 'success: ' , success);
             
             if (body.length == 0) {
                callback("spot " + id + " doesn't exist", null);
             }
             else {
                client.set(redisKey,  JSON.stringify(body), function (err, response, body, success) {
-                  console.log('client.set: ' + JSON.stringify(body));
+                  logger.debug('client.set: ' + JSON.stringify(body));
                   client.expire(redisKey, redisExpireTime, function (err, replies) {
-                     console.log('expire set for ' + redisKey + ' to ' + redisExpireTime + ' seconds.');
+                     logger.debug('expire set for ' + redisKey + ' to ' + redisExpireTime + ' seconds.');
                   });
    
                });
-               console.log('WHY HERE, body from Spot ID response: '.rainbow + body);
+               logger.debug('WHY HERE, body from Spot ID response: '.rainbow + body);
                callback(null, body);
             }
             
