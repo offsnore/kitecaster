@@ -318,11 +318,7 @@
 					}
 					var d = parseForGraph(data);
 					var graph = jQuery("<div></div>").attr('id', graphId);
-<<<<<<< HEAD
 					//var title = jQuery("<h3></h3>").text("KiteScore (Kite Ability of This Spot)");
-=======
-					var title = jQuery("<h3></h3>").text("Kite Score");
->>>>>>> Switches to winston, hopefully Fixes #45, node-schedule modeul to potentially use for scheduling
 					if (override_id) {
 						$("#" + override_id).html("");
 					} else {
