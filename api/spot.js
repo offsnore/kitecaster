@@ -1,4 +1,3 @@
-
 	var restify = require('restify')
 	,	fs = require('fs')
 	,	nconf = require('nconf')
@@ -570,6 +569,8 @@
 
 		var form = new formidable.IncomingForm(), files = [], fields = [];
 
+		console.log(form);
+
 		form.on('field', function(field, value){
 			fields.push([field, value]);
 		});
@@ -593,11 +594,12 @@
 						if (url) {
 							var body_url= url;
 						}
-						res.writeHead(200, { 'Content-Type': 'application/json' });
-						res.end(JSON.stringify({
-							success: true,
-							url: body_url
-						}));
+						console.log(url);
+			            res.writeHead(200, { 'Content-Type': 'application/json' });
+			            res.end(JSON.stringify({
+				            success: true,
+				            url: body_url
+			            }));
 					});
 					// @todo - Make this unique ID be used instead of the FileName and save the file details to the 'Parse.com' DB
 					//var file_new_path = require('path').resolve(__dirname, '../public/media') + '/' + file.name;
@@ -606,13 +608,13 @@
 			}
 		});
 
-		form.parse(req, function(err, fields, files){
+//		form.parse(req, function(err, fields, files){
 //			res.end(util.inspect({fields: fields, files: files}));
-		});
+//		});
 
-		req.on('end', function() {        
-			console.log('All Done!!!!');
-		});
+        req.on('end', function() {        
+            console.log('All Done!!!!');
+        });
 		
 	});
 

@@ -89,7 +89,7 @@ if (nconf.get('api:kitescore:port'))
 else restPort = DEFAULT_PORT;
 
 server.listen(restPort, function() {
-  logger.debug('%s listening at %s'.blue, server.name, server.url);
+  console.log("%s listening at %s".blue, server.name, server.url);
 });
 
 process.argv.forEach(function (val, index, array) {
@@ -323,9 +323,9 @@ pullWeather = function(mode, lat, lon,  callback) {
 // Once everything is loaded, start the kitescore service precaching in background
 KiteScoreService.startPrecache(function(err, response) {
    if (err) logger.error('Error starting precache operation: ' + err);
-   logger.debug('Precaching started: ' + response);
+   logger.debug('Precaching started, size: ' + response.count);
    
-});
+},nconf.get("api:spot:refreshSeconds"));
 
 
 

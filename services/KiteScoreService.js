@@ -4,6 +4,7 @@ var restify = require('restify'),
     Parse = require('kaiseki'),
     //winston = require('winston'),
     redis = require("redis"),
+    client = redis.createClient(),
     colors = require('colors'),
     //jsonify = require("redis-jsonify"),
    // client = redis.createClient(),
@@ -89,6 +90,13 @@ var TOO_LIGHT = 5, VERY_LIGHT = 6, LIGHT = 7, MED_LOW = 8, MED_MED = 9, MED_HIGH
 var scoreColors = {
     
 };
+
+if (!nconf.get("parse:appId")) {
+		logger.error("Unable to locate 'Parse:AppID' in Config file (settings.json).");
+		process.exit();
+	}
+	
+var parse = new Parse( nconf.get('parse:appId'),  nconf.get('parse:restKey')); 
 
 app.locals = function() {
 	var api_key = nconf.get('weather:apis:wunderground');
@@ -238,24 +246,62 @@ logger.debug('windLowMin/Max/Mid' + windLowMin + '/' + windLowMax +'/' + windLow
 }
 
 var cacheRunCount = 0;
+var runCache = true;
+var spotsBody;
 // precache weather related data for spots, in seconds
-app.startPrecache = function(interval, callback) {
-console.log('STARTED PRECACH'.magenta);
+app.startPrecache = function(callback, interval) {
    var secondsInterval;
    if (interval) 
       secondsInterval = interval * 1000;
    // 15 minute default
    else secondsInterval = 15 * 60 * 1000; 
-      var queryParams = {
+   logger.debug('Started running precache every '.magenta + interval + ' seconds'.magenta);   
+   setInterval(app.runCache, secondsInterval);
+ 
+   
+}
+
+app.runCache = function() {
+   console.log('Running runCache');
+   var queryParams = {
          count : true
-      }
-      logger.debug("Geting all spots response: ");
+      };
+   parse.getObjects('Spot', queryParams , function(err, response, body, success) {
+     //     spotsBody = body;
+     logger.debug('found object = ', body.count, 'success: ' , success);
+     // logger.debug('body; ' + JSON.stringify(body));
+     var redisKey = "kitescore:spots";
+     logger.debug('Saving redis key: ' + redisKey + ', val: ' + body.results.length);
+     body.results.forEach(function(spot) {
+        var spotId = spot.spotId;
+        var redisSpotId = "spot:" + spotId;        
+        logger.debug('Setting spot id ' + redisSpotId + ' in redis');
+        client.set(redisSpotId, JSON.stringify(spot), function(err, replies) {
+           logger.debug('key set for ' + redisSpotId + ', reply: ' + replies);
+        }); 
+     });
+   
+     client.set(redisKey, JSON.stringify(body),function(err, replies) {
+   			logger.debug('expire set for ' + redisKey  + ', reply: ' + replies);
+   		});
+
+
+     /*
+Datastore.save("Spot", redisKey, body, function(err, response) {
+        logger.debug('Dadastore data saved to resis: ' + body.count);
+     });
+*/
+
+	});
+	
+	
+	/*
    // Use DataStore 
-		/*Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
+		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
    		logger.debug("Get all spots response: " + body.length);
-			callback(err, body);
+			//callback(err, body);
 		});
-   */
+*/
 }
 
 

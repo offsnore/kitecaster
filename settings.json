@@ -10,7 +10,8 @@
 	"api" : {
 		"spot": {
 			"frontend_url" : "stage.kitecaster.com",
-			"port" : "7501"
+			"port" : "7501",
+			"refreshSeconds" : "30"
 		},
 		"model": {
 			"port" : "7504"
