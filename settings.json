@@ -9,7 +9,7 @@
 	} ,  
 	"api" : {
 		"spot": {
-			"frontend_url" : "stage.kitecaster.com",
+			"frontend_url" : "local.kitecaster.com",
 			"port" : "7501",
 			"refreshSeconds" : "30"
 		},
@@ -17,7 +17,7 @@
 			"port" : "7504"
 		},
 		"kite" : {
-			"frontend_url" : "stage.kitecaster.com",
+			"frontend_url" : "local.kitecaster.com",
 			"port" : "7508"
 		},
 		"user" : {
@@ -57,7 +57,7 @@
 		},
 		"fakedSession": "abcd383393",
 		"fakeip": "8.8.8.8",
-		"development": false
+		"development": true
 	},
 	"session" : {
 		"cookiename" : "__utmza"
