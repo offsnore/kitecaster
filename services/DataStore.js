@@ -317,10 +317,16 @@ app.save = function(db, key, data, callback) {
 /**
  * Base.createkey()
  */
-base.createkey = function(db, key) {
+base.createkey = function(db, key, callback) {
 	var hashkey = JSON.stringify(db) + JSON.stringify(key);
 	var hashkey = crypto.createHash("md5").update(hashkey).digest("hex");
-	return hashkey;
+	base.namespace_key = db;
+	base.getnamespace(function(replies){
+        var hash = db + ":" + replies + ":" + hashkey;
+        if (typeof callback == 'function') {
+            callback(hash);
+        }
+	});
 }
 
 /**
@@ -338,6 +344,69 @@ base.clearkey = function(db, key) {
 	return true;	
 }
 
+// some pre-defines
+var DEFAULT_NAMESPACE = "all";
+base.namespace_key = DEFAULT_NAMESPACE;
+
+/**
+ * base.SetNamespace
+ */
+base.setnamespace = function(text) {
+    base.namespace_key = test;
+}
+
+/**
+ * Base.GetNamespace
+ */
+base.getnamespace = function(callback) {
+    var err;
+    var client = redis.createClient();
+	client.on("error", function(err) {
+		console.log("error event - " + client.host + ":" + client.port + " - " + err);
+	});
+	var key = base.namespace_key;
+	client.get(key, function(err, replies) {
+        if (replies == null) {
+            base.createnamespace(key, function(replies){
+                console.log(replies);
+                if (typeof callback == 'function') {
+                   callback(replies);
+                }
+            });
+        } else {
+            if (typeof callback == 'function') {
+               callback(replies);
+            }
+        }
+    });
+}
+
+/**
+ * Base.CreateNamespace
+ */
+base.createnamespace = function(callback) {
+    console.log('first hit, create 1');
+    base.incrementnamespace(base.namespace_key, function(err, replies){
+        if (typeof callback == 'function') {
+            callback(replies);
+        }
+    })
+}
+
+base.incrementnamespace = function(key, callback) {
+    var err;
+    var client = redis.createClient();
+	client.on("error", function(err) {
+		console.log("error event - " + client.host + ":" + client.port + " - " + err);
+	});
+	client.incr(key, function(err, replies) {
+	   if (typeof callback == 'function') {
+    	   callback(replies);
+	   }
+	   return true;
+    });
+}
+
 /**
  * Base Level Method
  * Handles setting an object to Redis
@@ -351,7 +420,7 @@ base.setobject = function(db, query, object, expires, callback) {
 	client.on("error", function(err) {
 		console.log("error event - " + client.host + ":" + client.port + " - " + err);
 	});
-	var key = base.createkey(db, query );
+	var key = base.createkey(db, query);
 	// set expiration time for Redis (default to 60 seconds)
 	var expiration_time = expires || nconf.get("redis:expireTime") || 60;
 	var diff, date_end, date_start;
