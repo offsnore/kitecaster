@@ -98,7 +98,7 @@ app.object = function(db, query, callback) {
 	try {
 		base.getlocalobject(db, query, function(err, res) {
 			// temp for DEV (no cache brah)
-			var res = null;
+			// var res = null;
 			if (res != null) {
 				app.results = res;
 				body = res.body;
@@ -399,6 +399,7 @@ base.incrementnamespace = function(key, callback) {
 	client.on("error", function(err) {
 		console.log("error event - " + client.host + ":" + client.port + " - " + err);
 	});
+	console.log(key + " is trying to increment");
 	client.incr(key, function(err, replies) {
 	   if (typeof callback == 'function') {
     	   callback(replies);
@@ -420,20 +421,21 @@ base.setobject = function(db, query, object, expires, callback) {
 	client.on("error", function(err) {
 		console.log("error event - " + client.host + ":" + client.port + " - " + err);
 	});
-	var key = base.createkey(db, query);
-	// set expiration time for Redis (default to 60 seconds)
-	var expiration_time = expires || nconf.get("redis:expireTime") || 60;
-	var diff, date_end, date_start;
-	var setobject = JSON.stringify(object);
-	client.set(key, setobject, function(err, replies) {            
-		date_end = new Date().getUTCMilliseconds();
-		diff = date_end - date_start;
-		client.expire(key, expiration_time, function (err, replies) {
-			//console.log('expire set for ' + key + ' to ' + expiration_time + ' seconds.');
-		});
-		if (typeof callback == 'function') {
-			callback(err, replies);
-		}
+	base.createkey(db, query, function(hashkey){
+    	// set expiration time for Redis (default to 60 seconds)
+    	var expiration_time = expires || nconf.get("redis:expireTime") || 60;
+    	var diff, date_end, date_start;
+    	var setobject = JSON.stringify(object);
+    	client.set(hashkey, setobject, function(err, replies) {            
+    		date_end = new Date().getUTCMilliseconds();
+    		diff = date_end - date_start;
+    		client.expire(hashkey, expiration_time, function (err, replies) {
+    			//console.log('expire set for ' + key + ' to ' + expiration_time + ' seconds.');
+    		});
+    		if (typeof callback == 'function') {
+    			callback(err, replies);
+    		}
+    	});
 	});
 }
 
@@ -448,13 +450,14 @@ base.getlocalobject = function(db, query, callback) {
 	});
 	var hashkey = base.createkey(db, query);
 	client.get(hashkey, function(err, reply) {
-		var reply = JSON.parse(reply);
+		var reply = JSON.parse(reply);		
 		if (err) {
 			console.log("error occured: "+JSON.stringify(err));
 		} else {
 			if (!reply) {
 				// if there is no data, expire the key
-				client.del(hashkey);
+				// @maybe increment namespace?
+				// client.del(hashkey);
 				callback(err, null);
 			} else {
 				var reply = {
