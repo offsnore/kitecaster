@@ -73,7 +73,10 @@
 			$(".location_description").html(location+" ");
 		}
 		
-		_$local.pullGeolocation = function() {
+		_$local.pullGeolocation = function(callback) {
+			if (typeof callback == 'undefined') {
+    			var callback = function(){};
+			}
 				// attempt w Html5 first
 			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(function(geo){
@@ -94,7 +97,10 @@
 								lat: parseFloat(lat),
 								lon: parseFloat(lon),
 								street: location
-							})
+							}),
+							success: function() {
+    							callback();
+							}
 						});
 					});
 				});
@@ -870,6 +876,17 @@
 			$(this).addClass("hidden");
 			$(".location_description").html("Getting Update...");
 			_$local.pullGeolocation();
+		});
+		$(".update_spot_location").live("click", function(e){
+    		e.preventDefault();
+    		$("#input_location").val("Loading...");
+			_$local.pullGeolocation(function(){
+				_$local.getGeolocation(function(){
+					_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])			
+					$(".search-query").val(_$local.returnGeolocation()['street']);
+					$(".latlon").html(_$local.returnGeolocation()['lat'] + ", " + _$local.returnGeolocation()['lon']);
+				});
+			});
 		});
 		if (_$local.load_spot === true) {
 			_$local.initializeGeomap(_$local.spot['lat'], _$local.spot['lat'])
