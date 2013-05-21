@@ -333,6 +333,7 @@ exports.mainSpot = function(req, res) {
 			user_id: user_id,
 			session_id: session_id,
 			spot_url: nconf.get('api:spot:frontend_url'),
+			google_api_key: nconf.get('api:google:api_key'),
 			page: {
 				active: 'Spots',
 			},

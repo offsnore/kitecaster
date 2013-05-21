@@ -42,22 +42,23 @@ block content
 				div
 					h3.well.btn-success= body.status
 			a.btn.btn-primary(href='/main/spots/new') Add New Spot
-			p
-			div.spot_container
-				h3 Loading...
+	div#map-canvas.fill
 
 block script_include
+	link(href='/css/spot.css', rel='stylesheet')
 	script(src='/js/lib/handlebars.js', type='text/javaScript')
 	script(type='text/javascript')
 		window._$spot_url = '#{spot_url}';
 		window._$userId = '#{user_id}';
 		window._$session_id = '#{session_id}';
+		window._$local['mapzoom'] = 4;
+	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=true')
 
 block scripts
 	script(type='text/x-handlebars-template', id='spots-error-template')
 		.well.alert
 			h3 Oops, it seems there was an error loading this section. Please sit tight while we try and reload the section in a few moments.
-	script(type='text/x-handlebars-template', id='spots-template')
+	script(type='text/x-handlebars-template', id='spots-old-template')
 		{{#each results}}
 		{{#if spotId}}
 		.feed.well

@@ -6,7 +6,9 @@
 			load_spot: false,
 			discover_nearby: false,
 			discover_radius: 100,
-			spot: {}
+			mapzoom: 11,
+			spot: {},
+			map: {}
 		};
 
 		// Handles getting distance between Spot Location and You (or a 2nd spot i suppose), defaults to miles
@@ -109,7 +111,33 @@
 				typeahead_register();
 			}
 		}
-
+		
+		_$local.mapfunc = {};
+		_$local.map = {};
+		
+		_$local.mapfunc.buildinfo = function(content) {
+    		var a = jQuery("<div></div>");
+    		return a.html();
+		}
+		
+		_$local.mapfunc.addmarker = function(lat, lon, html, blue) {
+		    if (!blue) {
+    		    var blue = "blue";
+		    }
+    		var infowindow = new google.maps.InfoWindow({
+        		content: html,
+        		maxWidth: 200
+    		});
+    		var marker = new google.maps.Marker({
+        		position: new google.maps.LatLng(lat, lon),
+				icon: 'http://www.google.com/intl/en_us/mapfiles/ms/micons/' + blue + '-dot.png',
+        		map: _$local.map        		
+    		});    		
+    		google.maps.event.addListener(marker, 'click', function() {
+        		infowindow.open(map, marker);
+    		});
+		}
+		
 		_$local.initializeGeomap = function(lat, lon) {
 			var lat = lat;
 			var lon = lon;
@@ -127,9 +155,10 @@
 				var map = new google.maps.Map(
 					document.getElementById('map-canvas'), {
 					center: new google.maps.LatLng(lat, lon),
-					zoom: 11,
+					zoom: _$local.mapzoom,
 					mapTypeId: google.maps.MapTypeId.ROADMAP
 				});	
+				_$local.map = map;
 				var marker = new google.maps.Marker({
 					position: new google.maps.LatLng(lat, lon),
 					map: map
@@ -412,6 +441,27 @@
 
 		// Logic To Handle Spitting out the Spot Themselves		
 		if (typeof _$spot_url != 'undefined') {
+			if (typeof $("#spots-old-template")[0] != 'undefined') {
+				var obj = $("#spots-template");
+				// does a quick pull for all spots
+				var url = "http://" + _$spot_url + "/spot?callback=?";
+				$.ajax({
+					dataType: "jsonp",
+					jsonp: "callback",
+					url: url,
+					success: function(data) {
+					   var item, obj;
+					   for (item in data.results) {
+					       obj = data.results[item];
+					       _$local.mapfunc.addmarker(obj.location.latitude, obj.location.longitude, obj.description);
+					   }
+					},
+					error: function() {
+						//console.log('oops');	
+					}
+				});
+			}
+
 			if (typeof $("#spots-template")[0] != 'undefined') {
 				var obj = $("#spots-template");
 				// does a quick pull for all spots
