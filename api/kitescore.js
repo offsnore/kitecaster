@@ -17,8 +17,7 @@ var restify = require('restify'),
     KiteScoreService = require('../services/KiteScoreService'),
     DataStore = require('../services/DataStore'),
     ModelService = require('../services/ModelService'),
-    SpotService = require('../services/SpotService'),
-    Forecast = require('forecast.io');
+    SpotService = require('../services/SpotService')
     ;
     
     
@@ -26,10 +25,7 @@ var options = {
    colorize : "true"
 };
 
-var options = {
-  APIKey: process.env.FORECAST_API_KEY
-},
-forecast = new Forecast(options);
+
 
 
 var logger = new (winston.Logger)({
@@ -52,16 +48,13 @@ nconf.argv()
        .file({ file: require('path').resolve(__dirname, '../settings.json') });
        
 var wundegroundAPI = nconf.get('weather:apis:wunderground');
-var startCache = nconf.get('kitescore:start_cache') || false;
+
 logger.debug('wunderground key: ' + wundegroundAPI); 
 
 
 
-var wunderDebug = 	nconf.get('weather:apis:debug'),
-    rateMinute = 	nconf.get('weather:apis:rate:minute'),
-    rateHour = 	nconf.get('weather:apis:rate:hour'),
-    rateDay = 	nconf.get('weather:apis:rate:day');
-var wunder = new wundernode(wundegroundAPI, wunderDebug, rateMinute, rateHour, rateDay);
+var rateCount = 	nconf.get('weather:apis:rate:count'), rateTime = nconf.get('weather:apis:rate:time');;
+var wunder = new wundernode(wundegroundAPI, false, rateCount, rateTime);
 var expiration_time = nconf.get("api:kitescore:expiration_time");
 
 var api = {};
@@ -104,24 +97,6 @@ process.argv.forEach(function (val, index, array) {
 		restPort = array[index+1] || DEFAULT_PORT;
 	}
 }); 
-
-server.get('forecast', function(req, response) {
-    var query = require('url').parse(req.url, false).query;
-    var  split = query.split(',');
-    var lat = split[0];
-    var lon = split[1];
-    if (!lat || !lon) {
-       response.send(500, 'Must provide lat,lon query');
-    } 
-    else {
-      forecast.get(lat, lon, function (err, res, data) {
-        if (err) throw err;
-        response.send(200, data);
-        response.end();
-      });
-    }
-
-});
 
 server.get('score/api', function(req, res) {
     res.send(api);
@@ -196,15 +171,13 @@ server.get('score/today', function(req, res) {
          var lat = spot.location.latitude;
          var lon = spot.location.longitude;
          var latLonQuery = lat + ',' + lon;
-         pullWeather(HOURLY_1DAY,lat, lon, function(err, weatherData) {
+         logger.debug('wunder.hourly with query: ' + latLonQuery);
+         pullWeather(HOURLY_1DAY,lat, lon, function(err, response) {
             var jsonModel = JSON.parse(defaultModel);
-            if (me.model != null && weatherData != null) {
+            if (me.model != null && response != null) {
                var model = JSON.parse(me.model);
-
-               var jsonWeather = JSON.parse(weatherData);
-//               logger.debug('here after pullWeather: ' + weatherData);
-               
-               KiteScoreService.processHourly(model, spot, jsonWeather, function(err, scores) {
+               var hourly = JSON.parse(response);
+               KiteScoreService.processHourly(model, spot, hourly, function(err, scores) {
                   res.writeHead(200, {
                      'Content-Type' : 'application/json'
                   });
@@ -293,28 +266,27 @@ pullWeather = function(mode, lat, lon,  callback) {
    client.get(redisKey, function (err, reply) { 
         if (reply) {
          logger.debug('Weather found in redis for key ' + redisKey);
-         callback(null, reply);
+           callback(null, reply);
         }
         else {
            if (mode = HOURLY_1DAY) {
-             forecast.get(lat, lon, function(err, response, data) {
-                  var dataStr = JSON.stringify(data);
-                  var dataJson = JSON.parse(dataStr);
-                  //logger.debug('Got us some forecast.io data!'.magenta + dataStr);
-                  if (err) {
-                     logger.error('Error running wunder.hourly: ' + err);
-                     throw err;
-                  }
+             wunder.hourly(latLonQuery, function(err, response) {
                   var jsonModel = JSON.parse(defaultModel);
-                  client.set(redisKey,  dataStr,function(err, replies) {
-                     client.expire(redisKey, 0/* expiration_time */, function (err, replies) {
-                        logger.debug('kitescore:redis key set for ' + redisKey);
-                        
-               		});
-                 		callback(null,  dataStr);
+                  if ( response != null ) {
+                     var weather = JSON.parse(response);
+                     var weatherStr = JSON.stringify(weather);
+                     client.set(redisKey,  JSON.stringify(weather),function(err, replies) {
+                           client.expire(redisKey, expiration_time, function (err, replies) {
+
+                     		});
+                     callback(null, response);
+                     });
+                  }
+                      
                   
-                  });
-                  
+                  else {
+                     callback("invalid response");
+                  }
              });
       
           }
@@ -347,6 +319,14 @@ pullWeather = function(mode, lat, lon,  callback) {
     });  
    
 };
+
+// Once everything is loaded, start the kitescore service precaching in background
+KiteScoreService.startPrecache(function(err, response) {
+   if (err) logger.error('Error starting precache operation: ' + err);
+   logger.debug('Precaching started, size: ' + response.count);
+   
+},nconf.get("api:spot:refreshSeconds"));
+
 
 
 
