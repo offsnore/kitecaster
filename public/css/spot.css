@@ -1,0 +1,21 @@
+html body {
+    padding: 0;
+}
+
+#kitecasterapp {
+    margin: 50px;
+}
+
+.fill {
+    height: 100% !important;
+    min-height: 100% !important;
+}
+
+#map-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    min-height: 100%;
+    position: absolute;
+    margin-left: 0;
+}
