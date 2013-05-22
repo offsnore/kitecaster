@@ -12,6 +12,7 @@ var restify = require('restify'),
     async = require('async'),
     winston = require('winston'),
     SpotService = require('./SpotService'),
+    ModelService = require('./ModelService'),
     wundernode = require('wundernode');
 
 var redisSpotIdKey = 'spot:id:counter';
@@ -21,7 +22,7 @@ var options = {
 };
 
 var app = module.exports;
-
+var HOURLY_1DAY = "hourly", HOURLY_7DAY = "7day", HOURLY_10DAY = "10day";
 var logger = new (winston.Logger)({
                 transports: [
                         new winston.transports.Console({timestamp:true}),
@@ -32,6 +33,12 @@ var logger = new (winston.Logger)({
                     new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/kitescore_service_server.log') })
                 ]
         });
+        
+var defaultModel;
+ModelService.getModel(1, function(error, model) {
+   defaultModel = JSON.parse(model);
+   logger.debug('Default model set: ' + JSON.stringify(defaultModel));
+});
 		
 var compassDegrees = {
    'North'  : 0,
@@ -84,7 +91,7 @@ var compassDegrees = {
 
 var TOO_LIGHT = 5, VERY_LIGHT = 6, LIGHT = 7, MED_LOW = 8, MED_MED = 9, MED_HIGH = 10, HIGH_LOW = 11, HIGH_MED = 12,  HIGH_HIGH = 13, TOO_MUCH = 14;
 
-
+var appCounter = 0;
 var scoreColors = {
     
 };
@@ -95,6 +102,16 @@ if (!nconf.get("parse:appId")) {
 	}
 	
 var parse = new Parse( nconf.get('parse:appId'),  nconf.get('parse:restKey')); 
+
+var wundegroundAPI = nconf.get('weather:apis:wunderground'),
+    wunderDebug = 	nconf.get('weather:apis:debug'),
+    rateMinute = 	nconf.get('weather:apis:rate:minute'),
+    rateHour = 	nconf.get('weather:apis:rate:hour'),
+    rateDay = 	nconf.get('weather:apis:rate:day'),
+    expireTimeSpot = nconf.get('redis:expire_time:spot'),
+    expireTimeWeather = nconf.get('redis:expire_time:weather');
+
+var wunder = new wundernode(wundegroundAPI, wunderDebug, 10, 'minute');
 
 app.locals = function() {
 	var api_key = nconf.get('weather:apis:wunderground');
@@ -114,7 +131,7 @@ app.current_weather = function(lat, lon, callback){
 			var res = res.body;
 			callback(err, res);
 		} else {
-			var wunder = new wundernode(locals.api_key, locals.debug);
+			
 			wunder.forecast(q, function(err, obj){
 				var obj = JSON.parse(obj);
 				var obj = obj.forecast;
@@ -129,22 +146,53 @@ app.current_weather = function(lat, lon, callback){
 // the API might return data in different format. This if for handling the hourly response
 app.processHourly = function(model, spot, hourly, callback) {
    var windData = [];
-   hourly.hourly_forecast.forEach(function(hour) {
-      var wind = {};
-      wind.time = hour.FCTTIME;
-      wind.wdir = hour.wdir;
-      wind.wspd = hour.wspd;
-      wind.wx   = hour.wx;
-      windData.push(wind);
-   });
-   buildKiteScore(model, spot, windData, function(err, scores) {
-      callback(err, scores);  
-   });
+   // wundernode
+   if (hourly.hourly_forecast) {
+      logger.debug ('Running wundernode data ingest');
+      hourly.hourly_forecast.forEach(function(hour) {
+         var wind = {};
+         wind.time = hour.FCTTIME;
+         wind.wdir = hour.wdir;
+         wind.wspd = hour.wspd;
+         wind.wx   = hour.wx;
+         windData.push(wind);
+      });
+      app.buildKiteScore(model, spot, windData, function(err, scores) {
+         if (err)  {
+            logger.error('Error running kitescoresservice.buildkitescore: ' +err);
+            throw err;
+         }
+         callback(err, scores);  
+      });
+   }
+   // forecast.io
+   else if (hourly.hourly) {
+      hourly.hourly.data.forEach(function(data) {
+         
+         var wind = {};
+         wind.time = new Date(data.time*1000).toTimeString();
+         wind.wdir = data.windBearing;
+         wind.wspd = data.windSpeed;
+         wind.wx   = data.summary;
+         windData.push(wind);
+      });
+      app.buildKiteScore(model, spot, windData, function(err, scores) {
+         if (err)  {
+            logger.error('Error running kitescoresservice.buildkitescore: ' +err);
+            throw err;
+         }
+         callback(err, scores);  
+      });
+
+   }
+   else {
+      callback("Unable to determine data source");
+   }
 };
 
 
 // Crude 'algorithm'!
-buildKiteScore = function(model, spot, windData, callback) {
+app.buildKiteScore = function(model, spot, windData, callback) {
    var scores = [];
    var windLowMin = model.wind_low.min;
    var windLowMax = model.wind_low.max;
@@ -158,21 +206,18 @@ buildKiteScore = function(model, spot, windData, callback) {
    var windLowRange = windLowMax - windLowMin;
    var windMedRange = windMedMax - windMedMin;
    var windHighRange = windHighMax - windHighMin; 
-   /*
-logger.debug('windLowMin/Max/Mid' + windLowMin + '/' + windLowMax +'/' + windLowMid);
-   logger.debug('windMedMin/Max/Mid' + windMedMin + '/' + windMedMax +'/' + windMedMid);
-   logger.debug('windHighMin/Max/Mid' + windHighMin + '/' + windHighMax +'/' + windHighMid);
-   
-*/
-   var kiteScore = 0;
+
    
    // ignore direction first, just map speeds
    // map TOO_LIGHT = 5, VERY_LIGHT = 6, LIGHT = 7, MED_LOW = 8, MED_MED = 9, MED_HIGH = 10, HIGH_LOW = 11, HIGH_MED = 12,  HIGH_HIGH = 13, TOO_MUCH = 15;
    windData.forEach(function(data) {
-      var speed = data.wspd.english;
-      var wdir  = data.wdir;
+      var kiteScore = 0;
+      var speed = parseInt(data.wspd);
+      var wdir  = parseInt(data.wdir);
       var wx    = data.wx;
-      var hour  = data.time.hour;
+      var hour, time;
+      if (data.FCTTIME) hour  = data.FCTTIME.hour;
+      if (data.time) time = data.time;
       var rangeEnd = -1;
       if (speed <= windLowMax) {
          if (speed >= windLowMin) {
@@ -213,15 +258,24 @@ logger.debug('windLowMin/Max/Mid' + windLowMin + '/' + windLowMax +'/' + windLow
       else {
          logger.debug('WTF happened, no kite score determined');
       }
-      
       // TODO: change score based on wind direction. generic search (query for location) without a spot cannot account for specific wind direction.
       if (spot) {
          //logger.debug('wind dir: ' + JSON.stringify(wdir));
-         var dir = wdir.dir;
-         var windDirDegrees = compassDegrees[dir];
-         //logger.debug('degree mapping: ' + windDirDegrees);
-         //logger.debug(wdir.dir  +':' + speed + ', score: ' + kiteScore );
-         //logger.debug('spot wind dirs: ' + JSON.stringify(spot.wind_directions));
+         // wunderground
+         if (wdir.dir ) {
+            var dir = wdir.dir;
+            windDirDegrees = parseInt(compassDegrees[dir]);
+         } 
+         // forecast.io
+         else {
+            windDirDegrees = wdir;
+         }
+         var windDirDegrees;         
+/*
+         logger.debug('degree mapping: ' + windDirDegrees);
+         logger.debug(wdir.dir  +':' + speed + ', score: ' + kiteScore );
+         logger.debug('spot wind dirs: ' + JSON.stringify(spot.wind_directions));
+*/
          var closestDir = 360;;
          spot.wind_directions.forEach(function(direction) {
             var spotWindDegree = compassDegrees[direction];
@@ -235,11 +289,16 @@ logger.debug('windLowMin/Max/Mid' + windLowMin + '/' + windLowMax +'/' + windLow
          // normalize the difference into 1/8 points to subtract from kitescore
          var kiteScoreSubtraction = closestDifference / 45;
          //logger.debug('taking off ' + kiteScoreSubtraction + ' because the closest wind dir is ' + closestDir + ' and wind degree is ' + windDirDegrees);
+         
          kiteScore -= closestDifference / 45; 
       }
-      data['kiteScore'] = Math.round(kiteScore);
+      //kiteScore = Math.ceil(kiteScore);
+      data['kiteScore'] = Math.floor(kiteScore);
+      data['lastUpdated'] = new Date().toUTCString();
       scores.push(data);
+//      logger.debug('KiteScore determined for spot ' + spot.spotId + ', hour ' + hour + ': ' + kiteScore);      
    });
+
    callback(null, scores);
 }
 
@@ -248,40 +307,46 @@ var runCache = true;
 var spotsBody;
 // precache weather related data for spots, in seconds
 app.startPrecache = function(callback, interval) {
+   app.runSpotCache();
+   app.runSpotWeatherCache();
    var secondsInterval;
    if (interval) 
       secondsInterval = interval * 1000;
    // 15 minute default
-   else secondsInterval = 15 * 60 * 1000; 
+   else secondsInterval = 60 * 60 * 1000; 
    logger.debug('Started running precache every '.magenta + interval + ' seconds'.magenta);   
-   setInterval(app.runCache, secondsInterval);
+   setInterval(app.runSpotCache, secondsInterval);
+   setInterval(app.runSpotWeatherCache, secondsInterval);
  
    
 }
 
-app.runCache = function() {
-   console.log('Running runCache');
+app.runSpotCache = function() {
    var queryParams = {
          count : true
       };
+   // get all spots, store in redis   
    parse.getObjects('Spot', queryParams , function(err, response, body, success) {
      //     spotsBody = body;
-     logger.debug('found object = ', body.count, 'success: ' , success);
      // logger.debug('body; ' + JSON.stringify(body));
-     var redisKey = "kitescore:spots";
-     logger.debug('Saving redis key: ' + redisKey + ', val: ' + body.results.length);
      body.results.forEach(function(spot) {
         var spotId = spot.spotId;
+        spot['lastUpdated'] = new Date().toUTCString();
         var redisSpotId = "spot:" + spotId;        
-        logger.debug('Setting spot id ' + redisSpotId + ' in redis');
+//        logger.debug('Setting spot id ' + redisSpotId + ' in redis, val: ' + JSON.stringify(spot));
         client.set(redisSpotId, JSON.stringify(spot), function(err, replies) {
-           logger.debug('key set for ' + redisSpotId + ', reply: ' + replies);
+//           logger.debug('key set for ' + redisSpotId + ', reply: ' + replies);
+            client.expire(redisSpotId, expireTimeSpot, function(err, reply) {
+               logger.debug('Expire set for spot ' + redisSpotId + ', expires: ' + expireTimeSpot / 60 + ' minutes');
+            }) ;
         }); 
      });
    
+/*
      client.set(redisKey, JSON.stringify(body),function(err, replies) {
-   			logger.debug('expire set for ' + redisKey  + ', reply: ' + replies);
+  // 			logger.debug('expire set for ' + redisKey  + ', reply: ' + replies);
    		});
+*/
 
 
      /*
@@ -302,6 +367,84 @@ Datastore.save("Spot", redisKey, body, function(err, response) {
 */
 }
 
-
+app.runSpotWeatherCache = function() {
+   var spotLookupQuery = "spot:*";
+   var weatherSpotKey = "weather:spot:"
+   logger.debug('running runSpotWeatherCache, run count: ' + appCounter++);
+   client.keys(spotLookupQuery, function(err, replies) {
+      if (err) {
+         logger.error('Error: ' + err);
+      } else  {
+         replies.forEach(function(key) {
+            logger.debug('got spot id: ' + key); 
+            client.get(key, function(err, reply) {
+               var jsonSpot = JSON.parse(reply);
+//               console.log('runSpotWeatherCache reply: ' + reply);
+               try {
+               console.log('Got spot geoloc for cache: ' + jsonSpot.location.latitude + ', ' + jsonSpot.location.longitude);
+               } catch (err) {
+                  logger.error('Error doing something: ' + err);
+               }
+               var lat = jsonSpot.location.latitude;
+               var lon = jsonSpot.location.longitude;
+               var spotId = jsonSpot.spotId;
+               var redisKey = weatherSpotKey + spotId;
+               logger.debug('Pulling weather for lat ' + lat + ', lon: ' + lon);
+               var latLonQuery = lat + ',' + lon;
+                wunder.hourly7day(latLonQuery, function(err, response) {
+                  logger.debug('Got weather for latlon query: ' + latLonQuery);
+                  if ( response != null ) {
+                     var weather = JSON.parse(response);
+                     var weatherStr = JSON.stringify(weather);
+                     client.set(redisKey,  weatherStr,function(err, replies) {
+                        logger.debug('redis key set for ' + redisKey + ', replies: ' + replies);
+                        if (replies === "OK") {                     
+                           // run kite scores for saved spots' weather
+                           if (jsonSpot && defaultModel && weatherStr) {
+                              logger.debug('building kitescores for weather cache');
+                                                   
+                              app.buildKiteScore(defaultModel, jsonSpot, weather, function(err, scores) {
+                                 //console.log('Got kitescores for data: ' + JSON.stringify(scores));
+                                 var redisScoresKey = "scores:7day:spot:" + jsonSpot.spotId;
+                                  client.set(redisScoresKey, JSON.stringify(scores), function(err, replies) {
+                                     logger.debug('redisScoresKey ' + redisScoresKey + ' set, reply: ' + replies);
+                                     client.expire(redisScoresKey, expireTimeWeather, function(err, reply) {
+                                        logger.debug('Redis scores key set to expire: ' + redisScoresKey + ': ' + expireTimeWeather / 60 + ' minutes');
+                                     });
+                                  });
+                                 
+                              });
+      
+                           }
+                        }
+                        
+                     });
+/*
+                     logger.debug('jsonSpot: ' + JSON.stringify(jsonSpot));
+                     logger.debug('defaultModel: ' + JSON.stringify(defaultModel));
+                     logger.debug('weather: ' +weatherStr);
+*/
+                     
+                  }
+                  else logger.error('response was null, error: ' + err);
+                      
+                  
+                });
+               
+               /*    
+               app.pullWeather(HOURLY_1DAY, lat, lon, function(err, weather) {
+                  
+   client.set(redisKey, weather, function(err, reply) {
+                     logger.debug('Weather stored in redis for key: ' + redisKey);
+                  });
+   
+               });
+   */
+            });
+                    
+         });
+      }
+   });
+}
 
 
