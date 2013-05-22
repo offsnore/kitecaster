@@ -1,9 +1,10 @@
 html body {
     padding: 0;
+    margin: 0;
 }
 
 #kitecasterapp {
-    margin: 50px;
+    margin-top: 50px;
 }
 
 .fill {
@@ -18,4 +19,22 @@ html body {
     min-height: 100%;
     position: absolute;
     margin-left: 0;
+}
+
+@media (min-width: 768px) and (max-width: 979px) {
+    #kitecasterapp {
+        margin-top: 0px;
+    }
+    .navbar .navbar-inner {
+        padding: 5px 24px;
+    }
+}
+
+@media (max-width: 979px) {
+    #kitecasterapp {
+        margin-top: 0px;
+    }
+    .navbar .navbar-inner {
+        padding: 5px 24px;
+    }
 }

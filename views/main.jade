@@ -27,10 +27,7 @@ mixin sort()
 				option(value='2') Score & Distance from #{location().city}, #{location().region}
 		
 block content
-	#holder
 	#kitecasterapp
-		.title
-			h1= title
 		include includes/navigation
 		.content
 			.well
@@ -40,6 +37,7 @@ block content
 					a(href='#').update_location (Not your location? Update It!)
 				p
 					a.btn.btn-large.btn-success(href='/main/discover/spots') Discover Spots near this Area
+		#holder
 		div.row-fluid.spot_container
 				h3 Loading ...
 

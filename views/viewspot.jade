@@ -7,8 +7,6 @@ mixin widget(name, header, pageinfo)
 
 block content
 	#kitecasterapp
-		.title
-			h1= title
 		include includes/navigation
 		.content
 			if (body.status)
@@ -38,7 +36,6 @@ block script_include
 				var d_lat = lat;
 				var d_lon = lon;
 			}
-			console.log(d_lat, d_lon);
 			var map = new google.maps.Map(
 				document.getElementById('map-canvas'), {
 				center: new google.maps.LatLng(d_lat, d_lon),

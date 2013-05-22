@@ -1,17 +1,23 @@
-.navbar
+.navbar.navbar-fixed-top
 	.navbar-inner
-		a.brand Navigation
-		ul.nav
-			each name in ["Home", "Spots", "Profile", "Logout"]
-				if (page.active==name)
-					li.active
-						if (name=="Home")
-							a(href='/main/')= name
+		a.brand= title
+		.container
+			a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+				span.icon-bar
+				span.icon-bar
+				span.icon-bar
+			.nav-collapse
+				ul.nav
+					each name in ["Home", "Spots", "Profile", "Logout"]
+						if (page.active==name)
+							li.active
+								if (name=="Home")
+									a(href='/main/')= name
+								else
+									a(href='/main/#{name.toLowerCase()}')= name
 						else
-							a(href='/main/#{name.toLowerCase()}')= name
-				else
-					li
-						if (name=="Home")
-							a(href='/main/')= name
-						else
-							a(href='/main/#{name.toLowerCase()}')= name
+							li
+								if (name=="Home")
+									a(href='/main/')= name
+								else
+									a(href='/main/#{name.toLowerCase()}')= name
