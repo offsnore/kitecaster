@@ -165,15 +165,23 @@ exports.mainIndex = function(req, res) {
 			return kickOut(res, "Please login again, it seems your session has expired.");
 		}
 
-		var localdata = body[0];		
+		var profile_image;
+		var localdata = body[0];
+		
 		var user_id = localdata.objectId;
 		var session_id = localdata.UserPointer.objectId;
+		
+		if (!profile_image) {
+    		var profile_image = nconf.get('site:default:image');
+		}
 		
 //		var user_id = localdata.objectId;
 		var params = {
 //			localdata: localdata,
 			user_id: user_id,
 			session_id: session_id,
+			profile_image: profile_image,
+			userdata: localdata,
 			spot_url: nconf.get('api:spot:frontend_url'),
 			kite_url: nconf.get('api:kite:frontend_url'),
 			page: {
@@ -313,6 +321,8 @@ exports.mainSpot = function(req, res) {
 	if (nconf.get('site:development') !== false) {
 		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
+	
+	var profile_image;	
 	var geo_location = lookup.geolookup.getCurrent(req);
 
 	// get Session Details
@@ -328,12 +338,18 @@ exports.mainSpot = function(req, res) {
 		var localdata = body[0];		
 		var user_id = localdata.objectId;
 		var session_id = localdata.UserPointer.objectId;
+		
+		if (!profile_image) {
+    		var profile_image = nconf.get('site:default:image');
+		}
 	
 		var params = {
-			user_id: user_id,
-			session_id: session_id,
-			spot_url: nconf.get('api:spot:frontend_url'),
-			google_api_key: nconf.get('api:google:api_key'),
+            profile_image: profile_image,
+            userdata: localdata,
+            user_id: user_id,
+            session_id: session_id,
+            spot_url: nconf.get('api:spot:frontend_url'),
+            google_api_key: nconf.get('api:google:api_key'),
 			page: {
 				active: 'Spots',
 			},

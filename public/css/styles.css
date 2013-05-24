@@ -1,6 +1,17 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:600)
+
 html body {
     padding: 0;
     margin: 0;
+}
+
+ol, ul,a {
+    -webkit-font-smoothing: antialiased;
+}
+
+ol, ul {
+    list-style: none;
 }
 
 #kitecasterapp {
@@ -9,10 +20,17 @@ html body {
 
 body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-  background: #e9eef1;
-  /*background-image: url('../images/bw1024.jpg');*/
+  background-image: url('../images/bw1024.jpg');
   background-size:cover;
   background-repeat:no-repeat;
+}
+
+.info .location {
+    margin-left: 3px;
+}#
+
+.body-inside {
+  background: #e9eef1;    
 }
 
 .fixed-top {
@@ -60,6 +78,15 @@ body {
     border-radius: 0 0 4px 4px;
 }
 
+.stretch {
+    margin: 0;
+    padding: 0;   
+}
+
+.fill {
+    height: 80% !important;
+}
+
 .content_feed .body ul {
     border: 0;
     padding: 0;
@@ -74,14 +101,65 @@ body {
     padding: 30px 40px;
 }
 
+h2.head_title {
+    margin-left: 15px;
+}
+
 .profile .header {
-    background-image: url('../images/bw1024.jpg');
+/*    background-image: url('../images/bw1024.jpg'); */
+    background: #e9eef1;
     min-height: 150px;
     background-size: cover;
     box-shadow: #afb1b0 0 1px 0;
     -webkit-box-shadow: #afb1b0 0 1px 0;
     border-top-left-radius: 8px;
-    border-top-righ-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.profile > .body > .info ul {
+    margin: 20px auto 20px;
+    width: 80%;
+}
+
+.icon-stack.icon-large.icon-correct {
+    clear: both;
+    margin-right: 16px;
+}
+
+.icon-stack.icon-correct {
+    clear: both;
+    margin-right: 8px;
+}
+
+
+.icon-stack > i.icon-correct {
+    margin: 2px 0px 0px 5px
+}
+
+.profile > .body > .name {
+    padding: 0 0 20px;
+    border-bottom: solid 1px #dfe0e2;
+}
+
+.profile > .body > .name h3 {
+    padding: 0;
+    margin: 0;
+    font-size: 22px;
+}
+
+.profile > .body > .name h4 {
+    padding: 0;
+    margin: 0;
+    font-size: 13px;
+    color: #acacac;
+    text-shadow: 0 1px 1px #fff;
+    text-transform: uppercase;
+}
+
+h1, h2, h3, h4, h5 {
+    font-family: "Open Sans",Helvetica,Arial,sans-serif;
+    font-weight:600;
+    color: #333a3b;
 }
 
 .profile .body {

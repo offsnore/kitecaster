@@ -1,44 +1,18 @@
 extends main-layout
 
-mixin widget(name, header, pageinfo)
-	.widget(class=name)
-		h2(class="header")= header
-		div(class="content")= pageinfo
-
-mixin feed(name, score, date)
-	.feed(name='feed').well
-		h3.header= name
-		.details
-			p.date Last Updated #{dateNow(date)}
-		.score
-			if (score == "3") 
-				.threestars
-			if (score == "2") 
-				.twostars
-			if (score == "1") 
-				.onestars
-mixin sort()
-	.sort
-		h3 
-			|Sort By 
-			select.span3.sortBy
-				option(value='0') Distance from Current Location
-				option(value='1') Score Only
-				option(value='2') Score & Distance from #{location().city}, #{location().region}
-		
 block content
-	.container-fluid.fixed-top.stretched-topbar
+	.container-fluid.fixed-top.stretched-topbar.topbar
 		.row-fluid
 			.span12
 				.row-fluid
 					.span1.hidden-phone
 					.span5
-						h2 
+						h2.head_title 
 							=title
 					.span5.pull-right.nav-location
 						include includes/navigation2
 					.span1.hidden-phone
-	.container
+	.container.middlebar
 		.row
 			.span12.top_spacer.hidden-phone
 	.container-fluid.bottom-bar
@@ -49,12 +23,15 @@ block content
 					.span4
 						.profile
 							.header
-								.image.profile_avatar(style="background-image: url('http://si0.twimg.com/profile_images/1606349482/me_on-mountain.jpg')")
+								.image.profile_avatar(style="background-image: url('#{profile_image}')")
 							.body
 								.name
-									| [name info goes here]
+									h3 #{userdata.name} #{userdata.lastname}
 								.info
-									| [details about me go here]
+									ul
+										li
+											i.icon-location-arrow.icon-correct
+											span.location_description Loading...
 					.span8
 						.content_feed
 							.header
@@ -69,6 +46,7 @@ block content
 	.container-fluid.footer
 		.row-fluid
 			.span12.footer-bar
+				include includes/footer
 
 block script_include
 	script(src='/js/lib/handlebars.js', type='text/javaScript')

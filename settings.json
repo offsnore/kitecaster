@@ -58,9 +58,12 @@
 		}
 	},
 	"site": {
-		"frontend": {
-			"title":"KiteCaster - Beta"
-		},
+        "default" : {
+           "image" : "/images/default-person.png"
+        },
+        "frontend": {
+            "title":"KiteCaster - Beta"
+        },
 		"fakedSession": "abcd383393",
 		"fakeip": "8.8.8.8",
 		"development": true

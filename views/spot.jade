@@ -4,7 +4,7 @@ mixin widget(name, header, pageinfo)
 	.widget(class=name)
 		h2(class="header")= header
 		div(class="content")= pageinfo
-		
+
 mixin spot_widget(data)
 	.feed(name='feed').well
 		a.btn.btn-info(href='/main/spots/edit/' + data.objectId) Modify Spot
@@ -33,14 +33,34 @@ mixin spot_widget(data)
 			p.date Last Updated #{dateNow(data.updatedAt)}
 
 block content
-	#kitecasterapp
-		include includes/navigation
-		.content
-			if (body.status)
-				div
-					h3.well.btn-success= body.status
-			a.btn.btn-primary(href='/main/spots/new') Add New Spot
-	div#map-canvas.fill
+	.container-fluid.fixed-top.stretched-topbar.topbar
+		.row-fluid
+			.span12
+				.row-fluid
+					.span1.hidden-phone
+					.span5
+						h2.head_title 
+							=title
+					.span5.pull-right.nav-location
+						include includes/navigation2
+					.span1.hidden-phone
+	.container.middlebar
+		.row
+			.span12.top_spacer.hidden-phone
+	.container-fluid.bottom-bar.stretch
+		.row-fluid
+			.span1
+			.span10
+				.row-fluid
+					div#map-canvas.fill
+				.row-fluid
+					.span12
+						.well
+							| [ soon to be list of items]
+	.container-fluid.footer
+		.row-fluid
+			.span12.footer-bar
+				include includes/footer
 
 block script_include
 	link(href='/css/spot.css', rel='stylesheet')
