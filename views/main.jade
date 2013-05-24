@@ -27,19 +27,48 @@ mixin sort()
 				option(value='2') Score & Distance from #{location().city}, #{location().region}
 		
 block content
-	#kitecasterapp
-		include includes/navigation
-		.content
-			.well
-				p 
-					Your Location: 
-						span.location_description Loading.. 
-					a(href='#').update_location (Not your location? Update It!)
-				p
-					a.btn.btn-large.btn-success(href='/main/discover/spots') Discover Spots near this Area
-		#holder
-		div.row-fluid.spot_container
-				h3 Loading ...
+	.container-fluid.fixed-top.stretched-topbar
+		.row-fluid
+			.span12
+				.row-fluid
+					.span1.hidden-phone
+					.span5
+						h2 
+							=title
+					.span5.pull-right.nav-location
+						include includes/navigation2
+					.span1.hidden-phone
+	.container
+		.row
+			.span12.top_spacer.hidden-phone
+	.container-fluid.bottom-bar
+		.row-fluid
+			.span1
+			.span10
+				.row-fluid
+					.span4
+						.profile
+							.header
+								.image.profile_avatar(style="background-image: url('http://si0.twimg.com/profile_images/1606349482/me_on-mountain.jpg')")
+							.body
+								.name
+									| [name info goes here]
+								.info
+									| [details about me go here]
+					.span8
+						.content_feed
+							.header
+								| My Favorite Spots
+							.body
+								#holder
+								ul.spot_container
+									li
+										.spot_info
+											i.icon-spinner.icon-spin.icon-large 
+											|   Loading...
+	.container-fluid.footer
+		.row-fluid
+			.span12.footer-bar
 
 block script_include
 	script(src='/js/lib/handlebars.js', type='text/javaScript')
@@ -75,8 +104,8 @@ block scripts
 
 	script(type='text/x-handlebars-template', id='kitespot-template')
 		{{#each results}}
-		.feed(name='feed', id='spot-{{ spotId }}').well
-			h3.header 
+		li(name='feed', id='spot-{{ spotId }}').feed
+			h3
 				a(href='/main/spots/view/{{ spotId }}') {{ name }}
 			{{#if cover_image}}
 			p
@@ -89,7 +118,8 @@ block scripts
 			.score
 				.onestars
 		{{ else }}
-		.feed(name='feed').well
-			h3 You arent subscribed to any spots! 
+		li.feed(name='feed')
+			p
+				You arent subscribed to any spots! 
 			a(href='/main/spots') Check out some spots in your area!
 		{{/each}}

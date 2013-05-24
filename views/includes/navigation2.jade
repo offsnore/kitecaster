@@ -1,0 +1,14 @@
+ul.nav.nav-pills.visible-desktop
+	each name in ["Home", "Spots", "Profile", "Logout"]
+		if (page.active==name)
+			li.active
+				if (name=="Home")
+					a(href='/main/')= name
+				else
+					a(href='/main/#{name.toLowerCase()}')= name
+		else
+			li
+				if (name=="Home")
+					a(href='/main/')= name
+				else
+					a(href='/main/#{name.toLowerCase()}')= name

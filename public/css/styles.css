@@ -9,9 +9,105 @@ html body {
 
 body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-  background-image: url('../images/bw1024.jpg');
+  background: #e9eef1;
+  /*background-image: url('../images/bw1024.jpg');*/
   background-size:cover;
   background-repeat:no-repeat;
+}
+
+.fixed-top {
+    margin: 0;
+    padding: 0;
+}
+
+.stretched-topbar {
+    min-height: 46px;
+    height: 70px;
+    background: #f8f8f8;
+}
+
+.nav-location {
+    margin-top: 15px;
+}
+
+.footer-bar {
+    min-height: 50px;
+}
+
+.bottom-bar {
+}
+
+.top_spacer {
+    min-height: 20px;
+}
+
+
+.content_feed .header {
+    border-radius: 8px 8px 0 0;
+    background: #333a3b;
+    color: #fff;
+    padding: 15px;
+    font-size: 15px;
+}
+
+.content_feed .body {
+    background: #f9f9f9;
+    border: solid 1px #dfe0e2;
+    color: #676c6f;
+    font-weight: normal;
+    text-shadow: 0 1px 1px #fff;
+    box-shadow: #e4e4e4 0 1px 1px;
+    border-radius: 0 0 4px 4px;
+}
+
+.content_feed .body ul {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    list-style: none;
+}
+
+.content_feed .body ul li {
+    clear: both;
+    border-bottom: solid 1px #dfe0e2;
+    padding: 30px 40px;
+}
+
+.profile .header {
+    background-image: url('../images/bw1024.jpg');
+    min-height: 150px;
+    background-size: cover;
+    box-shadow: #afb1b0 0 1px 0;
+    -webkit-box-shadow: #afb1b0 0 1px 0;
+    border-top-left-radius: 8px;
+    border-top-righ-radius: 8px;
+}
+
+.profile .body {
+    padding-top: 20px;
+    background: #f9f9f9;
+    border: solid 1px #dfe0e2;
+    border-top: 0px;
+    text-align: center;
+    border-radius: 0 0 4px 4px;
+    -webkit-box-shadow: #e4e4e4 0 1px 1px;
+    -moz-box-shadow: #e4e4e4 0 1px 1px;
+    box-shadow: #e4e4e4 0 1px 1px;
+}
+
+.profile .header .image {
+    background-size: cover;
+    background-position: center;
+    border: solid 5px #fff;
+    border-radius: 92px;
+    top: 10px;
+    width: 175px;
+    height: 175px;
+    box-shadow: #969696 0 2px 4px;
+    -webkit-box-shadow: #969696 0 2px 4px;
+    margin: auto;
+    position: relative;
 }
 
 a {
