@@ -1,9 +1,143 @@
 extends main-layout
 
-mixin widget(name, header, pageinfo)
-	.widget(class=name)
-		h2(class="header")= header
-		div(class="content")= pageinfo
+block content
+	.container-fluid.fixed-top.stretched-topbar.topbar
+		.row-fluid
+			.span12
+				.row-fluid
+					.span1.hidden-phone
+					.span5
+						h2.head_title 
+							=title
+					.span5.pull-right.nav-location
+						include includes/navigation2
+					.span1.hidden-phone
+	.container.middlebar
+		.row
+			.span12.top_spacer.hidden-phone
+	.container-fluid.bottom-bar
+		.row-fluid
+			.span1
+			.span10
+				.row-fluid
+					.span4
+						.profile
+							.header
+								.image.profile_avatar(style="background-image: url('#{profile_image}')")
+							.body
+								.name
+									h3 #{userdata.name} #{userdata.lastname}
+								.info
+									ul
+										li
+											i.icon-location-arrow.icon-correct
+											span.location_description Loading...
+					.span8
+						.message.hidden.content_feed.alert
+						.content_feed
+							.header
+								| Your Profile Information
+							.body
+								p.spacer
+								form(action='/user/profile/#{session_id}', id='profile-form', method='PUT').form-horizontal.ajax-send
+									div.control-group
+										label.control-label(for='input_email') Email Address
+										div.controls
+											input(name='email', id='input_email', value=data.profile_data.email)
+									div.control-group
+										label.control-label(for='input_firstname') First Name
+										div.controls
+											if (data.profile_data) 
+												input(name='name', id='input_firstname', placeholder="Enter your first name", value=data.profile_data.name)
+											else
+												input(name='name', id='input_firstname', placeholder="Enter your first name", value="")
+									div.control-group
+										label.control-label(for='input_lastname') Last Name
+										div.controls
+											if (data.profile_data)
+												input(name='lastname', id='input_lastname', placeholder='Enter your Last name', value=data.profile_data.lastname)
+											else
+												input(name='lastname', id='input_lastname', placeholder='Enter your Last name', value="")
+									div.control-group
+										label.control-label(for='input_weight') Weight (lbs)
+										div.controls
+											if (data.profile_data)
+												input(name='weight', id='input_weight', placeholder='Enter your Weight', value=data.profile_data.weight).span2
+											else
+												input(name='weight', id='input_weight', placeholder='Enter your Weight', value="").span2							
+									div.control-group
+										label.control-label(for='input_weight') Kite Size
+										div.controls
+											select(data-style='btn-primary', name='kite_size').selectpicker
+												option Choose One
+												each item in kites
+													option(value=item.value, selected=item.value == data.profile_data.kite_size) #{item.label}
+									div.control-group
+										label.control-label(for='input_weight') Distance Willing to Travel for Wind
+										div.controls
+											select(data-style='btn-primary', name='travel_distance').selectpicker
+												each item in distances
+													option(value=item.value, selected=item.value == data.profile_data.travel_distance) #{item.label}
+									div.control-group
+										label.control-label Gender
+										div.controls
+											div.btn-group(data-toggle='buttons-radio')
+												if (data.profile_data)
+													if (data.profile_data.gender == "male")
+														input(type='button', value='Male', name='input_gender', id='male').btn.btn-primary.active Male
+														input(type='button', value='Female', name='input_gender', id='female').btn.btn-primary Female
+													if (data.profile_data.gender == "female")
+														input(type='button', value='Male', name='input_gender', id='male').btn.btn-primary Male
+														input(type='button', value='Female', name='input_gender', id='female').btn.btn-primary.active Female
+													if (!data.profile_data.gender)
+														input(type='button', value='Male', name='input_gender', id='male').btn.btn-primary Male
+														input(type='button', value='Female', name='input_gender', id='female').btn.btn-primary Female
+													input(type='hidden', name='gender', id='gender', value=data.profile_data.gender)
+												else
+													input(type='button', value='Male', name='input_gender', id='male').btn.btn-primary Male
+													input(type='button', value='Female', name='input_gender', id='female').btn.btn-primary Female
+													input(type='hidden', name='gender', id='gender', value="")
+									div.control-group
+										label.control-label Unit Preference
+										div.controls
+											div.btn-group(data-toggle='buttons-radio')
+												if (data.profile_data && data.profile_data.unit_preference)
+													if (data.profile_data.unit_preference == "kitescore")
+														input(type='button', value='kitescore', name='input_kitescore', id='kitescore').btn.btn-primary.active 
+														input(type='button', value='windspeed', name='input_windspeed', id='windspeed').btn.btn-primary 
+														input(type='button', value='speedunits', name='input_speedunits', id='speedunits').btn.btn-primary 
+													if (data.profile_data.unit_preference == "windspeed")
+														input(type='button', value='kitescore', name='input_kitescore', id='kitescore').btn.btn-primary
+														input(type='button', value='windspeed', name='input_windspeed', id='windspeed').btn.btn-primary.active 
+														input(type='button', value='speedunits', name='input_speedunits', id='speedunits').btn.btn-primary 
+													if (data.profile_data.unit_preference == "speedunits")
+														input(type='button', value='kitescore', name='input_kitescore', id='kitescore').btn.btn-primary
+														input(type='button', value='windspeed', name='input_windspeed', id='windspeed').btn.btn-primary 
+														input(type='button', value='speedunits', name='input_speedunits', id='speedunits').btn.btn-primary.active
+													input(type='hidden', name='unit_preference', id='unit_preference', value=data.profile_data.unit_preference)
+												else
+													input(type='button', value='kitescore', name='input_kitescore', id='kitescore').btn.btn-primary.active
+													input(type='button', value='windspeed', name='input_windspeed', id='windspeed').btn.btn-primary 
+													input(type='button', value='speedunits', name='input_speedunits', id='speedunits').btn.btn-primary
+													input(type='hidden', name='unit_preference', id='unit_preference', value='kitescore')
+									
+									div.control-group
+										div.controls
+											input(type='submit', value='Save Profile').btn.btn-success
+.container-fluid.footer
+		.row-fluid
+			.span12.footer-bar
+				include includes/footer
+
+block script_include
+	script(src='/js/lib/jquery.validate.min.js', type='text/javaScript')
+	script(src='/js/lib/handlebars.js', type='text/javaScript')
+	script(type='text/javascript')
+		window._$kite_url = '#{kite_url}';
+		window._$spot_url = '#{kite_url}';
+		window._$user_id = '#{user_id}';
+		window._$session_id = '#{session_id}';
+		window._$spot_id = false;
 
 block head_include
 	link(rel='stylesheet', href='/css/bootstrap.select.min.css')
@@ -15,102 +149,3 @@ block script_include
 		jQuery(document).ready(function(){
 			$('.selectpicker').selectpicker();
 		});
-
-block content
-	#kitecasterapp
-		include includes/navigation
-		.content
-			if (body.status)
-				div
-					h3.well.btn-success= body.status
-			div.row-fluid.message.hidden.well.btn-success
-			each info in body.content
-				h2= info
-			each widget in body.widgets
-				mixin widget(widget.name, widget.header, widget.content, widget.filename)
-			form(action='/user/profile/#{session_id}', id='profile-form', method='PUT').form-horizontal.ajax-send
-				div.well
-					div.control-group
-						label.control-label(for='input_email') Email Address
-						div.controls
-							input(name='email', id='input_email', value=data.profile_data.email)
-					div.control-group
-						label.control-label(for='input_firstname') First Name
-						div.controls
-							if (data.profile_data) 
-								input(name='name', id='input_firstname', placeholder="Enter your first name", value=data.profile_data.name)
-							else
-								input(name='name', id='input_firstname', placeholder="Enter your first name", value="")
-					div.control-group
-						label.control-label(for='input_lastname') Last Name
-						div.controls
-							if (data.profile_data)
-								input(name='lastname', id='input_lastname', placeholder='Enter your Last name', value=data.profile_data.lastname)
-							else
-								input(name='lastname', id='input_lastname', placeholder='Enter your Last name', value="")
-					div.control-group
-						label.control-label(for='input_weight') Weight (lbs)
-						div.controls
-							if (data.profile_data)
-								input(name='weight', id='input_weight', placeholder='Enter your Weight', value=data.profile_data.weight).span2
-							else
-								input(name='weight', id='input_weight', placeholder='Enter your Weight', value="").span2							
-					div.control-group
-						label.control-label(for='input_weight') Kite Size
-						div.controls
-							select(data-style='btn-primary', name='kite_size').selectpicker
-								option Choose One
-								each item in kites
-									option(value=item.value, selected=item.value == data.profile_data.kite_size) #{item.label}
-					div.control-group
-						label.control-label(for='input_weight') Distance Willing to Travel for Wind
-						div.controls
-							select(data-style='btn-primary', name='travel_distance').selectpicker
-								each item in distances
-									option(value=item.value, selected=item.value == data.profile_data.travel_distance) #{item.label}
-					div.control-group
-						label.control-label Gender
-						div.controls
-							div.btn-group(data-toggle='buttons-radio')
-								if (data.profile_data)
-									if (data.profile_data.gender == "male")
-										input(type='button', value='Male', name='input_gender', id='male').btn.btn-primary.active Male
-										input(type='button', value='Female', name='input_gender', id='female').btn.btn-primary Female
-									if (data.profile_data.gender == "female")
-										input(type='button', value='Male', name='input_gender', id='male').btn.btn-primary Male
-										input(type='button', value='Female', name='input_gender', id='female').btn.btn-primary.active Female
-									if (!data.profile_data.gender)
-										input(type='button', value='Male', name='input_gender', id='male').btn.btn-primary Male
-										input(type='button', value='Female', name='input_gender', id='female').btn.btn-primary Female
-									input(type='hidden', name='gender', id='gender', value=data.profile_data.gender)
-								else
-									input(type='button', value='Male', name='input_gender', id='male').btn.btn-primary Male
-									input(type='button', value='Female', name='input_gender', id='female').btn.btn-primary Female
-									input(type='hidden', name='gender', id='gender', value="")
-					div.control-group
-						label.control-label Unit Preference
-						div.controls
-							div.btn-group(data-toggle='buttons-radio')
-								if (data.profile_data && data.profile_data.unit_preference)
-									if (data.profile_data.unit_preference == "kitescore")
-										input(type='button', value='kitescore', name='input_kitescore', id='kitescore').btn.btn-primary.active 
-										input(type='button', value='windspeed', name='input_windspeed', id='windspeed').btn.btn-primary 
-										input(type='button', value='speedunits', name='input_speedunits', id='speedunits').btn.btn-primary 
-									if (data.profile_data.unit_preference == "windspeed")
-										input(type='button', value='kitescore', name='input_kitescore', id='kitescore').btn.btn-primary
-										input(type='button', value='windspeed', name='input_windspeed', id='windspeed').btn.btn-primary.active 
-										input(type='button', value='speedunits', name='input_speedunits', id='speedunits').btn.btn-primary 
-									if (data.profile_data.unit_preference == "speedunits")
-										input(type='button', value='kitescore', name='input_kitescore', id='kitescore').btn.btn-primary
-										input(type='button', value='windspeed', name='input_windspeed', id='windspeed').btn.btn-primary 
-										input(type='button', value='speedunits', name='input_speedunits', id='speedunits').btn.btn-primary.active
-									input(type='hidden', name='unit_preference', id='unit_preference', value=data.profile_data.unit_preference)
-								else
-									input(type='button', value='kitescore', name='input_kitescore', id='kitescore').btn.btn-primary.active
-									input(type='button', value='windspeed', name='input_windspeed', id='windspeed').btn.btn-primary 
-									input(type='button', value='speedunits', name='input_speedunits', id='speedunits').btn.btn-primary
-									input(type='hidden', name='unit_preference', id='unit_preference', value='kitescore')
-
-					div.control-group
-						div.controls
-							input(type='submit', value='Save Profile').btn.btn-success

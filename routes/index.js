@@ -703,7 +703,7 @@ exports.newSpotSave = function(req, res) {
 // Profile Page for Application
 // @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
 exports.mainProfile = function(req, res) {
-	var session_id;
+	var session_id, profile_image;
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
 			return kickOut(res, "Please login again, it seems your session has expired.");
@@ -711,6 +711,10 @@ exports.mainProfile = function(req, res) {
 		var localdata = body[0];		
 		var user_id = localdata.objectId;
 		var session_id = localdata.UserPointer.objectId;
+
+		if (!profile_image) {
+    		var profile_image = nconf.get('site:default:image');
+		}
 
 		var query = {
 			'where': {
@@ -732,7 +736,11 @@ exports.mainProfile = function(req, res) {
 				page: {
 					active: 'Profile',
 				},
+    			spot_url: nconf.get('api:spot:frontend_url'),
+    			kite_url: nconf.get('api:kite:frontend_url'),
 				session_id: session_id,
+				profile_image: profile_image,
+				userdata: localdata,
 				user_id: user_id,
 				data: {
 					profile_data: profile_data
