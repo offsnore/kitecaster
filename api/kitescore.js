@@ -26,11 +26,6 @@ var options = {
    colorize : "true"
 };
 
-var options = {
-  APIKey: process.env.FORECAST_API_KEY
-},
-forecast = new Forecast(options);
-
 
 var logger = new (winston.Logger)({
 		transports: [
@@ -51,6 +46,13 @@ nconf.argv()
        .env()
        .file({ file: require('path').resolve(__dirname, '../settings.json') });
        
+
+var options = {
+    APIKey: nconf.get("api:forecast.io:key") //process.env.FORECAST_API_KEY
+};
+
+forecast = new Forecast(options);
+
 var wundegroundAPI = nconf.get('weather:apis:wunderground');
 var startCache = nconf.get('kitescore:start_cache') || false;
 logger.debug('wunderground key: ' + wundegroundAPI); 

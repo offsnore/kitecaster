@@ -134,7 +134,7 @@
         		map: _$local.map        		
     		});    		
     		google.maps.event.addListener(marker, 'click', function() {
-        		infowindow.open(map, marker);
+        		infowindow.open(_$local.map, marker);
     		});
 		}
 		
@@ -173,6 +173,9 @@
 							$(".search-query").val("Loading..");
 						},
 						success: function(data){
+                            if (typeof data.results[1] == 'undefined') {
+                              return false;
+                            }
 							var addy = data.results[1].formatted_address;
 							//console.log(data.results);
 							//var address = addy[1].short_name + ", " + addy[2].short_name;
@@ -355,7 +358,8 @@
 					var graph = jQuery("<div></div>").attr('id', graphId);
 					//var title = jQuery("<h3></h3>").text("KiteScore (Kite Ability of This Spot)");
 					if (override_id) {
-						$("#" + override_id).html("");
+						$(override_id).html("");
+						$(parent).find(".loader").remove();
 					} else {
 						//$(parent).append(title);						
 					}
@@ -450,11 +454,25 @@
 					jsonp: "callback",
 					url: url,
 					success: function(data) {
-					   var item, obj;
-					   for (item in data.results) {
-					       obj = data.results[item];
-					       _$local.mapfunc.addmarker(obj.location.latitude, obj.location.longitude, obj.description);
-					   }
+						var item, obj;
+						var delay = 0;
+						// Work Around for The Map not always being loading 100% at end of page load
+						if (typeof _$local.map.mapTypeId == 'undefined') {
+						delay = 500;
+						}
+						window.setTimeout(function(){
+						   for (item in data.results) {
+						       obj = data.results[item];
+						       _$local.mapfunc.addmarker(obj.location.latitude, obj.location.longitude, obj.description);
+						   }
+						}, delay);
+						var source = $("#spots-support").html();
+						var template = Handlebars.compile(source);
+						$(".spot_container").html(template(data));
+						$(data.results).each(function(i, item){
+//							loadForecast(item.spotId);
+							loadKitescore(item.spotId, "#spot-detail-" + item.spotId);
+						});
 					},
 					error: function() {
 						//console.log('oops');	

@@ -12,6 +12,12 @@ html body {
     min-height: 50% !important;
 }
 
+/**
+ * Fix For Integration of Bootstrap w GoogleMaps
+ */
+img[src*="gstatic.com/"], img[src*="googleapis.com/"]  { max-width: 99999px; }
+#map-canvas img { max-width: none; }
+
 #map-canvas {
     margin: 0px;
     width: 100%;

@@ -8,6 +8,9 @@
 		"restKey": "zeJNClfH1mAaJL2wVELcqdNbFcgkhTTCEyoZ4qaw"
 	} ,  
 	"api" : {
+		"forecast.io" : {
+			"key" : "72308924b8266c64af429db50d4796fb"
+		},
 		"spot": {
 			"frontend_url" : "local.kitecaster.com",
 			"port" : "7501",

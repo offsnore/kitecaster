@@ -56,7 +56,11 @@ block content
 				.row-fluid
 					.span12
 						.well
-							| [ soon to be list of items]
+							ul.spot_container
+								li
+									.spot_info
+										i.icon-spinner.icon-spin.icon-large 
+										|   Loading...
 	.container-fluid.footer
 		.row-fluid
 			.span12.footer-bar
@@ -67,12 +71,43 @@ block script_include
 	script(src='/js/lib/handlebars.js', type='text/javaScript')
 	script(type='text/javascript')
 		window._$spot_url = '#{spot_url}';
+		window._$spot_id = false;
 		window._$userId = '#{user_id}';
+		window._$user_id = '#{user_id}';
 		window._$session_id = '#{session_id}';
 		window._$local['mapzoom'] = 6;
 	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=true')
 
 block scripts
+	script(type='text/x-handlebars-template', id='spots-support')
+		{{#each results}}
+		li(name='feed', id='spot-{{ spotId }}').feed
+			h3
+				a(href='/main/spots/view/{{ spotId }}') {{ name }}
+			div(class='spot-detail-{{ spotId }}').loader
+				i.icon-spinner.icon-spin.icon-large 
+				|   Loading...
+		{{ else }}
+		li.feed(name='feed')
+			p
+				We weren't able to load any spots. This really shouldn't happen. Ummm try looking somewhere else. Sorry :(
+		{{/each}}
+
+	script(type='text/x-handlebars-template', id='spotweather-template')
+		p
+			img(src='{{icon_url}}')
+		p
+			{{details}}
+		{{#if avghumidity}}
+		h5 Avg Humidity: {{avghumidity}} %
+		{{/if}}
+		{{#if maxhumidity}}
+		h5 Max Humidity: {{maxhumidity}} %
+		{{/if}}
+		{{#if maxwind}}
+		h5 Max Wind: {{maxwind.degrees}} {{maxwind.dir}} {{maxwind.kph}} kph / {{maxwind.mph}} mph	
+		{{/if}}
+
 	script(type='text/x-handlebars-template', id='spots-error-template')
 		.well.alert
 			h3 Oops, it seems there was an error loading this section. Please sit tight while we try and reload the section in a few moments.
