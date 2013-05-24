@@ -164,7 +164,9 @@
 			return;
 		} else {
 			var queryParams = {
-					where: json
+					where: json,
+					order: '-createdAt',
+					limit: 1
 				};
 			Datastore.records.object("Location", queryParams, function(err, response, body, success) {
 				if (body.length == 0) {
