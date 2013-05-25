@@ -47,11 +47,11 @@ nconf.argv()
        .file({ file: require('path').resolve(__dirname, '../settings.json') });
        
 
-var options = {
+var forecast_options = {
     APIKey: nconf.get("api:forecast.io:key") //process.env.FORECAST_API_KEY
 };
 
-forecast = new Forecast(options);
+forecast = new Forecast(forecast_options);
 
 var wundegroundAPI = nconf.get('weather:apis:wunderground');
 var startCache = nconf.get('kitescore:start_cache') || false;

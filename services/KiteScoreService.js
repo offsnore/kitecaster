@@ -13,13 +13,23 @@ var restify = require('restify'),
     winston = require('winston'),
     SpotService = require('./SpotService'),
     ModelService = require('./ModelService'),
-    wundernode = require('wundernode');
+    wundernode = require('wundernode'),
+    Forecast = require('forecast.io');
 
 var redisSpotIdKey = 'spot:id:counter';
 
 var options = {
    colorize : "true"
 };
+
+
+var forecast_options = {
+    APIKey: nconf.get("api:forecast.io:key") //process.env.FORECAST_API_KEY
+};
+
+forecast = new Forecast(forecast_options);
+
+
 
 var app = module.exports;
 var HOURLY_1DAY = "hourly", HOURLY_7DAY = "7day", HOURLY_10DAY = "10day";
@@ -111,7 +121,7 @@ var wundegroundAPI = nconf.get('weather:apis:wunderground'),
     expireTimeSpot = nconf.get('redis:expire_time:spot'),
     expireTimeWeather = nconf.get('redis:expire_time:weather');
 
-var wunder = new wundernode(wundegroundAPI, wunderDebug, 10, 'minute');
+var wunder = new wundernode(wundegroundAPI, wunderDebug, rateMinute, 'minute');
 
 app.locals = function() {
 	var api_key = nconf.get('weather:apis:wunderground');
@@ -131,7 +141,15 @@ app.current_weather = function(lat, lon, callback){
 			var res = res.body;
 			callback(err, res);
 		} else {
-			
+		   forecast.get(lat, lon, function (err, res, data) {
+           if (err) throw err;
+           var obj = JSON.parse(obj);
+			  var obj = obj.forecast;
+				Datastore.setobject(db, q, obj, 3600, function(){
+					callback(err, obj);
+				});
+         });
+			/*
 			wunder.forecast(q, function(err, obj){
 				var obj = JSON.parse(obj);
 				var obj = obj.forecast;
@@ -139,12 +157,13 @@ app.current_weather = function(lat, lon, callback){
 					callback(err, obj);
 				});
 			});
-		}    
+		*/
+		}   
 	});
 };
 
 // the API might return data in different format. This if for handling the hourly response
-app.processHourly = function(model, spot, hourly, callback) {
+app.processHourly = function(hourly, callback) {
    var windData = [];
    // wundernode
    if (hourly.hourly_forecast) {
@@ -152,42 +171,40 @@ app.processHourly = function(model, spot, hourly, callback) {
       hourly.hourly_forecast.forEach(function(hour) {
          var wind = {};
          wind.time = hour.FCTTIME;
-         wind.wdir = hour.wdir;
-         wind.wspd = hour.wspd;
+         wind.wdir = hour.wdir.degrees;
+         wind.wspd = hour.wspd.english;
          wind.wx   = hour.wx;
+         logger.debug('wind: ' + JSON.stringify(wind));
          windData.push(wind);
       });
-      app.buildKiteScore(model, spot, windData, function(err, scores) {
-         if (err)  {
-            logger.error('Error running kitescoresservice.buildkitescore: ' +err);
-            throw err;
-         }
-         callback(err, scores);  
-      });
+      
    }
    // forecast.io
    else if (hourly.hourly) {
       hourly.hourly.data.forEach(function(data) {
-         
+         logger.debug('Running forecast.io data ingest');
          var wind = {};
          wind.time = new Date(data.time*1000).toTimeString();
          wind.wdir = data.windBearing;
          wind.wspd = data.windSpeed;
          wind.wx   = data.summary;
          windData.push(wind);
-      });
-      app.buildKiteScore(model, spot, windData, function(err, scores) {
+      });      
+   }
+   else {
+      callback("Unable to determine data source");
+   }
+   callback(null, windData);   
+   // shouldn't build kitescore here
+/*
+   app.buildKiteScore(model, spot, windData, function(err, scores) {
          if (err)  {
             logger.error('Error running kitescoresservice.buildkitescore: ' +err);
             throw err;
          }
          callback(err, scores);  
       });
-
-   }
-   else {
-      callback("Unable to determine data source");
-   }
+*/
 };
 
 
@@ -207,17 +224,23 @@ app.buildKiteScore = function(model, spot, windData, callback) {
    var windMedRange = windMedMax - windMedMin;
    var windHighRange = windHighMax - windHighMin; 
 
+   if (windData.hourly_forecast) {
+      windData = windData.hourly_forecast;
+      console.log('hourly length: '.magenta + windData.length);
+   }
    
    // ignore direction first, just map speeds
    // map TOO_LIGHT = 5, VERY_LIGHT = 6, LIGHT = 7, MED_LOW = 8, MED_MED = 9, MED_HIGH = 10, HIGH_LOW = 11, HIGH_MED = 12,  HIGH_HIGH = 13, TOO_MUCH = 15;
+   //console.log('winddata: '.magenta + JSON.stringify(windData));
    windData.forEach(function(data) {
       var kiteScore = 0;
+//       console.log('WindData.ForeEach data: ' + JSON.stringify(data)); 
       var speed = parseInt(data.wspd);
       var wdir  = parseInt(data.wdir);
       var wx    = data.wx;
       var hour, time;
       if (data.FCTTIME) hour  = data.FCTTIME.hour;
-      if (data.time) time = data.time;
+      else if (data.time) time = data.time;
       var rangeEnd = -1;
       if (speed <= windLowMax) {
          if (speed >= windLowMin) {
@@ -256,7 +279,8 @@ app.buildKiteScore = function(model, spot, windData, callback) {
          kiteScore = TOO_MUCH;
       }
       else {
-         logger.debug('WTF happened, no kite score determined');
+         throw new Error('WTF happened, no kite score determined, speed: ' + speed);
+         
       }
       // TODO: change score based on wind direction. generic search (query for location) without a spot cannot account for specific wind direction.
       if (spot) {
@@ -371,6 +395,20 @@ app.runSpotWeatherCache = function() {
    var spotLookupQuery = "spot:*";
    var weatherSpotKey = "weather:spot:"
    logger.debug('running runSpotWeatherCache, run count: ' + appCounter++);
+   // Begin rewrite
+   async.series([
+    function(){
+       
+    },
+    function(){ 
+    
+     }
+    ], function(err, result) {
+       
+       
+    });   
+   
+   /// vvvv Cut the chord from callback jungle below
    client.keys(spotLookupQuery, function(err, replies) {
       if (err) {
          logger.error('Error: ' + err);
@@ -388,37 +426,40 @@ app.runSpotWeatherCache = function() {
                var lat = jsonSpot.location.latitude;
                var lon = jsonSpot.location.longitude;
                var spotId = jsonSpot.spotId;
-               var redisKey = weatherSpotKey + spotId;
+               var redisWeatherKey = weatherSpotKey + spotId;
                logger.debug('Pulling weather for lat ' + lat + ', lon: ' + lon);
                var latLonQuery = lat + ',' + lon;
                 wunder.hourly7day(latLonQuery, function(err, response) {
                   logger.debug('Got weather for latlon query: ' + latLonQuery);
                   if ( response != null ) {
                      var weather = JSON.parse(response);
-                     var weatherStr = JSON.stringify(weather);
-                     client.set(redisKey,  weatherStr,function(err, replies) {
-                        logger.debug('redis key set for ' + redisKey + ', replies: ' + replies);
-                        if (replies === "OK") {                     
-                           // run kite scores for saved spots' weather
-                           if (jsonSpot && defaultModel && weatherStr) {
-                              logger.debug('building kitescores for weather cache');
-                                                   
-                              app.buildKiteScore(defaultModel, jsonSpot, weather, function(err, scores) {
-                                 //console.log('Got kitescores for data: ' + JSON.stringify(scores));
-                                 var redisScoresKey = "scores:7day:spot:" + jsonSpot.spotId;
-                                  client.set(redisScoresKey, JSON.stringify(scores), function(err, replies) {
-                                     logger.debug('redisScoresKey ' + redisScoresKey + ' set, reply: ' + replies);
-                                     client.expire(redisScoresKey, expireTimeWeather, function(err, reply) {
-                                        logger.debug('Redis scores key set to expire: ' + redisScoresKey + ': ' + expireTimeWeather / 60 + ' minutes');
+                     app.processHourly(weather, function(err, hourly){
+                        var weatherStr = JSON.stringify(hourly);
+                        client.set(redisWeatherKey,  weatherStr,function(err, replies) {
+                           logger.debug('redis key set for ' + redisWeatherKey + ', replies: ' + replies);
+                           if (replies === "OK") {                     
+                              // run kite scores for saved spots' weather
+                              if (jsonSpot && defaultModel && weatherStr) {
+                                 logger.debug('building kitescores for weather cache');
+                                                      
+                                 app.buildKiteScore(defaultModel, jsonSpot, weather, function(err, scores) {
+                                    //console.log('Got kitescores for data: ' + JSON.stringify(scores));
+                                    var redisScoresKey = "scores:7day:spot:" + jsonSpot.spotId;
+                                     client.set(redisScoresKey, JSON.stringify(scores), function(err, replies) {
+                                        logger.debug('redisScoresKey ' + redisScoresKey + ' set, reply: ' + replies);
+                                        client.expire(redisScoresKey, expireTimeWeather, function(err, reply) {
+                                           logger.debug('Redis scores key set to expire: ' + redisScoresKey + ': ' + expireTimeWeather / 60 + ' minutes');
+                                        });
                                      });
-                                  });
-                                 
-                              });
-      
+                                    
+                                 });
+         
+                              }
                            }
-                        }
-                        
+                           
+                        });   
                      });
+                     
 /*
                      logger.debug('jsonSpot: ' + JSON.stringify(jsonSpot));
                      logger.debug('defaultModel: ' + JSON.stringify(defaultModel));

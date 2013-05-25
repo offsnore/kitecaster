@@ -389,9 +389,21 @@
 				success: function(data) {
 					var current_forecast = {};
 					if (data) {
+						/* wunder
 						var current_forecast = data.simpleforecast.forecastday[0];								
 						current_forecast.details = data.txt_forecast.forecastday[0].fcttext;
 						current_forecast.google_image_url = data.google_image_url;
+						*/
+						
+						// forecast.io revise
+						
+						var current_forecast = data.currently;
+						current_forecast.details = data.currently.summary;
+						current_forecast.google_image_url = data.icon; // need to map the options to a url! i.e. 
+						/*
+   						icon: A machine-readable text summary of this data point, suitable for selecting an icon for display. If defined, this property will have one of the following values: clear-day, clear-night, rain, snow, sleet, wind, fog, cloudy, partly-cloudy-day, or partly-cloudy-night. (Developers should ensure that a sensible default is defined, as additional values, such as hail, thunderstorm, or tornado, may be defined in the future.)
+   						
+						*/
 					}
 					var obj = $("#spotweather-template");
 					var source = obj.html();
