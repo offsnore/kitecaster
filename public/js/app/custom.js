@@ -411,7 +411,7 @@
 					$(".active_weather", parent).html(template(current_forecast));
 				}, 
 				error: function() {
-					$(".active_weather", parent).html("Current kiters unavailable at the moment.");
+					$(".active_weather", parent).html("Current weather unavailable at the moment.");
 				}
 			});					
 		}
