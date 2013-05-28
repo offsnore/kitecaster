@@ -6,21 +6,67 @@ mixin widget(name, header, pageinfo)
 		div(class="content")= pageinfo
 
 block content
-	#kitecasterapp
-		include includes/navigation
-		.content
-			if (body.status)
-				div
-					h3.well.btn-success= body.status
-			div.row-fluid.message.hidden.well.btn-success
-			div.row-fluid.spot_container
-				h3 Loading...
+	.container-fluid.fixed-top.stretched-topbar.topbar
+		.row-fluid
+			.span12
+				.row-fluid
+					.span1.hidden-phone
+					.span5
+						h2.head_title 
+							=title
+					.span5.pull-right.nav-location
+						include includes/navigation2
+					.span1.hidden-phone
+	.container.middlebar
+		.row
+			.span12.top_spacer.hidden-phone
+	.container-fluid.bottom-bar
+		.row-fluid
+			.span1
+			.span10
+				.row-fluid
+					.span4
+						.profile
+							.header
+								.image.profile_avatar(style="background-image: url('#{profile_image}')")
+							.body
+								.name
+									h3 #{userdata.name} #{userdata.lastname}
+								.info
+									ul
+										li
+											i.icon-location-arrow.icon-correct
+											span.location_description Loading...
+					.span8
+						.content_feed
+							.header
+								.spot_name
+							.body
+								#holder
+								ul.spot_container
+									li
+										.spot_info
+											i.icon-spinner.icon-spin.icon-large 
+											|   Loading...
+	.container-fluid.footer
+		.row-fluid
+			.span12.footer-bar
+				include includes/footer
+
 
 block script_include
 	script(src='/js/lib/handlebars.js', type='text/JavaScript')
 	script(src='/js/lib/moment.min.js', type='text/JavaScript')
 	script(type='text/javascript')
-		window._$local = {}; // future container for all local envs
+		$(document).ready(function(){
+			setVariables({
+				spot_url: '#{spot_url}',
+				spot_id: '#{spot_id}',
+				user_id: '#{user_id}',
+				session_id: '#{session_id}'
+			});
+			_$local.getGeolocation();
+		});
 		window._$spot_url = '#{spot_url}';
 		window._$spot_id  = '#{spot_id}';
 		window._$user_id = '#{user_id}';
@@ -122,11 +168,10 @@ block scripts
 		form(action='/spot/{{ spotId }}', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send
 			input(type='hidden', name='spotName', id='spotName', value='{{ name }}')
 			input(type='hidden', name='spotId', id='spotId', value='{{ spotId }}')
-			div.well(id='spot-{{ spotId }}')
+			div(id='spot-{{ spotId }}')
 				div.control-group
 					div.controls 
 						h3 
-							{{ name }}
 						.btn.btn-success.checkin I'm here! (Check-In)
 				{{#if cover_image}}
 				div.control-group
@@ -170,6 +215,7 @@ block scripts
 						p
 						div#map-canvas(style='height: 300px;') Loading map...
 			script(type='text/javascript')
+				$(".header > .spot_name").html('{{ name }}');
 				window._$winds = [];
 				{{#each wind_directions}}
 					window._$winds.push('{{this}}');

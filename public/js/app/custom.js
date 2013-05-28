@@ -1,6 +1,22 @@
 // Custom Handler used to Handle Custom Calls and functionality
 (function($){	
 
+    window._$session_id = false;
+    window._$user_id = false;
+    window._$userId = false; // I hate this @todo Make all user _user_id
+    window._$spot_url = false;
+    window._$spot_id = false;
+    
+    window.setVariables = function() {
+        var x, y, _args;
+        _args = arguments;
+        for (x in _args) {
+            for (y in _args[x]) {
+                window[y] = _args[x][y];
+            }
+        }
+    }
+
 	if (typeof _$local == 'undefined') {
 		_$local = {
 			load_spot: false,
@@ -8,7 +24,12 @@
 			discover_radius: 100,
 			mapzoom: 11,
 			spot: {},
-			map: {}
+			map: {},
+			geolocal: {},
+			getGeolocation: function(){},
+			returnGeolocation: function(){},
+			parseGeoFormat: function(){},
+			pullGeolocation: function(){}
 		};
 
 		// Handles getting distance between Spot Location and You (or a 2nd spot i suppose), defaults to miles
@@ -114,15 +135,44 @@
 		
 		_$local.mapfunc = {};
 		_$local.map = {};
+		_$local.mapmarkers = [];
 		
 		_$local.mapfunc.buildinfo = function(content) {
     		var a = jQuery("<div></div>");
     		return a.html();
 		}
 		
-		_$local.mapfunc.addmarker = function(lat, lon, html, blue) {
+		_$local.mapfunc.formatinfowindow = function(object) {
+    		var obj, source, template;
+			obj = $("#spots-infowindow");
+			source = obj.html();
+			template = Handlebars.compile(source);
+			return template(object);
+		}
+		
+		_$local.mapfunc.updatemarkerinfo = function(spotId, state) {
+			var x;
+			if (!state) {
+				var state = false;
+			}			
+			for (x in _$local.mapmarkers) {
+				if (_$local.mapmarkers[x].spotId != spotId) {
+					continue;
+				}
+				_$local.mapmarkers[x].spotObj.subscribed = state;
+				_$local.mapmarkers[x].myHtmlContent = _$local.mapfunc.formatinfowindow(_$local.mapmarkers[x].spotObj);
+			}
+		}
+		
+		_$local.mapfunc.addmarker = function(lat, lon, html, blue, spotId, obj) {
 		    if (!blue) {
     		    var blue = "blue";
+		    }
+		    if (!spotId) {
+			    var spotId = false;
+		    }
+		    if (!obj) {
+			    var obj = false;
 		    }
     		var infowindow = new google.maps.InfoWindow({
         		content: html,
@@ -131,9 +181,15 @@
     		var marker = new google.maps.Marker({
         		position: new google.maps.LatLng(lat, lon),
 				icon: 'http://www.google.com/intl/en_us/mapfiles/ms/micons/' + blue + '-dot.png',
-        		map: _$local.map        		
-    		});    		
+        		map: _$local.map     		
+    		});
+    		_$local.mapmarkers.push(marker);
+    		// custom markers so we can update the Content Dynamically
+    		marker.myHtmlContent = html;
+    		marker.spotId = spotId;
+    		marker.spotObj = obj;
     		google.maps.event.addListener(marker, 'click', function() {
+    			infowindow.setContent(marker.myHtmlContent);
         		infowindow.open(_$local.map, marker);
     		});
 		}
@@ -232,6 +288,14 @@
 					.closest('.control-group').removeClass('error').addClass('success');
 				}
 			});
+		}
+		
+		function formatInfoWindow(object) {
+    		var obj, source, template;
+			obj = $("#spots-infowindow");
+			source = obj.html();
+			template = Handlebars.compile(source);
+			return template(object);
 		}
 
 		function loadGraphic(spotId, data_input) {
@@ -349,6 +413,9 @@
 					spotId: spot
 				},
 				url: url,
+				error: function() {
+    				$(override_id).html("Kitescore for this spot is unavailable at the moment.");
+				},
 				success: function(data) {
 					var graphId = parent + "-graph";
 					if (override_id) {
@@ -461,6 +528,7 @@
 				var obj = $("#spots-template");
 				// does a quick pull for all spots
 				var url = "http://" + _$spot_url + "/spot?callback=?";
+				var infoWindow;
 				$.ajax({
 					dataType: "jsonp",
 					jsonp: "callback",
@@ -470,13 +538,50 @@
 						var delay = 0;
 						// Work Around for The Map not always being loading 100% at end of page load
 						if (typeof _$local.map.mapTypeId == 'undefined') {
-						delay = 500;
+							delay = 500;
 						}
 						window.setTimeout(function(){
-						   for (item in data.results) {
-						       obj = data.results[item];
-						       _$local.mapfunc.addmarker(obj.location.latitude, obj.location.longitude, obj.description);
-						   }
+							// @todo Make this information available in the Spot callback
+							// @todo rather than doing 2 seperate queries
+							for (item in data.results) {
+								obj = data.results[item];
+								obj.subscribed = false;										
+								infoWindow = formatInfoWindow(obj);
+								_$local.mapfunc.addmarker(obj.location.latitude, obj.location.longitude, infoWindow, false, obj.spotId, obj);
+							}
+							$.ajax({
+								data: {
+									userId: _$session_id
+								},
+								url: '/subscribe/spot',
+								success: function(subscribe_data) {
+									var subscribed = subscribe_data;
+									for (item in data.results) {
+										obj = data.results[item];
+										obj.subscribed = false;
+										for (x in subscribed) {
+											if (subscribed[x].spotId == obj.spotId) {
+												_$local.mapfunc.updatemarkerinfo(obj.spotId, true);
+											}
+										}
+									}
+								}
+							});
+/**
+									console.log(data);
+									$.each(data, function(i, item){
+										if (item.spotId) {
+											var id = item.spotId;
+											var obj = $(".subscribe[data-attr='" + id + "']");
+											obj.text("Subscribed");
+											obj.addClass("btn-success").removeClass("btn-warning");
+											obj.attr('method', 'DELETE');
+										}
+									});
+								}
+							});
+**/
+
 						}, delay);
 						var source = $("#spots-support").html();
 						var template = Handlebars.compile(source);
@@ -567,7 +672,7 @@
 						if (typeof initialize == 'function') {	
 							initialize(data.location.latitude, data.location.longitude);
 							loadnearby();
-							loadKitescore(_$spot_id, 'kitescore_spot');
+							loadKitescore(_$spot_id, '#kitescore_spot');
 						}
 					},
 					error: function() {
@@ -895,6 +1000,8 @@
 			var that = this;
 			var send_url = $(that).attr('action');
 			var method = $(this).attr('method') || "PUT";
+			var spot_id = $(that).attr('data-attr');
+
 			var data = {
 				'userId': _$session_id
 			};
@@ -905,14 +1012,19 @@
 				contentType: "application/json; charset=utf-8",
 				dataType: "json",
 				data: data,
+				beforeSend: function(){
+    				$(that).html("Submitting..").removeClass("btn-warning").addClass("btn-primary");
+				},
 				success: function(response) {
 					if (method == "PUT") {
-						$(that).html("Subscribed");
-						$(that).removeClass("btn-warning").addClass("btn-success");
+						_$local.mapfunc.updatemarkerinfo(spot_id, true);
+						$(that).html("Un-Subscribe");
+						$(that).removeClass("btn-success").addClass("btn-warning");
 						$(that).attr('method', 'DELETE');
 					} else {
+						_$local.mapfunc.updatemarkerinfo(spot_id, false);
 						$(that).html("Subscribe");
-						$(that).removeClass("btn-success").addClass("btn-warning");
+						$(that).removeClass("btn-warning").addClass("btn-success");
 						$(that).attr('method', 'PUT');						
 					}
 				}

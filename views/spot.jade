@@ -105,12 +105,19 @@ block scripts
 		h5 Max Humidity: {{maxhumidity}} %
 		{{/if}}
 		{{#if maxwind}}
-		h5 Max Wind: {{maxwind.degrees}} {{maxwind.dir}} {{maxwind.kph}} kph / {{maxwind.mph}} mph	
+		h5 Max Wind: {{maxwind.degrees}} {{maxwind.dir}} {{maxwind.kph}} kph / {{maxwind.mph}} mph
 		{{/if}}
-
 	script(type='text/x-handlebars-template', id='spots-error-template')
 		.well.alert
 			h3 Oops, it seems there was an error loading this section. Please sit tight while we try and reload the section in a few moments.
+	script(type='text/x-handlebars-template', id='spots-infowindow')
+		h3 {{ name }}
+		h5 {{ description }}
+		{{#ifCond subscribed true}}
+		a.btn.btn-warning(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='DELETE').subscribe Un-subscribe
+		{{else}}
+		a.btn.btn-success(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe Subscribe
+		{{/ifCond}}
 	script(type='text/x-handlebars-template', id='spots-old-template')
 		{{#each results}}
 		{{#if spotId}}

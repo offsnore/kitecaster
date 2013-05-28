@@ -174,10 +174,8 @@ exports.mainIndex = function(req, res) {
 		if (!profile_image) {
     		var profile_image = nconf.get('site:default:image');
 		}
-		
-//		var user_id = localdata.objectId;
+
 		var params = {
-//			localdata: localdata,
 			user_id: user_id,
 			session_id: session_id,
 			profile_image: profile_image,
@@ -322,12 +320,10 @@ exports.mainSpot = function(req, res) {
 		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
 	
-	var profile_image;	
 	var geo_location = lookup.geolookup.getCurrent(req);
 
 	// get Session Details
-	var session_id, user_id; // = nconf.get('site:fakedSession');
-//	var user_id = session_id;
+	var session_id, user_id, profile_image, localdata, params = {};
 
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
@@ -335,15 +331,15 @@ exports.mainSpot = function(req, res) {
 			return kickOut(res, "Please login again, it seems your session has expired.");
 		}
 
-		var localdata = body[0];		
-		var user_id = localdata.objectId;
-		var session_id = localdata.UserPointer.objectId;
+		localdata = body[0];		
+		user_id = localdata.objectId;
+		session_id = localdata.UserPointer.objectId;
 		
 		if (!profile_image) {
-    		var profile_image = nconf.get('site:default:image');
+    		profile_image = nconf.get('site:default:image');
 		}
 	
-		var params = {
+		params = {
             profile_image: profile_image,
             userdata: localdata,
             user_id: user_id,
@@ -390,8 +386,10 @@ exports.newSpot = function(req, res) {
 	if (nconf.get('site:development') !== false) {
 		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
-	var geo_location = lookup.geolookup.getCurrent(req);
-	var session_id;
+	
+	var geo_location, session_id, localdata, user_id, params = {};
+	
+	geo_location = lookup.geolookup.getCurrent(req);
 
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
@@ -399,11 +397,13 @@ exports.newSpot = function(req, res) {
 			return kickOut(res, "Please login again, it seems your session has expired.");
 		}
 
-		var localdata = body[0];		
-		var user_id = localdata.objectId;
-		var session_id = localdata.UserPointer.objectId;
+		localdata = body[0];		
+		user_id = localdata.objectId;
+		session_id = localdata.UserPointer.objectId;
 
-		var params = {
+		params = {
+            profile_image: profile_image,
+            userdata: localdata,
 			session_id: session_id,
 			spot_id: 0,
 			kite_url: null,
@@ -444,7 +444,6 @@ exports.newSpot = function(req, res) {
 		    data: {}
 		}	
 		res.render('newspot', params);
-
 	});
 };
 
@@ -459,30 +458,34 @@ exports.viewSpot = function(req, res) {
 	if (nconf.get('site:development') !== false) {
 		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
-	var geo_location = lookup.geolookup.getCurrent(req);
 
-	var session_id;
+	var session_id, profile_image, geo_location, localdata, user_id, session_id, params = {};
+
+	geo_location = lookup.geolookup.getCurrent(req);
 
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
 			return kickOut(res, "Please login again, it seems your session has expired.");
 		}
-
-		var localdata = body[0];		
-		var user_id = localdata.objectId;
-		var session_id = localdata.UserPointer.objectId;
-
+		localdata = body[0];
+		user_id = localdata.objectId;
+		session_id = localdata.UserPointer.objectId;
+		if (!profile_image) {
+    		profile_image = nconf.get('site:default:image');
+		}
 		var objectId = req.params[0];
 		if (objectId == '') {
 			errorPage(res, "We were unable to locate this spot (missing ID).");
 		}
-	
+
 		// get Session Details
 //		var session_id = nconf.get('site:fakedSession');
 //		var user_id = session_id;
-	
-		var params = {
+
+		params = {
+            profile_image: profile_image,
+            userdata: localdata,
 			session_id: session_id,
 			user_id: user_id,
 			spot_id: objectId,
