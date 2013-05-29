@@ -14,7 +14,7 @@
 		"spot": {
 			"frontend_url" : "local.kitecaster.com",
 			"port" : "7501",
-			"refreshSeconds" : 7200
+			"refreshSeconds" : 3600
 		},
 		"model": {
 			"port" : "7504"
