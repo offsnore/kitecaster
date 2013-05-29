@@ -174,7 +174,6 @@ app.processHourly = function(hourly, callback) {
          wind.wdir = hour.wdir.degrees;
          wind.wspd = hour.wspd.english;
          wind.wx   = hour.wx;
-         logger.debug('wind: ' + JSON.stringify(wind));
          windData.push(wind);
       });
       
@@ -231,12 +230,19 @@ app.buildKiteScore = function(model, spot, windData, callback) {
    
    // ignore direction first, just map speeds
    // map TOO_LIGHT = 5, VERY_LIGHT = 6, LIGHT = 7, MED_LOW = 8, MED_MED = 9, MED_HIGH = 10, HIGH_LOW = 11, HIGH_MED = 12,  HIGH_HIGH = 13, TOO_MUCH = 15;
-   //console.log('winddata: '.magenta + JSON.stringify(windData));
+   console.log('winddata: '.magenta + windData.length);
    windData.forEach(function(data) {
       var kiteScore = 0;
-//       console.log('WindData.ForeEach data: ' + JSON.stringify(data)); 
+    //console.log('WindData.ForeEach data: ' + JSON.stringify(data)); 
       var speed = parseInt(data.wspd);
-      var wdir  = parseInt(data.wdir);
+      if (!speed) {
+         speed = data.wspd.english; // if not cached the same way?
+      }
+      var wdir;//  = parseInt(data.wdir);
+      if (data.wdir.degrees) {
+         wdir = data.wdir.degrees;
+      }
+      else wdir = data.wdir;
       var wx    = data.wx;
       var hour, time;
       if (data.FCTTIME) hour  = data.FCTTIME.hour;
@@ -316,11 +322,11 @@ app.buildKiteScore = function(model, spot, windData, callback) {
          
          kiteScore -= closestDifference / 45; 
       }
-      //kiteScore = Math.ceil(kiteScore);
-      data['kiteScore'] = Math.floor(kiteScore);
+      var floorScore = Math.floor(kiteScore);
+      data['kiteScore'] = floorScore < 0 ? 0 : floorScore ;
       data['lastUpdated'] = new Date().toUTCString();
       scores.push(data);
-//      logger.debug('KiteScore determined for spot ' + spot.spotId + ', hour ' + hour + ': ' + kiteScore);      
+      logger.debug('KiteScore determined for spot ' + spot.spotId + '(dirs ' + spot.wind_directions+') at ' + data.FCTTIME.pretty + ': ' + data['kiteScore'] + "(" + speed  +data.wdir.dir  +")");      
    });
 
    callback(null, scores);

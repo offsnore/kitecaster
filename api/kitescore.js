@@ -169,7 +169,7 @@ server.get('score/today', function(req, res) {
       if (lat && lon) {
       } 
    }
-
+   
    if (spotId) {
    async.parallel([
       function(callback) {
@@ -251,7 +251,7 @@ server.get('score/today', function(req, res) {
             if (me.model != null && response != null) {
                var model = me.model;
                var hourly = JSON.parse(response);
-               KiteScoreService.processHourly(jsonModel, null, hourly, function(err, scores) {
+               KiteScoreService.processHourly( hourly, function(err, scores) {
                   //logger.debug('processHourly response: ' + scores);
                   client.set(redisKey, JSON.stringify(scores),function(err, replies) {
                      client.expire(redisKey, expiration_time, function (err, replies) {
@@ -278,9 +278,24 @@ server.get('score/tomorrow', function(req, res) {
    var lat, lon;
 });
 
-server.get('score/7day', function(req, res) {
-   var queryParts = require('url').parse(req.url, true).query;
-   var lat, lon;
+server.get('score/7day/:id', function(req, res) {
+   var spotId = req.params.id;
+   if (!spotId) {
+      res.send(404, "Missing spotId param");
+      res.end();
+   }
+   var redis7DayKeyKey = "scores:7day:spot:" + spotId;
+   client.get(redis7DayKeyKey, function(err, reply) {
+      if (reply) {
+         logger.debug("Scores found for key " + redis7DayKeyKey);         
+         res.send(200, JSON.parse(reply));
+      }
+      else {
+         res.send(404, "kite score not found for spot "  + spotId + " . You sure it exists? Check that cache too");
+      }
+   }); 
+      
+   
 });
 
 server.get('score/10day', function(req, res) {
@@ -290,7 +305,7 @@ server.get('score/10day', function(req, res) {
 
 pullWeather = function(mode, lat, lon,  callback) {
    var latLonQuery = lat + ',' + lon;
-   var redisKey = "kitescore:" +  mode  + ":" +  lat+ ":" +  lon;
+   var redisKey = "weather:" +  mode  + ":" +  lat+ ":" +  lon;
    // This will return a JavaScript String
    client.get(redisKey, function (err, reply) { 
         if (reply) {
@@ -308,11 +323,12 @@ pullWeather = function(mode, lat, lon,  callback) {
                      throw err;
                   }
                   var jsonModel = JSON.parse(defaultModel);
-                  client.set(redisKey,  dataStr,function(err, replies) {
-                     client.expire(redisKey, 0/* expiration_time */, function (err, replies) {
-                        logger.debug('kitescore:redis key set for ' + redisKey);
+                  client.set(redisKey,  dataStr,function(err, setRepky) {
+                     client.expire(redisKey, expiration_time, function (err, expireReply) {
+                        logger.debug('kitescore:redis key expire set for ' + redisKey);
                         
                		});
+               		console.log('redisKey before returning weather? '.magenta + dataStr);
                  		callback(null,  dataStr);
                   
                   });
