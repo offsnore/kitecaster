@@ -404,14 +404,11 @@
 			if (!spot) {
 				return false;
 			}
-			var url = "http://" + _$spot_url + "/score/today";
+			var url = "http://" + _$spot_url + "/score/7day/" + spot;
 			var parent = "#spot-" + spot;
 			$.ajax({
 				type: "GET",
-				dataType: "json",
-				data: {
-					spotId: spot
-				},
+				dataType: "json",				
 				url: url,
 				error: function() {
     				$(override_id).html("Kitescore for this spot is unavailable at the moment.");
