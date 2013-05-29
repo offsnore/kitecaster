@@ -46,8 +46,12 @@ var logger = new (winston.Logger)({
         
 var defaultModel;
 ModelService.getModel(1, function(error, model) {
-   defaultModel = JSON.parse(model);
-   logger.debug('Default model set: ' + JSON.stringify(defaultModel));
+	if (typeof model != 'undefined') {
+		defaultModel = JSON.parse(model);
+		logger.debug('Default model set: ' + JSON.stringify(defaultModel));		
+	} else {
+		logger.debug("Error finding model set: " + JSON.stringify(error));
+	}
 });
 		
 var compassDegrees = {
@@ -143,11 +147,15 @@ app.current_weather = function(lat, lon, callback){
 		} else {
 		   forecast.get(lat, lon, function (err, res, data) {
            if (err) throw err;
-           var obj = JSON.parse(obj);
-			  var obj = obj.forecast;
+           if (typeof obj != 'undefined') {
+				var obj = JSON.parse(obj);
+				var obj = obj.forecast;
 				Datastore.setobject(db, q, obj, 3600, function(){
 					callback(err, obj);
 				});
+           } else {
+	           callback(err, {});
+           }
          });
 			/*
 			wunder.forecast(q, function(err, obj){
@@ -423,9 +431,9 @@ app.runSpotWeatherCache = function() {
             logger.debug('got spot id: ' + key); 
             client.get(key, function(err, reply) {
                var jsonSpot = JSON.parse(reply);
-//               console.log('runSpotWeatherCache reply: ' + reply);
+               console.log('runSpotWeatherCache reply: ' + reply);
                try {
-               console.log('Got spot geoloc for cache: ' + jsonSpot.location.latitude + ', ' + jsonSpot.location.longitude);
+               		console.log('Got spot geoloc for cache: ' + jsonSpot.location.latitude + ', ' + jsonSpot.location.longitude);
                } catch (err) {
                   logger.error('Error doing something: ' + err);
                }
