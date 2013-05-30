@@ -412,7 +412,7 @@
 			return [x, y, z, za];
 		}
 		
-		Raphael.fn.getIcon = function(id, x, y, settings) {
+		Raphael.fn.getIcon = function(id, settings) {
 			var settings_default = {
 				fill: "#000",
 				stroke: "none"
@@ -476,28 +476,33 @@
 	    		// cirlce = r.rect(sleft, (starting_point - bar_height), x_width, bar_height
 
 	    		var circle = r.rect(sleft, (starting_point - bar_height), x_width, bar_height);
-
+	    		
 	    		if (obj_val >= 0 && obj_val <= 5) {
+	    			wind_color = "#99FFCC";
 	    			circle.data("highlight-text", "#fff");
 	    			circle.data("highlight-fill", "#000");
 		    		circle.attr("fill", "#99FFCC");
 	    		}
 	    		if (obj_val > 5 && obj_val <= 8) {
+	    			wind_color = "#FFFF00";
 	    			circle.data("highlight-text", "");
 	    			circle.data("highlight-fill", "");
 		    		circle.attr("fill", "#FFFF00");
 	    		}
 	    		if (obj_val >= 9 && obj_val <= 12) {
+	    			wind_color = "#FFCC00";
 	    			circle.data("highlight-text", "");
 	    			circle.data("highlight-fill", "");
 		    		circle.attr("fill", "#FFCC00");
 	    		}
 	    		if (obj_val >= 13 && obj_val <= 14) {
+	    			wind_color = "#FF3300";
 	    			circle.data("highlight-text", "");
 	    			circle.data("highlight-fill", "");
 		    		circle.attr("fill", "#FF3300");
 	    		}
 	    		if (obj_val >= 15) {
+	    			wind_color = "#000000";
 	    			circle.data("highlight-text", "");
 	    			circle.data("highlight-fill", "");
 		    		circle.attr("fill", "#000000");
@@ -512,7 +517,7 @@
 					"w": x_width
 				});
 
-				var icon = b.getIcon("arrow-wind");
+				var icon = b.getIcon("arrow-wind", {fill: wind_color});
 				icon.transform("t" + left_position + ",0r" + z[i].degrees+"t0,0s.8");
 
 				var text_direction = b.text(left_position + (x_width / 2), 45, z[i].dir);
@@ -527,12 +532,12 @@
 	    		}
 
 	    		// KiteScore Cirlce
-	    		var c2 = r.circle(sleft+(x_width/2), (starting_point + bottom_padding), 10);
-	    		c2.attr('fill', '#000');
-	    		c2.attr('color', '#FFF');
+//	    		var c2 = r.circle(sleft+(x_width/2), (starting_point + bottom_padding), 10);
+//	    		c2.attr('fill', '#000');
+//	    		c2.attr('color', '#FFF');
 	    		// Kitescore Value
 	    		var txt = r.text(sleft+(x_width/2), (starting_point + bottom_padding), obj_val);
-	    		txt.attr({'font':'10px Fontin-Sans, Arial', fill: '#fff', stroker: 'none'});
+	    		txt.attr({'font':'12px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
 
 
 	    		var wind_speed = r.text(left_position + (x_width / 2), (starting_point - 20), za[i].english + " MPH");
