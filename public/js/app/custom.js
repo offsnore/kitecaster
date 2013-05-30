@@ -299,6 +299,7 @@
 		}
 
 		function loadGraphic(spotId, data_input) {
+
 			var xs = [], ys = [];
 			for (i=0; i < data_input[0].length; i++) {
 				xs.push(i);
@@ -311,10 +312,14 @@
 			data  = data_input[1],
 			axisy = ["", ""],
 			axisx = data_input[0];
+
+			console.log(r, spotId);
+
 			r.dotchart(0, 0, 620, 60, xs, ys, data, {
 				symbol: "o", 
-				max: 10, 
-				heat: true, 
+				max: 15,
+				gutter: 10,
+				heat: false, 
 				axis: "1 0 0 0", 
 				axisxstep: 23, 
 				axisystep: 20,
@@ -322,12 +327,14 @@
 				axisxtype: " ", 
 				axisytype: " ", 
 				axisylabels: axisy
+			}).each(function() {
 			}).hover(function () {
-				this.marker = this.marker || r.tag(this.x, this.y, this.value, 0, this.r + 2).insertBefore(this);
+				this.marker = this.marker || r.tag(this.x, this.y, this.value, 0, this.r + 4).insertBefore(this);
 				this.marker.show();
 			}, function () {
 				this.marker && this.marker.hide();
 			});
+			
 			$(r.canvas).css("height", "60");
 		};
 
@@ -393,10 +400,99 @@
 			var x = [];
 			var y = [];
 			$(data).each(function(i, item){
-				x.push(item.time.civil);
+			     // One Forecasting System
+			     if (typeof item.time !== 'undefined') {
+    			     x.push(item.time.civil);
+			     }
+			     // Data from another forecasting system
+			     if (typeof item.FCTTIME !== 'undefined') {
+    			     x.push(item.FCTTIME.civil);
+			     }
 				y.push(item.kiteScore);
 			});
 			return [x,y];
+		}
+				
+		function newGraphic(spot_id, data) {
+			var y = [], x=[], i=0, max_size=20, min_size=1, top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0;
+
+			x = data[0];
+			y = data[1];
+
+    		var r = Raphael(spot_id, 680, 145);
+
+    		var height = 120, sleft=0, stop=0, width=0, left_position=0;
+    		padding = 2;
+    		top_padding = 20;
+    		
+    		var x_width = 25;
+    		var x_padding = 2;
+    		var height = 60;
+    		var start_position = x_width - 10;
+    		
+    		for (i in y) {
+	    		obj_val = y[i];
+	    		var bar_height = (parseInt(obj_val) * 4);
+	    		left_position = (x_width * i) + start_position;
+    			width = obj_val + (2 * parseInt(x_padding));
+	    		sleft = left_position;
+	    		stop = (parseInt(height) / 2) - (width / 2) + top_padding;	    		
+	    		var circle = r.rect(sleft, height, x_width, bar_height);
+	    		if (obj_val >= 0 && obj_val <= 5) {
+	    			circle.data("highlight-text", "#fff");
+	    			circle.data("highlight-fill", "#000");
+		    		circle.attr("fill", "#99FFCC");
+	    		}
+	    		if (obj_val > 5 && obj_val <= 8) {
+	    			circle.data("highlight-text", "");
+	    			circle.data("highlight-fill", "");
+		    		circle.attr("fill", "#FFFF00");
+	    		}
+	    		if (obj_val >= 9 && obj_val <= 12) {
+	    			circle.data("highlight-text", "");
+	    			circle.data("highlight-fill", "");
+		    		circle.attr("fill", "#FFCC00");
+	    		}
+	    		if (obj_val >= 13 && obj_val <= 14) {
+	    			circle.data("highlight-text", "");
+	    			circle.data("highlight-fill", "");
+		    		circle.attr("fill", "#FF3300");
+	    		}
+	    		if (obj_val >= 15) {
+	    			circle.data("highlight-text", "");
+	    			circle.data("highlight-fill", "");
+		    		circle.attr("fill", "#000000");
+	    		}
+	    		circle.attr("stroke", "none");	    		
+	    		circle.data({
+	    			"value": obj_val,
+	    			"x": sleft,
+	    			"y": stop,
+	    			"r": obj_val,
+	    			"w": x_width
+	    		});
+	    		var c2 = r.circle(sleft+(x_width/2), height, 10);
+	    		c2.attr('fill', '#000');
+	    		c2.attr('color', '#FFF');
+	    		
+	    		if (typeof x[i] != 'undefined') {
+		    		var txt_header = r.text(sleft+(x_width/2), 25, x[i]);
+		    		txt_header.attr({'font':'10px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
+		    		txt_header.rotate(-90, sleft+(x_width/2), 25);
+	    		}
+	    		
+	    		var txt = r.text(sleft+(x_width/2), height, obj_val);
+	    		txt.attr({'font':'10px Fontin-Sans, Arial', fill: '#fff', stroker: 'none'});
+	    		circle.hover(function() {
+//		    		this.marker = this.marker || r.label(this.data('x') + (this.data('w') / 2), this.data('y') - 14, this.data('value')).insertBefore(this);
+//		    		this.marker.show();
+	    		}, function(){
+//		    		this.marker && this.marker.hide();
+	    		});
+	    		position += width;
+    		}
+    		$("#" + spot_id + "-loader").remove();
+    		$("#" + spot_id).removeClass("hidden");
 		}
 		
 		function loadKitescore(spot_id, override_id) {
@@ -404,8 +500,9 @@
 			if (!spot) {
 				return false;
 			}
+			
 			var url = "http://" + _$spot_url + "/score/7day/" + spot;
-			var parent = "#spot-" + spot;
+			var parent = "spot-" + spot;
 			$.ajax({
 				type: "GET",
 				dataType: "json",				
@@ -419,6 +516,9 @@
 						var graphId = override_id;
 					}
 					var d = parseForGraph(data);
+					var spot_id = "kitegraph-" + spot;
+					newGraphic(spot_id, d);
+/**
 					var graph = jQuery("<div></div>").attr('id', graphId);
 					//var title = jQuery("<h3></h3>").text("KiteScore (Kite Ability of This Spot)");
 					if (override_id) {
@@ -429,6 +529,7 @@
 					}
 					$(parent).append(graph);
 					loadGraphic(graphId, d);
+**/
 				}
 			})			
 		}

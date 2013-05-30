@@ -95,6 +95,10 @@ block scripts
 				|You are within approximately {{distanceFrom}} from this spot.
 			.score
 				.onestars
+			div(id='kitegraph-{{ spotId }}-loader')
+				i.icon-spinner.icon-spin.icon-large 
+				|   Loading...
+			div(id='kitegraph-{{ spotId }}').kitegraph
 		{{ else }}
 		li.feed(name='feed')
 			p
