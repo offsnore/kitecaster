@@ -84,13 +84,14 @@ block scripts
 		li(name='feed', id='spot-{{ spotId }}').feed
 			h3
 				a(href='/main/spots/view/{{ spotId }}') {{ name }}
-			div(class='spot-detail-{{ spotId }}').loader
+			div(id='kitegraph-{{ spotId }}-loader')
 				i.icon-spinner.icon-spin.icon-large 
 				|   Loading...
+			div(id='kitegraph-{{ spotId }}').kitegraph
 		{{ else }}
 		li.feed(name='feed')
 			p
-				We weren't able to load any spots. This really shouldn't happen. Ummm try looking somewhere else. Sorry :(
+			h3.alert.alert-warning We weren't able to load any spots. This really shouldn't happen. Please try again shortly.
 		{{/each}}
 
 	script(type='text/x-handlebars-template', id='spotweather-template')
@@ -109,7 +110,7 @@ block scripts
 		{{/if}}
 	script(type='text/x-handlebars-template', id='spots-error-template')
 		.well.alert
-			h3 Oops, it seems there was an error loading this section. Please sit tight while we try and reload the section in a few moments.
+			h3| Oops, it seems there was an error loading this section. Please sit tight while we try and reload the section in a few moments.
 	script(type='text/x-handlebars-template', id='spots-infowindow')
 		h3 {{ name }}
 		h5 {{ description }}

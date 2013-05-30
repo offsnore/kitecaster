@@ -508,7 +508,9 @@
 				dataType: "json",				
 				url: url,
 				error: function() {
-    				$(override_id).html("Kitescore for this spot is unavailable at the moment.");
+					var spot_id = "kitegraph-" + spot;
+    				$("#" + spot_id).html("Kitescore for this spot is unavailable at the moment.");
+    				$("#" + spot_id + "-loader").remove();
 				},
 				success: function(data) {
 					var graphId = parent + "-graph";
@@ -665,21 +667,6 @@
 									}
 								}
 							});
-/**
-									console.log(data);
-									$.each(data, function(i, item){
-										if (item.spotId) {
-											var id = item.spotId;
-											var obj = $(".subscribe[data-attr='" + id + "']");
-											obj.text("Subscribed");
-											obj.addClass("btn-success").removeClass("btn-warning");
-											obj.attr('method', 'DELETE');
-										}
-									});
-								}
-							});
-**/
-
 						}, delay);
 						var source = $("#spots-support").html();
 						var template = Handlebars.compile(source);
@@ -690,7 +677,12 @@
 						});
 					},
 					error: function() {
-						//console.log('oops');	
+						var data = {
+							results: []
+						};
+						var source = $("#spots-support").html();
+						var template = Handlebars.compile(source);
+						$(".spot_container").html(template(data));
 					}
 				});
 			}
