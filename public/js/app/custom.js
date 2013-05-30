@@ -435,7 +435,7 @@
 			var y = [], z=[], x=[], i=0, max_size=20, counter=0, min_size=1, top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0;
 
 			if (!max_spots) {
-				var max_spots = 32;
+				var max_spots = 42;
 			}
 
 			x = data[0];
@@ -443,8 +443,8 @@
 			z = data[2];
 			za = data[3];
 
-			var b = Raphael(spot_id, 680, 120);
-    		var r = Raphael(spot_id, 680, 145);
+			var b = Raphael(spot_id, '100%', 120);
+    		var r = Raphael(spot_id, '100%', 145);
 
     		var height = 120, sleft=0, stop=0, width=0, left_position=0;
     		padding = 2;
@@ -473,7 +473,6 @@
 
 	    		// [ x, y, w, h ]
 	    		// circle = r.rect(sleft, height, x_width, bar_height)
-	    		
 	    		// cirlce = r.rect(sleft, (starting_point - bar_height), x_width, bar_height
 
 	    		var circle = r.rect(sleft, (starting_point - bar_height), x_width, bar_height);
@@ -519,8 +518,6 @@
 				var text_direction = b.text(left_position + (x_width / 2), 45, z[i].dir);
 				text_direction.transform("r-90");
 				
-
-//	    		r.arrow(90, 40);
 	    		
 	    		// Text (time)
 	    		if (typeof x[i] != 'undefined') {
