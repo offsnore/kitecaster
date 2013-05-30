@@ -395,9 +395,7 @@
 		}
 		
 		function parseForGraph(data) {
-			var x = [];
-			var y = [];
-			var z = [];
+			var x = [], y = [], z = [], za = [];
 			$(data).each(function(i, item){
 			     // One Forecasting System
 			     if (typeof item.time !== 'undefined') {
@@ -407,10 +405,11 @@
 			     if (typeof item.FCTTIME !== 'undefined') {
     			     x.push(item.FCTTIME.civil);
     			     z.push(item.wdir);
+    			     za.push(item.wspd);
 			     }
 				y.push(item.kiteScore);
 			});
-			return [x,y,z];
+			return [x, y, z, za];
 		}
 		
 		Raphael.fn.getIcon = function(id, x, y, settings) {
@@ -442,6 +441,7 @@
 			x = data[0];
 			y = data[1];
 			z = data[2];
+			za = data[3];
 
 			var b = Raphael(spot_id, 680, 120);
     		var r = Raphael(spot_id, 680, 145);
@@ -506,7 +506,7 @@
 
 				circle.attr("stroke", "none");	    		
 				circle.data({
-					"value": obj_val,
+					"value": za[i].english +" MPG",
 					"x": sleft,
 					"y": stop,
 					"r": obj_val,
@@ -518,6 +518,7 @@
 
 				var text_direction = b.text(left_position + (x_width / 2), 45, z[i].dir);
 				text_direction.transform("r-90");
+				
 
 //	    		r.arrow(90, 40);
 	    		
@@ -536,12 +537,11 @@
 	    		var txt = r.text(sleft+(x_width/2), (starting_point + bottom_padding), obj_val);
 	    		txt.attr({'font':'10px Fontin-Sans, Arial', fill: '#fff', stroker: 'none'});
 
-//	    		var txt3 = r.text(sleft+(x_width/2), (starting_point + bottom_padding + 10), "<i class='icon-arrow-down'></i>");
-//	    		txt.attr({'font':'10px Fontin-Sans, Arial', fill: '#fff', stroker: 'none'});
 
-	    		circle.hover(function() {
-	    		}, function(){
-	    		});
+	    		var wind_speed = r.text(left_position + (x_width / 2), (starting_point - 20), za[i].english + " MPH");
+	    		wind_speed.attr({'font':'10px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
+				wind_speed.transform("r-90");
+
 	    		position += width;
     			counter++;
     		}
