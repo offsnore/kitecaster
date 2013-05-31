@@ -6,79 +6,110 @@ mixin widget(name, header, pageinfo)
 		div(class="content")= pageinfo
 
 block content
-	#kitecasterapp
-		include includes/navigation
-		.content
-			if (body.status)
-				div
-					h3.well.btn-success= body.status
-			div.row-fluid.message.hidden.well.btn-success
-			div.row-fluid
-				form(method='PUT', data-redirect='/main/spots', action='/spot', enctype="multipart/form-data").form-horizontal.ajax-send
-					div.well
-						if (data && data.records)
-							h3 Modify Spot
-						else
-							h3 Add a new spot
-						div.control-group
-							label.control-label(for='input_location') Location Name
-							div.controls
-								p.span10
-									input(name='name', id='input_location', value='Loading...').span12.search-query
-								p.span0
-									.btn.update_spot_location
-										i.icon-repeat
-										| &nbsp;
-										span Update Location
-						div.control-group
-							label.control-label(for='input_location') Location
-							div.controls
-								input(type='hidden', name='belongsTo', value='#{session_id}')
-								input(type='hidden', name='location', value='')
-								input(type='hidden', name='lat', id='lat', value='')
-								input(type='hidden', name='lon', id='lon', value='')
-								p.latlon Loading...
-								p
-								div#map-canvas(style='height: 300px;')
-						div.control-group
-							label.control-lable Upload Cover Image
-							div.controls
-								div(id='bootstrapped-fine-uploader')
-								#success-image
-						div.control-group
-							label.control-label(for='input_description') Brief Description
-							div.controls
-								if (data.records && data.records.description)
-									textarea(name='description', id='input_description', rows=3).span11= data.records.description
-								else
-									textarea(name='description', id='input_description', rows=3).span11
-						div.control-group(class='hidden-desktop hidden-tablet')
-							label.control-label Wind Directions
-							div.controls
-								select.selectpicker(multiple, data-style='btn-primary')
-									option.wind_direction| N
-									option.wind_direction| NE
-									option.wind_direction| E
-									option.wind_direction| SE
-									option.wind_direction| S
-									option.wind_direction| SW
-									option.wind_direction| W
-									option.wind_direction| NW
-						div.control-group(class='hidden-phone')
-							label.control-label Wind Directions
-							div.controls
-								div.btn-group(data-toggle='buttons-checkbox')
-									input(type='button', value='N', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='NE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='E', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='SE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='S', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='SW', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='W', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-									input(type='button', value='NW', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-						div.control-group
-							div.controls
-								input(type='submit', value='Save Profile').btn.btn-success
+	.container-fluid.fixed-top.stretched-topbar.topbar
+		.row-fluid
+			.span12
+				.row-fluid
+					.span1.hidden-phone
+					.span5
+						h2.head_title 
+							=title
+					.span5.pull-right.nav-location
+						include includes/navigation2
+					.span1.hidden-phone
+	.container.middlebar
+		.row
+			.span12.top_spacer.hidden-phone
+	.container-fluid.bottom-bar
+		.row-fluid
+			.span1
+			.span10
+				.row-fluid
+					.span4
+						.profile
+							.header
+								.image.profile_avatar(style="background-image: url('#{profile_image}')")
+							.body
+								.name
+									h3 #{userdata.name} #{userdata.lastname}
+								.info
+									ul
+										li
+											i.icon-location-arrow.icon-correct
+											span.location_description Loading...
+					.span8
+						.message.hidden.content_feed.alert
+						.content_feed
+							if (data && data.records)
+								.header
+									| Modify Spot
+							else
+								.header
+									| Create a new Spot
+							.body
+								p.spacer
+								form(method='PUT', data-redirect='/main/spots', data-post-parse="subscribe_spot", parse-json="true", action='/spot', enctype="multipart/form-data").form-horizontal.ajax-send
+									input(type='hidden', name='belongsTo', value='#{session_id}')
+									input(type='hidden', name='location', value='')
+									input(type='hidden', name='lat', id='lat', value='#{spot_data.lat}')
+									input(type='hidden', name='lon', id='lon', value='#{spot_data.lng}')
+									div.control-group
+										label.control-label(for='input_location') Location Name
+										div.controls
+											p.span10
+												input(name='name', id='input_spot_location', value='#{spot_data.name}').span12.search-spot-query
+									div.control-group
+										label.control-label(for='input_location') Location
+										div.controls
+											.span12
+												if (spot_data)
+													p.latlon #{spot_data.lat}, #{spot_data.lng}
+												else
+													p.latlon Loading...
+												div#map-canvas(style='height: 300px;')
+									div.control-group
+										label.control-lable Upload Cover Image
+										div.controls
+											div(id='bootstrapped-fine-uploader')
+											#success-image
+									div.control-group
+										label.control-label(for='input_description') Brief Description
+										div.controls
+											if (data.records && data.records.description)
+												textarea(name='description', id='input_description', rows=3).span11= data.records.description
+											else
+												textarea(name='description', id='input_description', rows=3).span11
+									div.control-group(class='hidden-desktop hidden-tablet')
+										label.control-label Wind Directions
+										div.controls
+											select.selectpicker(multiple, data-style='btn-primary')
+												option.wind_direction| N
+												option.wind_direction| NE
+												option.wind_direction| E
+												option.wind_direction| SE
+												option.wind_direction| S
+												option.wind_direction| SW
+												option.wind_direction| W
+												option.wind_direction| NW
+									div.control-group(class='hidden-phone')
+										label.control-label Wind Directions
+										div.controls
+											div.btn-group(data-toggle='buttons-checkbox')
+												input(type='button', value='N', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+												input(type='button', value='NE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+												input(type='button', value='E', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+												input(type='button', value='SE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+												input(type='button', value='S', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+												input(type='button', value='SW', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+												input(type='button', value='W', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+												input(type='button', value='NW', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+									div.control-group
+										div.controls
+											input(type='submit', value='Save Profile').btn.btn-success
+.container-fluid.footer
+		.row-fluid
+			.span12.footer-bar
+				include includes/footer
 
 block head_include
 	link(rel='stylesheet', href='/css/uploader.css')
@@ -91,6 +122,11 @@ block script_include
 		window._$kite_url = '#{kite_url}';
 		window._$spot_id  = '#{spot_id}';
 		window._$session_id = '#{session_id}';
+		if (#{spot_data.lng} || #{spot_data.lat})
+			window._$local.ignore_geo = true;
+			window._$local.ignore_mapload = true;
+			window._$local.initializeGeomap(#{spot_data.lat}, #{spot_data.lng});
+
 	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=true')
 	script(type='text/javascript', src='/js/lib/uploader.js')
 	script(type='text/javascript', src='/js/lib/uploader.xss.js')
@@ -132,7 +168,7 @@ block script_include
 		});	
 
 block scripts
-	script(type='text/x-handlebars-template', id='spotnew-template')
+	script(type='text/x-handlebars-template', id='spotnew-discontinued-template')
 		form(action='/spot', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send
 			input(type='hidden', name='spotId', id='spotId', value='0')
 			div.well

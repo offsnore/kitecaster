@@ -387,8 +387,9 @@ exports.newSpot = function(req, res) {
 		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
 	
-	var geo_location, session_id, localdata, user_id, params = {};
+	var queryParams = require('url').parse(req.url, true).query
 	
+	var profile_image, geo_location, session_id, localdata, user_id, params = {};	
 	geo_location = lookup.geolookup.getCurrent(req);
 
 	// this is how we get User Data ..
@@ -396,12 +397,14 @@ exports.newSpot = function(req, res) {
 		if (body.length == 0) {
 			return kickOut(res, "Please login again, it seems your session has expired.");
 		}
-
 		localdata = body[0];		
 		user_id = localdata.objectId;
 		session_id = localdata.UserPointer.objectId;
-
+		if (!profile_image) {
+    		profile_image = nconf.get('site:default:image');
+		}
 		params = {
+			spot_data: queryParams,
             profile_image: profile_image,
             userdata: localdata,
 			session_id: session_id,
@@ -442,7 +445,7 @@ exports.newSpot = function(req, res) {
 		    	return geo_location;
 		    },
 		    data: {}
-		}	
+		}
 		res.render('newspot', params);
 	});
 };

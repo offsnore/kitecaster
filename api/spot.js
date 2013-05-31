@@ -548,18 +548,11 @@
 						Datastore.records.objectupdate("Spot", spotObjectId, json, function(err, response){
 							var obj = {"status":"successful"};
 							res.send(200, 'Spot for ' + json.name + ' was been updated!');
-//							jsonp.send(req, res, obj);
 						});
 					});
 				} catch (e) {
 					console.log("An unexpected error occured: ", JSON.stringify(e));
 				}
-			
-//				Datastore.records.objectupdate("Spot", json, function(err, res){
-//					res.end("Successful update.");
-//				});
-//				updateSpot(json);
-//				createSpot(json, res);
 			}
 		});
 	});
@@ -651,7 +644,11 @@
 				try {
 					var json = Datastore.creategeopoint(json);
 					Datastore.records.createobject("Spot", json, function(err, response){
-						res.send(200, 'Spot for ' + json.name + ' was been created!');
+						var obj = {
+							status: 'Spot for ' + json.name + ' was been created!',
+							id: json.spotId
+						};
+                        res.send(200, JSON.stringify(obj));
 					}, true);
 				} catch (e) {
 					console.log("An unexpected error occured in the SpotAPI: " + JSON.stringify(e));

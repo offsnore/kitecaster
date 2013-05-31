@@ -19,7 +19,10 @@
 
 	if (typeof _$local == 'undefined') {
 		_$local = {
+			ignore_geo: false,
+			ignore_mapload: false,
 			load_spot: false,
+			load_map: false,
 			discover_nearby: false,
 			discover_radius: 100,
 			mapzoom: 11,
@@ -136,11 +139,20 @@
 		_$local.mapfunc = {};
 		_$local.map = {};
 		_$local.mapmarkers = [];
+		_$local.maptemp = {};
 		
 		_$local.mapfunc.buildinfo = function(content) {
     		var a = jQuery("<div></div>");
     		return a.html();
 		}
+		
+		_$local.mapfunc.formatNewSpotWindow = function(object) {
+    		var obj, source, template;
+			obj = $("#spots-new-infowindow");
+			source = obj.html();
+			template = Handlebars.compile(source);
+			return template(object);			
+		};
 		
 		_$local.mapfunc.formatinfowindow = function(object) {
     		var obj, source, template;
@@ -164,7 +176,10 @@
 			}
 		}
 		
-		_$local.mapfunc.addmarker = function(lat, lon, html, blue, spotId, obj) {
+		_$local.mapfunc.addmarker = function(lat, lon, html, blue, spotId, obj, open) {
+			if (!open) {
+				var open = false;
+			}
 		    if (!blue) {
     		    var blue = "blue";
 		    }
@@ -178,6 +193,12 @@
         		content: html,
         		maxWidth: 200
     		});
+    		
+    		// No Map Exists on this Page (odd)
+    		if (Object.keys(_$local.map).length == 0) {
+	    		return true;
+    		}
+    		
     		var marker = new google.maps.Marker({
         		position: new google.maps.LatLng(lat, lon),
 				icon: 'http://www.google.com/intl/en_us/mapfiles/ms/micons/' + blue + '-dot.png',
@@ -192,6 +213,9 @@
     			infowindow.setContent(marker.myHtmlContent);
         		infowindow.open(_$local.map, marker);
     		});
+    		if (open) {
+	    		infowindow.open(_$local.map, marker);
+    		}
 		}
 		
 		_$local.initializeGeomap = function(lat, lon) {
@@ -551,6 +575,18 @@
     		$("#" + spot_id).removeClass("hidden");
 		}
 		
+		function subscribe_spot(data) {
+			$.ajax({
+				type: 'PUT',
+				dataType: 'json',
+				contentType: "application/json; charset=utf-8",
+				url: '/subscribe/spot/' + data.id,
+				data: JSON.stringify({
+					userId: _$session_id
+				})
+			});
+		}
+		
 		function loadKitescore(spot_id, override_id) {
 			var spot = spot_id || _$spot_id;
 			if (!spot) {
@@ -701,7 +737,7 @@
 							// @todo rather than doing 2 seperate queries
 							for (item in data.results) {
 								obj = data.results[item];
-								obj.subscribed = false;										
+								obj.subscribed = false;
 								infoWindow = formatInfoWindow(obj);
 								_$local.mapfunc.addmarker(obj.location.latitude, obj.location.longitude, infoWindow, false, obj.spotId, obj);
 							}
@@ -723,6 +759,37 @@
 									}
 								}
 							});
+							
+							var input = document.getElementById("search_spot_input");
+							var autocomplete = new google.maps.places.Autocomplete(input);
+							autocomplete.bindTo("bounds", _$local.map);
+
+							google.maps.event.addListener(autocomplete, "place_changed", function(){
+								var place = autocomplete.getPlace();
+								_$local.maptemp = place;
+								if (place.geometry.viewport) {
+									_$local.map.fitBounds(place.geometry.viewport);
+								} else {
+									_$local.map.setCenter(place.geometry.location);
+									_$local.map.setZoom(15);
+								}
+								
+								// @todo Make this be the updated Marker (of me) -- in 'Red'
+								marker.setPosition(place.geometry.location);
+							})
+							
+							google.maps.event.addListener(_$local.map, "click", function(event){
+								var lat = event.latLng.lat();
+								var lng = event.latLng.lng();
+								var location = new google.maps.LatLng(lat, lng);
+								var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&sensor=true";
+								$.getJSON(url, function(data){
+									var location = data.results[0].formatted_address;
+									var html = _$local.mapfunc.formatNewSpotWindow({name: location, lat: lat, lng: lng});
+									_$local.mapfunc.addmarker(lat, lng, html, false, null, null, true);
+								});
+							})
+							
 						}, delay);
 						var source = $("#spots-support").html();
 						var template = Handlebars.compile(source);
@@ -887,16 +954,9 @@
 						}
 					});
 				}
-				
 				window.setTimeout(function(){
 					loadActivePeople();					
-				}, 1500);
-	
-				// @todo - Make this work with Socket.IO
-//				_$local.peopleload = window.setInterval(function(){
-//					loadActivePeople();
-//				}, 5000);
-				
+				}, 1500);				
 			}
 			
 			if (typeof $("#spotweather-template")[0] != 'undefined') {
@@ -1072,6 +1132,8 @@
 
 			var method = $(that).attr('method') || "POST";
 			var redirect = $(that).attr('data-redirect') || false;
+			var post_parse = $(that).attr('data-post-parse') || false;
+			var parse_json = $(that).attr('parse-json') || false;
 			
 			$.ajax({
 				url: send_url,
@@ -1079,7 +1141,13 @@
 				contentType: "application/json; charset=utf-8",
 				dataType: "json",
 				data: data,
-				success: function(response) {
+				success: function(response, status, xhr) {
+					if (parse_json) {
+						var response = JSON.parse(response);
+					}
+					if (post_parse) {
+						eval(post_parse+"(response)");
+					}
 					if (response.status) {
 						var response = response.status;
 					}
@@ -1227,15 +1295,28 @@
 			});
 		});
 		if (_$local.load_spot === true) {
-			_$local.initializeGeomap(_$local.spot['lat'], _$local.spot['lat'])
+			_$local.initializeGeomap(_$local.spot['lat'], _$local.spot['lon'])
 		} else {
-			if (typeof _$local.ignore_geo == 'undefined') {
-				_$local.getGeolocation(function(){
-					_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])			
-					$(".search-query").val(_$local.returnGeolocation()['street']);
-					$(".latlon").html(_$local.returnGeolocation()['lat'] + ", " + _$local.returnGeolocation()['lon']);
-				});
+			if (_$local.ignore_geo === true) {
+				if (_$local.ignore_mapload === true) {
+					// only load up the GeoLocation() (used for User specific Info)
+					_$local.getGeolocation();
+				} else {
+					// load up the Geo and load up the Map on Map + .latlon & .search-query input
+					_$local.getGeolocation(function(){
+						_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])
+						$(".search-query").val(_$local.returnGeolocation()['street']);
+						$(".latlon").html(_$local.returnGeolocation()['lat'] + ", " + _$local.returnGeolocation()['lon']);
+					});					
+				}
 			}
+		}
+		
+		if (_$local.load_map === true) {
+			// load up the Geo and load up the Map on Map + .latlon & .search-query input
+			_$local.getGeolocation(function(){
+				_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])
+			});
 		}
 
 	});

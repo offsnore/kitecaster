@@ -52,6 +52,13 @@ block content
 			.span1
 			.span10
 				.row-fluid
+					
+		.row-fluid
+			.span1
+			.span10
+				.row-fluid
+					input.span12(id='search_spot_input', placeholder='Search for a location...')
+				.row-fluid
 					div#map-canvas.fill
 				.row-fluid
 					.span12
@@ -75,8 +82,9 @@ block script_include
 		window._$userId = '#{user_id}';
 		window._$user_id = '#{user_id}';
 		window._$session_id = '#{session_id}';
+		window._$local['load_map'] = true;
 		window._$local['mapzoom'] = 6;
-	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=true')
+	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=true&libraries=places')
 
 block scripts
 	script(type='text/x-handlebars-template', id='spots-support')
@@ -119,6 +127,9 @@ block scripts
 		{{else}}
 		a.btn.btn-success(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe Subscribe
 		{{/ifCond}}
+	script(type='text/x-handlebars-template', id='spots-new-infowindow')
+		h3 {{ name }}
+		a.btn.btn-success(href='/main/spots/new?lat={{ lat }}&lng={{ lng }}&name={{ name }}', data-attr='{{spotId}}') Create New Spot
 	script(type='text/x-handlebars-template', id='spots-old-template')
 		{{#each results}}
 		{{#if spotId}}

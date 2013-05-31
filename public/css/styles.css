@@ -311,6 +311,18 @@ label.error {
     }
 }
 
+
+.box1 {
+  /* fallback DIY*/
+
+  /** Green: #ffff00 **/
+  /** Yellow: #99ffcc **/
+ 
+  /* Safari 4-5, Chrome 1-9 */
+  background: -webkit-gradient(linear, left top, right top, from(#fff), color-stop(0.230, #99ffcc), color-stop(0.230, #ffff00), color-stop(0.115, #99ffcc), color-stop(0.423, #ffff00), to(#fff));
+
+}
+
 /**
 
 @media (min-width: 768px) and (max-width: 979px) {
