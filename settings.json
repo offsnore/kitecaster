@@ -62,7 +62,8 @@
 	},
 	"site": {
         "default" : {
-           "image" : "/images/default-person.png"
+           "image_old" : "/images/default-person.png",
+           "image" : "/images/default_profile.jpg"
         },
         "frontend": {
             "title":"KiteCaster - Beta"
