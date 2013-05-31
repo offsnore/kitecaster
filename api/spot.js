@@ -16,7 +16,7 @@
 	,   Weather = require('../services/KiteScoreService')
 	,   Datastore = require('../services/DataStore');
 	    
-	redisSpotIdKey = 'spot:id:counter';
+	redisSpotIdKey = 'counter:spot:id';
 	
 	var options = {
 	   colorize : "true"

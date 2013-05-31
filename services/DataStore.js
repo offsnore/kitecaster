@@ -170,7 +170,7 @@ app.createobject = function(db, object, callback, auto_increment) {
 	}
 	try {
 		var parseApp = new ParseObject(nconf.get('parse:appId'), nconf.get('parse:restKey'));
-		var rediskey = "spot:id:counter";
+		var rediskey = "counter:id:spot";
 
 		var client = redis.createClient();
 		client.on("error", function(err) {
