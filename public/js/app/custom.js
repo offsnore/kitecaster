@@ -575,6 +575,7 @@
     		$("#" + spot_id).removeClass("hidden");
 		}
 		
+
 		function subscribe_spot(data) {
 			$.ajax({
 				type: 'PUT',
