@@ -542,11 +542,14 @@
 				});
 
 				var icon = b.getIcon("arrow-wind", {fill: wind_color});
-				icon.transform("t" + left_position + ",0r" + z[i].degrees+"t0,0s.8");
 
-				var text_direction = b.text(left_position + (x_width / 2), 45, z[i].dir);
-				text_direction.transform("r-90");
-				
+				if (typeof z[i] !== 'undefined') {
+					var degree = parseInt(z[i].degrees) + 180;
+					icon.transform("t" + left_position + ",0r" + degree + "t0,0s.8");
+	
+					var text_direction = b.text(left_position + (x_width / 2), 45, z[i].dir);
+					text_direction.transform("r-90");
+				}
 	    		
 	    		// Text (time)
 	    		if (typeof x[i] != 'undefined') {
