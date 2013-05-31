@@ -44,7 +44,6 @@ body {
 
 .stretched-topbar {
     min-height: 46px;
-    height: 70px;
     background: #f8f8f8;
 }
 
@@ -293,6 +292,10 @@ label.error {
 	height: 250px;
 }
 
+.topbar-bg {
+    background: #f8f8f8;
+}
+
 @media (min-width: 768px) and (max-width: 979px) {
     #kitecasterapp {
         margin-top: 0px;
@@ -300,9 +303,37 @@ label.error {
     .navbar .navbar-inner {
         padding: 5px 24px;
     }
+    .stretched-topbar {
+        height: 70px;
+    }
+    /* used to ge the dropdown button where it needs to be */
+    .title-location {
+        width: 75% !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .stretched-topbar {
+        height: 70px;
+    }    
 }
 
 @media (max-width: 979px) {
+    .stretched-topbar {
+        height: auto;
+    }
+    .middlebar {
+        min-height: 0;
+    }
+    .middlebar > .row-fluid > .span12 {
+        min-height: 0;
+    }
+    .nav-location {
+        float: none;
+    }
+    .navbar-handler {
+        float: none;
+    }
     #kitecasterapp {
         margin-top: 0px;
     }

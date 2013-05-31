@@ -38,21 +38,23 @@ block content
 			.span12
 				.row-fluid
 					.span1.hidden-phone
-					.span5
-						h2.head_title 
+					.span5.title-location
+						h2.head_title.pull-left
 							=title
-					.span5.pull-right.nav-location
+						include includes/navigation3
+					.span5.pull-right.nav-location.visible-desktop
 						include includes/navigation2
 					.span1.hidden-phone
-	.container.middlebar
-		.row
-			.span12.top_spacer.hidden-phone
-	.container-fluid.bottom-bar.stretch
+	.container-fluid.middlebar.hidden-desktop
 		.row-fluid
-			.span1
-			.span10
-				.row-fluid
-					
+			.span12
+				include includes/navigation_mobi
+		.row-fluid
+			.span12.top_spacer.hidden-phone
+	.container-fluid.middlebar.visible-desktop
+		.row-fluid
+			.span12.top_spacer
+	.container-fluid.bottom-bar.stretch
 		.row-fluid
 			.span1
 			.span10
