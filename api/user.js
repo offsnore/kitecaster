@@ -14,7 +14,7 @@
 	,   Datasession = require('../services/DataSession')
 	,   logger = require('winston');
 	    
-	redisSpotIdKey = 'spot:id:counter';
+	redisSpotIdKey = 'counter:spot:id';
 	
 	var options = {
 	   colorize : "true"

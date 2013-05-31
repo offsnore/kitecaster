@@ -16,7 +16,7 @@ var restify = require('restify'),
     wundernode = require('wundernode'),
     Forecast = require('forecast.io');
 
-var redisSpotIdKey = 'spot:id:counter';
+var redisSpotIdKey = 'counter:spot:id';
 
 var options = {
    colorize : "true"
