@@ -582,6 +582,7 @@
 				})
 			});
 		}
+
 		
 		function loadKitescore(spot_id, override_id, override) {
 			var spot = spot_id || _$spot_id;
