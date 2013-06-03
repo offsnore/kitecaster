@@ -30,7 +30,7 @@ block content
 					.span4
 						.profile
 							.header
-								.image.profile_avatar(style="background-image: url('#{profile_image}')")
+								.image.profile_avatar
 							.body
 								.name
 									h3 #{userdata.name} #{userdata.lastname}
@@ -63,6 +63,40 @@ block script_include
 		window._$user_id = '#{user_id}';
 		window._$session_id = '#{session_id}';
 		window._$spot_id = false;
+	script(type='text/javascript', src='/js/lib/uploader.js')
+	script(type='text/javascript', src='/js/lib/uploader.xss.js')
+	script(type='text/javascript')
+		function createUploader() {
+			var uploader = new qq.FineUploader({
+				element: document.getElementById('bootstrapped-fine-uploader'),
+				request: {
+					endpoint: '/user/profile'
+				},
+				text: {
+					uploadButton: '<div><i class="icon-upload icon-white"></i> Upload a Profile Photo</div>'
+				},
+				template: '<div class="qq-uploader span12">' +
+					'<pre class="qq-upload-drop-area span12"><span>{dragZoneText}</span></pre>' +
+					'<div class="qq-upload-button btn btn-success" style="width: auto;">{uploadButtonText}</div>' +
+					'<span class="qq-drop-processing"><span>{dropProcessingText}</span><span class="qq-drop-processing-spinner"></span></span>' +
+					'<ul class="qq-upload-list" style="margin-top: 10px; text-align: center;"></ul>' +
+					'</div>',
+				callbacks: {
+					onComplete: function(id, fileName, responseJson) {
+						if (responseJson.success) {
+							$("#success-image").html("<img src='" + responseJson.url + "' height='200' class='previewCover' /><input type='hidden' name='cover_image' id='cover_image' value='" + responseJson.url + "' />");
+						}
+					}
+				},
+				classes: {
+					success: 'alert alert-success',
+					fail: 'alert alert-error'
+				}
+			});
+		}
+		window.onload = createUploader;
+block head_include
+	link(rel='stylesheet', href='/css/uploader.css')
 
 block scripts
 	script(type='text/x-handlebars-template', id='spots-error-template')

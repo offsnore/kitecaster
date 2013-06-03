@@ -501,37 +501,29 @@
 
 	    		var circle = r.rect(sleft, (starting_point - bar_height), x_width, bar_height);
 	    		
-	    		if (obj_val >= 0 && obj_val <= 5) {
+	    		if (obj_val >= 0 && obj_val <= 3) {
 	    			wind_color = "#99FFCC";
-	    			circle.data("highlight-text", "#fff");
-	    			circle.data("highlight-fill", "#000");
-		    		circle.attr("fill", "#99FFCC");
 	    		}
-	    		if (obj_val > 5 && obj_val <= 8) {
+	    		if (obj_val >= 3 && obj_val <= 4) {
+	    			wind_color = "#99FF00";
+	    		}
+	    		if (obj_val >= 5 && obj_val <= 7) {
+	    			wind_color = "#99CC00";
+	    		}
+	    		if (obj_val > 7 && obj_val <= 8) {
 	    			wind_color = "#FFFF00";
-	    			circle.data("highlight-text", "");
-	    			circle.data("highlight-fill", "");
-		    		circle.attr("fill", "#FFFF00");
 	    		}
 	    		if (obj_val >= 9 && obj_val <= 12) {
 	    			wind_color = "#FFCC00";
-	    			circle.data("highlight-text", "");
-	    			circle.data("highlight-fill", "");
-		    		circle.attr("fill", "#FFCC00");
 	    		}
 	    		if (obj_val >= 13 && obj_val <= 14) {
 	    			wind_color = "#FF3300";
-	    			circle.data("highlight-text", "");
-	    			circle.data("highlight-fill", "");
-		    		circle.attr("fill", "#FF3300");
 	    		}
 	    		if (obj_val >= 15) {
 	    			wind_color = "#000000";
-	    			circle.data("highlight-text", "");
-	    			circle.data("highlight-fill", "");
-		    		circle.attr("fill", "#000000");
 	    		}
 
+		    	circle.attr("fill", wind_color);
 				circle.attr("stroke", "none");	    		
 				circle.data({
 					"value": za[i].english +" MPG",
@@ -660,6 +652,11 @@
 						
 						// forecast.io revise
 						
+						if (typeof data.currently == 'undefined') {
+							$(".active_weather", parent).html("Current weather is unavailable at the moment.");
+							return true;
+						}
+
 						var current_forecast = data.currently;
 						current_forecast.details = data.currently.summary;
 						current_forecast.google_image_url = data.icon; // need to map the options to a url! i.e. 
@@ -679,6 +676,9 @@
 			});					
 		}
 
+		$(".profile_avatar").live("click", function(){
+			$("#uploadModal").modal('show');
+		});
 
 		$("div.btn-group input[type='button']").click(function(){
 			var hidden_label = $(this).attr('name').toString().split("_")[1];

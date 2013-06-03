@@ -189,7 +189,23 @@ h1, h2, h3, h4, h5 {
     -webkit-box-shadow: #969696 0 2px 4px;
     margin: auto;
     position: relative;
+    background-image: url('/images/default_profile.jpg');
 }
+
+.profile .header .image:hover:before {
+    content: "";
+    background-image: none; 
+}
+
+.profile .header .image:hover {
+    background-repeat: no-repeat;
+    background-origin: content-box;
+    background-position: center bottom;
+    opacity: .5;
+    background-color: #DEDEDE !important;
+    background-position: center top;
+}
+
 
 a {
   color: #00b7ff;

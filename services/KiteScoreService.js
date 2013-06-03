@@ -437,6 +437,9 @@ app.runSpotWeatherCache = function() {
                } catch (err) {
                   logger.error('Error doing something: ' + err);
                }
+               if (typeof jsonSpot !== 'object') {
+                    return false;
+               }
                var lat = jsonSpot.location.latitude;
                var lon = jsonSpot.location.longitude;
                var spotId = jsonSpot.spotId;
