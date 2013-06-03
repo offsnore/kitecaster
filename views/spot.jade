@@ -92,12 +92,17 @@ block scripts
 	script(type='text/x-handlebars-template', id='spots-support')
 		{{#each results}}
 		li(name='feed', id='spot-{{ spotId }}').feed
-			h3
-				a(href='/main/spots/view/{{ spotId }}') {{ name }}
-			div(id='kitegraph-{{ spotId }}-loader')
-				i.icon-spinner.icon-spin.icon-large 
-				|   Loading...
-			div(id='kitegraph-{{ spotId }}').kitegraph
+			.row-fluid
+				.span12
+					.span1
+						h3
+							i.status_opener.icon-plus-sign.icon-1x
+					.span11
+						h3
+							a(href='/main/spots/view/{{ spotId }}', id='{{ spotId }}').load-spot-details {{ name }}
+						div(id='kitegraph-{{ spotId }}-loader-details').hidden
+							i.icon-spinner.icon-spin.icon-large 
+							|   Loading...
 		{{ else }}
 		li.feed(name='feed')
 			p

@@ -583,10 +583,13 @@
 			});
 		}
 		
-		function loadKitescore(spot_id, override_id) {
+		function loadKitescore(spot_id, override_id, override) {
 			var spot = spot_id || _$spot_id;
 			if (!spot) {
 				return false;
+			}
+			if (!override) {
+				var override = false;
 			}
 			
 			var url = "http://" + _$spot_url + "/score/7day/" + spot;
@@ -607,19 +610,10 @@
 					}
 					var d = parseForGraph(data);
 					var spot_id = "kitegraph-" + spot;
-					newGraphic(spot_id, d);
-/**
-					var graph = jQuery("<div></div>").attr('id', graphId);
-					//var title = jQuery("<h3></h3>").text("KiteScore (Kite Ability of This Spot)");
-					if (override_id) {
-						$(override_id).html("");
-						$(parent).find(".loader").remove();
-					} else {
-						//$(parent).append(title);						
+					if (override === true) {
+						$("#" + spot_id).html("");
 					}
-					$(parent).append(graph);
-					loadGraphic(graphId, d);
-**/
+					newGraphic(spot_id, d);
 				}
 			})			
 		}
@@ -873,6 +867,27 @@
 					}
 				});
 			}
+			
+			$(".load-spot-details").live("click", function(e){
+				e.preventDefault();
+				var that, spot_id, loader, status;
+				that = $(this);
+				spot_id = that.attr('id');
+				status = $(".status_opener", "#spot-" + spot_id);
+				loader = $("#kitegraph-" + spot_id + "-loader-details");
+				if (status.hasClass("icon-plus-sign")) {
+					status.removeClass('icon-plus-sign').addClass('icon-minus-sign');
+					loader.removeClass("hidden");
+					loader.html("<div id='kitegraph-" + spot_id + "'><i class='icon-spinner icon-spin icon-large'></i> Loading...</div>");
+					loader.prepend(jQuery("<div></div>").html("<a href='/main/spots/view/" + spot_id + "' class='btn btn-info'>View</a> <a action='/subscribe/spot/" + spot_id + "' data-attr='" + spot_id + "' method='PUT' class='btn btn-success subscribe'>Watch</a>"));
+					loadKitescore(spot_id, '#spot-' + spot_id, true);
+				} else {
+					status.removeClass('icon-minus-sign').addClass('icon-plus-sign');
+					loader.addClass("hidden");
+					loader.html("");
+				}
+			});
+			
 			if (typeof $("#spotview-template")[0] != 'undefined') {
 				var obj = $("#spotview-template");
 				// does a quick pull for all spots

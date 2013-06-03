@@ -165,6 +165,10 @@ h1, h2, h3, h4, h5 {
     color: #333a3b;
 }
 
+.icon-plus-sign.icon-2x, .icon-plus-sign.icon-1x {
+    background-position: 14px 14px;
+}
+
 .profile .body {
     padding-top: 20px;
     background: #f9f9f9;
