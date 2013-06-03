@@ -96,10 +96,10 @@ block scripts
 				.span12
 					.span1
 						h3
-							i.status_opener.icon-plus-sign.icon-1x
+							i.status_opener.icon-plus-sign.icon-1x(data-value='{{ spotId }}')
 					.span11
 						h3
-							a(href='/main/spots/view/{{ spotId }}', id='{{ spotId }}').load-spot-details {{ name }}
+							a(href='/main/spots/view/{{ spotId }}', data-value='{{ spotId }}', id='{{ spotId }}').load-spot-details {{ name }}
 						div(id='kitegraph-{{ spotId }}-loader-details').hidden
 							i.icon-spinner.icon-spin.icon-large 
 							|   Loading...

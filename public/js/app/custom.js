@@ -869,11 +869,11 @@
 				});
 			}
 			
-			$(".load-spot-details").live("click", function(e){
+			$(".status_opener, .load-spot-details").live("click", function(e){
 				e.preventDefault();
 				var that, spot_id, loader, status;
 				that = $(this);
-				spot_id = that.attr('id');
+				spot_id = that.attr('data-value');
 				status = $(".status_opener", "#spot-" + spot_id);
 				loader = $("#kitegraph-" + spot_id + "-loader-details");
 				if (status.hasClass("icon-plus-sign")) {
@@ -882,6 +882,23 @@
 					loader.html("<div id='kitegraph-" + spot_id + "'><i class='icon-spinner icon-spin icon-large'></i> Loading...</div>");
 					loader.prepend(jQuery("<div></div>").html("<a href='/main/spots/view/" + spot_id + "' class='btn btn-info'>View</a> <a action='/subscribe/spot/" + spot_id + "' data-attr='" + spot_id + "' method='PUT' class='btn btn-success subscribe'>Watch</a>"));
 					loadKitescore(spot_id, '#spot-' + spot_id, true);
+					$.ajax({
+						data: {
+							userId: _$session_id
+						},
+						url: '/subscribe/spot',
+						success: function(data) {
+							$.each(data, function(i, item){
+								if (item.spotId) {
+									var id = item.spotId;
+									var obj = $(".subscribe[data-attr='" + id + "']");
+									obj.text("Stop Watching");
+									obj.addClass("btn-warning").removeClass("btn-success");
+									obj.attr('method', 'DELETE');
+								}
+							});
+						}
+					});
 				} else {
 					status.removeClass('icon-minus-sign').addClass('icon-plus-sign');
 					loader.addClass("hidden");

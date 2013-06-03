@@ -66,6 +66,8 @@ block script_include
 	script(type='text/javascript', src='/js/lib/uploader.js')
 	script(type='text/javascript', src='/js/lib/uploader.xss.js')
 	script(type='text/javascript')
+		// load Geo
+		_$local.pullGeolocation(function(){ return true; });
 		function createUploader() {
 			var uploader = new qq.FineUploader({
 				element: document.getElementById('bootstrapped-fine-uploader'),
