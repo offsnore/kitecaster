@@ -177,6 +177,14 @@ block scripts
 			input(type='hidden', name='spotId', id='spotId', value='{{ spotId }}')
 			div(id='spot-{{ spotId }}')
 				div.control-group
+					div.controls
+						h3
+						{{#ifCond subscribed true}}
+						a.btn.btn-warning(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='DELETE').subscribe.hidden Un-subscribe
+						{{else}}
+						a.btn.btn-success(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe.hidden Subscribe
+						{{/ifCond}}
+				div.control-group
 					div.controls 
 						h3 
 						.btn.btn-success.checkin I'm here! (Check-In)

@@ -734,6 +734,52 @@
 			res.send(e);
 		}
 	});
+
+	/**
+	 * GET (Create)
+	 * Used to grab all the spot IDs for a particular UserID
+	 */
+	server.get('/subscribe/spot/:id', function(req, res){
+		var id = req.params.userId;
+		var data = "";
+
+		var data = require('url').parse(req.url, true).query;
+
+		data.spotId = req.params.id;
+		
+		var json, valid;
+		try {
+			json = data;
+			valid = validate(json, subscribeSchema);
+			if (valid.length > 0 ) {
+				res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
+				return;
+			} else {
+				try {
+					var queryParams = {
+							where: json
+						};
+					// the -include will link up objects in the DB and return object field values
+					queryParams['include'] = "spotPointer";
+					Datastore.records.object("Subscribe", queryParams, function(err, response, body, success) {
+						if (body.length == 0) {
+							obj = {};
+						} else {
+							obj = body;
+						}
+						jsonp.send(req, res, obj);
+					});
+				} catch (e) {
+					console.log("An unexpected error occured in the SpotSubscribeAPI: " + JSON.stringify(e));
+				}
+			}
+		} catch (e) {
+			console.log("Unexpected error occured: " + JSON.stringify(e));
+			res.statusCode = 400;
+			res.send(e);
+		}
+	});
+
 	
 	/**
 	 * PUT (Create)

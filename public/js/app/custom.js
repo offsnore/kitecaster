@@ -891,6 +891,23 @@
 							loadnearby();
 							loadKitescore(_$spot_id, '#kitescore_spot');
 						}
+						// ideally this information should be in the spot request (not as two seperate queries)
+						$.ajax({
+							dataType: "json",
+							url: "/subscribe/spot/" + _$spot_id,
+							data: {
+								'userId': _$session_id
+							},
+							success: function(data) {
+								if (data.length > 0) {
+									$(".subscribe", "#spot-" + _$spot_id).removeClass("btn-success").addClass("btn-warning").attr('method', 'DELETE').text("Un-subscribe");
+								}
+								$(".subscribe").removeClass("hidden");
+							},
+							error: function() {
+								//console.log('oops');	
+							}
+						});
 					},
 					error: function() {
 						//console.log('oops');	
