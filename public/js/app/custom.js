@@ -40,6 +40,9 @@
 			if (!type) {
 				var type = "miles";
 			}
+			if (!lat1 || !lon1) {
+				return false;
+			}
 			var lat1 = lat1.toRad(); var lat2 = lat2.toRad();
 			var lon1 = lon1.toRad(); var lon2 = lon2.toRad();
 			var R = (type == "km") ? 6371 : 3959;
@@ -1331,9 +1334,8 @@
 			});
 		}
 		
-		$(".update_location").live("click", function(e){
+		$(".update_location, .location_description").live("click", function(e){
 			e.preventDefault();
-			$(this).addClass("hidden");
 			$(".location_description").html("Getting Update...");
 			_$local.pullGeolocation();
 		});
