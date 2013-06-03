@@ -837,7 +837,7 @@
 									if (item.spotId) {
 										var id = item.spotId;
 										var obj = $(".subscribe[data-attr='" + id + "']");
-										obj.text("Subscribed");
+										obj.text("Stop Watching");
 										obj.addClass("btn-success").removeClass("btn-warning");
 										obj.attr('method', 'DELETE');
 									}
@@ -900,7 +900,7 @@
 							},
 							success: function(data) {
 								if (data.length > 0) {
-									$(".subscribe", "#spot-" + _$spot_id).removeClass("btn-success").addClass("btn-warning").attr('method', 'DELETE').text("Un-subscribe");
+									$(".subscribe", "#spot-" + _$spot_id).removeClass("btn-success").addClass("btn-warning").attr('method', 'DELETE').text("Stop watching");
 								}
 								$(".subscribe").removeClass("hidden");
 							},
@@ -1253,12 +1253,12 @@
 				success: function(response) {
 					if (method == "PUT") {
 						_$local.mapfunc.updatemarkerinfo(spot_id, true);
-						$(that).html("Un-Subscribe");
+						$(that).html("Un-Watch");
 						$(that).removeClass("btn-success").addClass("btn-warning");
 						$(that).attr('method', 'DELETE');
 					} else {
 						_$local.mapfunc.updatemarkerinfo(spot_id, false);
-						$(that).html("Subscribe");
+						$(that).html("Watch");
 						$(that).removeClass("btn-warning").addClass("btn-success");
 						$(that).attr('method', 'PUT');						
 					}

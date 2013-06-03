@@ -180,9 +180,9 @@ block scripts
 					div.controls
 						h3
 						{{#ifCond subscribed true}}
-						a.btn.btn-warning(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='DELETE').subscribe.hidden Un-subscribe
+						a.btn.btn-warning(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='DELETE').subscribe.hidden Stop Watching
 						{{else}}
-						a.btn.btn-success(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe.hidden Subscribe
+						a.btn.btn-success(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe.hidden Watch
 						{{/ifCond}}
 				div.control-group
 					div.controls 

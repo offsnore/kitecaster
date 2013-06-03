@@ -9,7 +9,7 @@ mixin spot_widget(data)
 	.feed(name='feed').well
 		a.btn.btn-info(href='/main/spots/edit/' + data.objectId) Modify Spot
 		&nbsp;
-		a.btn.btn-warning(href='/main/spots/subscribe/' + data.objectId) Subscribe
+		a.btn.btn-warning(href='/main/spots/subscribe/' + data.objectId) Watch
 		h3.header= data.name
 		.warning
 			h5 Warnings: 
@@ -126,9 +126,9 @@ block scripts
 			a(href='/main/spots/view/{{ spotId }}') {{ name }}
 		h5 {{ description }}
 		{{#ifCond subscribed true}}
-		a.btn.btn-warning(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='DELETE').subscribe Un-subscribe
+		a.btn.btn-warning(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='DELETE').subscribe Stop Watching
 		{{else}}
-		a.btn.btn-success(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe Subscribe
+		a.btn.btn-success(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe Watch
 		{{/ifCond}}
 	script(type='text/x-handlebars-template', id='spots-new-infowindow')
 		h3 {{ name }}
@@ -141,7 +141,7 @@ block scripts
 			a.btn.btn-info(href='/main/spots/edit/{{spotId}}') Modify Spot
 			&nbsp;
 			{{/ifCond}}
-			a.btn.btn-warning(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe Subscribe
+			a.btn.btn-warning(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe Watch
 			h3.header {{ name }}
 			.wind_directions
 				h5 Wind: 
