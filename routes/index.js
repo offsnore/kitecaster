@@ -551,11 +551,11 @@ exports.editSpot = function(req, res) {
 	if (nconf.get('site:development') !== false) {
 		req.headers['x-forwarded-for'] = nconf.get('site:fakeip');
 	}
+
+	var session_id, profile_image, geo_location, localdata, user_id, session_id, params = {};	
 	
-	var session_id;
-	
-	var geo_location = lookup.geolookup.getCurrent(req);
-	var objectId = req.params[0];
+	geo_location = lookup.geolookup.getCurrent(req);
+	objectId = req.params[0];
 	if (objectId == '') {
 		errorPage(res, "We were unable to locate this spot (missing ID).");
 	}
@@ -565,12 +565,15 @@ exports.editSpot = function(req, res) {
 		if (body.length == 0) {
 			return kickOut(res, "Please login again, it seems your session has expired.");
 		}
-
-		var localdata = body[0];		
-		var user_id = localdata.objectId;
-		var session_id = localdata.UserPointer.objectId;
-
+		localdata = body[0];
+		user_id = localdata.objectId;
+		session_id = localdata.UserPointer.objectId;
+		if (!profile_image) {
+    		profile_image = nconf.get('site:default:image');
+		}
 		var params = {
+            profile_image: profile_image,
+            userdata: localdata,
 			user_id: user_id,
 			session_id: session_id,
 			spot_id: objectId,

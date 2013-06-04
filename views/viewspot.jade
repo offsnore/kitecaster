@@ -43,7 +43,9 @@ block content
 									ul
 										li
 											i.icon-location-arrow.icon-correct
-											span.location_description Loading...
+											span.location_description 
+												i.icon-spinner.icon-spin.icon-large 
+												|   Loading...
 					.span8
 						.content_feed
 							.header
@@ -179,15 +181,17 @@ block scripts
 				div.control-group
 					div.controls
 						h3
+						{{#ifCond belongsTo '#{session_id}'}}
+						a.btn.btn-danger(href='/main/spots/edit/{{spotId}}') Edit Spot
+						{{/ifCond}}
+						span.spacer
+						a.btn.btn-success.checkin I'm here! (Check-In)
+						span.spacer
 						{{#ifCond subscribed true}}
 						a.btn.btn-warning(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='DELETE').subscribe.hidden Stop Watching
 						{{else}}
 						a.btn.btn-success(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe.hidden Watch
 						{{/ifCond}}
-				div.control-group
-					div.controls 
-						h3 
-						.btn.btn-success.checkin I'm here! (Check-In)
 				{{#if cover_image}}
 				div.control-group
 					div.controls
@@ -197,17 +201,20 @@ block scripts
 					label.control-label(for='input_location') People NearBy
 					div.controls
 						.active_users
-							h3 Loading...
+							i.icon-spinner.icon-spin.icon-large 
+							|   Loading...
 				div.control-group
 					label.control-label(for='input_location') KitingScore
 					div.controls
-						#kitescore_spot
-							h3 Loading...
+						div(id='kitegraph-{{ spotId }}')
+							i.icon-spinner.icon-spin.icon-large 
+							|   Loading...
 				div.control-group
 					label.control-label(for='input_location') Current Weather Forecast
 					div.controls
 						.active_weather
-							h3 Loading...
+							i.icon-spinner.icon-spin.icon-large 
+							|   Loading...
 				div.control-group
 					label.control-label(for='input_description') Brief Description
 					div.controls

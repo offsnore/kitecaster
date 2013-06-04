@@ -1222,7 +1222,7 @@
 					$('html:not(:animated), body:not(:animated)').animate({ scrollTop: 0 }, 'fast');
 				},
 				error: function(xhr) {
-					console.log(xhr);
+					//console.log(xhr);
 				}
 			});
 			return true;

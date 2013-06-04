@@ -6,17 +6,62 @@ mixin widget(name, header, pageinfo)
 		div(class="content")= pageinfo
 
 block content
-	#kitecasterapp
-		.title
-			h1= title
-		include includes/navigation
-		.content
-			if (body.status)
-				div
-					h3.well.btn-success= body.status
-			div.row-fluid.message.hidden.well.btn-success
-			div.row-fluid.spot_container
-				h3 Loading...
+	.container-fluid.fixed-top.stretched-topbar.topbar
+		.row-fluid
+			.span12
+				.row-fluid
+					.span1.hidden-phone
+					.span5.title-location
+						h2.head_title.pull-left
+							=title
+						include includes/navigation3
+					.span5.pull-right.nav-location.visible-desktop
+						include includes/navigation2
+					.span1.hidden-phone
+	.container-fluid.middlebar.hidden-desktop
+		.row-fluid
+			.span12
+				include includes/navigation_mobi
+		.row-fluid
+			.span12.top_spacer.hidden-phone
+	.container-fluid.middlebar.visible-desktop
+		.row-fluid
+			.span12.top_spacer
+	.container-fluid.bottom-bar
+		.row-fluid
+			.span1
+			.span10
+				.row-fluid
+					.span4
+						.profile
+							.header
+								.image.profile_avatar(style="background-image: url('#{profile_image}')")
+							.body
+								.name
+									h3 #{userdata.name} #{userdata.lastname}
+								.info
+									ul
+										li
+											i.icon-location-arrow.icon-correct
+											span.location_description 
+												i.icon-spinner.icon-spin.icon-large 
+												|   Loading...
+					.span8
+						.message.hidden.content_feed.alert
+						.content_feed
+							.header
+								.spot_name Modify Spot
+							.body
+								#holder
+								ul.spot_container
+									li
+										.spot_info
+											i.icon-spinner.icon-spin.icon-large 
+											|   Loading...
+	.container-fluid.footer
+		.row-fluid
+			.span12.footer-bar
+				include includes/footer
 
 block head_include
 	link(rel='stylesheet', href='/css/uploader.css')
@@ -30,6 +75,16 @@ block script_include
 		window._$session_id = '#{session_id}';
 		if (!window._$local) window._$local = {};
 		window._$local['load_spot'] = true;
+		$(document).ready(function(){
+			setVariables({
+				spot_url: '#{spot_url}',
+				spot_id: '#{spot_id}',
+				user_id: '#{user_id}',
+				session_id: '#{session_id}',
+				load_spot: true
+			});
+			_$local.getGeolocation();
+		});
 	script(type='text/javascript', src='/js/lib/uploader.js')
 	script(type='text/javascript', src='/js/lib/uploader.xss.js')
 	script(type='text/javascript', src='/js/lib/jquery.uploader.min.js')
@@ -72,68 +127,70 @@ block scripts
 		form(action='/spot/{{ spotId }}', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send
 			input(type='hidden', name='spotId', id='spotId', value='{{ spotId }}')
 			input(type='hidden', name='belongsTo', id='spotId', value='#{session_id}')
-			div.well
-				h3 Modify Spot
-				div.control-group
-					div.controls
-						div.warning_msg
-				div.control-group
-					label.control-label(for='input_delete') Remove
-					div.controls
-						a.btn.btn-danger(data-attr='{{spotId}}', action='/spot/{{spotId}}').removeSpot Delete Spot
-				div.control-group
-					label.control-label(for='input_location') Location Name
-					div.controls
-						input(name='name', id='input_location', value='{{name}}').span11.search-query {{name}}
-				div.control-group
-					label.control-label(for='input_location') Location
-					div.controls
-						input(type='hidden', name='location', value='{{location.latitude}},{{location.longitude}}')
-						input(type='hidden', name='lat', id='lat', value='{{location.latitude}}')
-						input(type='hidden', name='lon', id='lon', value='{{location.longitude}}')
-						.latlon
-							{{location.latitude}}, {{location.longitude}}
-						div#map-canvas(style='height: 300px;')
-				div.control-group
-					label.control-label(for='cover_image') Current Cover Image
-					div.controls
-						{{#if cover_image}}
-						img(src='{{cover_image}}').cover_image.multiple-borders
-						input(type='hidden', name='cover_image', id='cover_image', value='{{cover_image}}')
-						{{else}}
-						h4.cover_description
-							|No current image, Upload a Cover Image for this Spot!
-						img(src='').cover_image.multiple-borders.preview_image_main.hidden
-						input(type='hidden', name='cover_image', id='cover_image', value='')
-						{{/if}}
-				div.control-group
-					div.controls
-						div(id='bootstrapped-fine-uploader')
-						#success-image
-				div.control-group
-					label.control-label(for='input_description') Brief Description
-					div.controls
-						textarea(name='description', id='input_description', rows=3).span11 {{description}}
-				div.control-group
-					label.control-label Wind Directions
-					div.controls
-						div.btn-group(data-toggle='buttons-checkbox')
-							input(type='button', value='N', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-							input(type='button', value='NE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-							input(type='button', value='E', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-							input(type='button', value='WE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-							input(type='button', value='W', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-							input(type='button', value='SW', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-							input(type='button', value='S', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-							input(type='button', value='SE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
-				div.control-group
-					div.controls
-						input(type='submit', id='save-submit', value='Save Profile').btn.btn-success
+			{{#ifCond belongsTo '#{session_id}'}}
+			div.control-group
+				div.controls
+					div.warning_msg
+			div.control-group
+				label.control-label(for='input_delete')
+				div.controls
+					a.btn.btn-danger(data-attr='{{spotId}}', action='/spot/{{spotId}}').removeSpot Delete Spot
+			div.control-group
+				label.control-label(for='input_location') Location Name
+				div.controls
+					input(name='name', id='input_location', value='{{name}}').span11.search-query {{name}}
+			div.control-group
+				label.control-label(for='input_location') Location
+				div.controls
+					input(type='hidden', name='location', value='{{location.latitude}},{{location.longitude}}')
+					input(type='hidden', name='lat', id='lat', value='{{location.latitude}}')
+					input(type='hidden', name='lon', id='lon', value='{{location.longitude}}')
+					.latlon
+						{{location.latitude}}, {{location.longitude}}
+					div#map-canvas(style='height: 300px;')
+			div.control-group
+				label.control-label(for='cover_image') Current Cover Image
+				div.controls
+					{{#if cover_image}}
+					img(src='{{cover_image}}').cover_image.multiple-borders
+					input(type='hidden', name='cover_image', id='cover_image', value='{{cover_image}}')
+					{{else}}
+					h4.cover_description
+						|No current image, Upload a Cover Image for this Spot!
+					img(src='').cover_image.multiple-borders.preview_image_main.hidden
+					input(type='hidden', name='cover_image', id='cover_image', value='')
+					{{/if}}
+			div.control-group
+				div.controls
+					div(id='bootstrapped-fine-uploader')
+					#success-image
+			div.control-group
+				label.control-label(for='input_description') Brief Description
+				div.controls
+					textarea(name='description', id='input_description', rows=3).span11 {{description}}
+			div.control-group
+				label.control-label Wind Directions
+				div.controls
+					div.btn-group(data-toggle='buttons-checkbox')
+						input(type='button', value='N', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+						input(type='button', value='NE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+						input(type='button', value='E', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+						input(type='button', value='WE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+						input(type='button', value='W', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+						input(type='button', value='SW', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+						input(type='button', value='S', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+						input(type='button', value='SE', name='wind_directions', id='wind_directions').btn.btn-primary.wind_direction
+			div.control-group
+				div.controls
+					input(type='submit', id='save-submit', value='Save Profile').btn.btn-success
+			{{else}}
+			div.control-group
+				.message.alert
+					h3 Sorry but it seems as though you don't have access to do this.
+			{{/ifCond}}
 			script(type='text/javascript')
 				window._$winds = [];
 				{{#each wind_directions}}
 					window._$winds.push('{{this}}');
 				{{/each}}
-				if (typeof createUploader == 'function') {
-					createUploader();
-				}
+				if (typeof createUploader == 'function') { createUploader() }
