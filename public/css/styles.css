@@ -283,6 +283,14 @@ a {
 	min-height: 42px;
 }
 
+.form-input > .control-group > .controls > a {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 24px !important;
+    line-height: 41px;
+    font-weight: 500;
+    height: 44px;
+}
+
 .form-input input {
 	font-size: 24px !important;
 	line-height: 33px;
