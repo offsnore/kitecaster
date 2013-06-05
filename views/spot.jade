@@ -110,8 +110,19 @@ block scripts
 		{{/each}}
 
 	script(type='text/x-handlebars-template', id='spotweather-template')
-		h2
-			Daily: {{ daily.summary }}
+		h4 Forecast
+		.current
+			h5.current_header
+				| Currently:
+			.current_weather
+				i(class='{{ currently.icon }}')
+				{{ currently.summary }} {{ currently.temperature }}&deg;F with wind speeds at {{ currently.windSpeed }} MPH.
+				{{ hourly.summary }}
+		.daily
+			h5.daily_header
+				| For the Day: 
+			.daily_weather
+				{{ daily.summary }}
 		p
 			{{details}}
 		{{#if avghumidity}}
@@ -121,8 +132,9 @@ block scripts
 		h5 Max Humidity: {{maxhumidity}} %
 		{{/if}}
 		{{#if maxwind}}
-		h5 Max Wind: {{maxwind.degrees}} {{maxwind.dir}} {{maxwind.kph}} kph / {{maxwind.mph}} mph
+		h5 Max Wind: {{maxwind.degrees}} {{maxwind.dir}} {{maxwind.kph}} kph / {{maxwind.mph}} mph	
 		{{/if}}
+
 	script(type='text/x-handlebars-template', id='spots-error-template')
 		.well.alert
 			h3| Oops, it seems there was an error loading this section. Please sit tight while we try and reload the section in a few moments.

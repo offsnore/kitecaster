@@ -159,8 +159,19 @@ block scripts
 		{{/if}}
 
 	script(type='text/x-handlebars-template', id='spotweather-template')
-		p
-			img(src='{{icon_url}}')
+		h4 Forecast
+		.current
+			h5.current_header
+				| Currently:
+			.current_weather
+				i(class='{{ currently.icon }}')
+				{{ currently.summary }} {{ currently.temperature }}&deg;F with wind speeds at {{ currently.windSpeed }} MPH.
+				{{ hourly.summary }}
+		.daily
+			h5.daily_header
+				| For the Day: 
+			.daily_weather
+				{{ daily.summary }}
 		p
 			{{details}}
 		{{#if avghumidity}}
