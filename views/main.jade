@@ -98,6 +98,8 @@ block script_include
 		window.onload = createUploader;
 block head_include
 	link(rel='stylesheet', href='/css/uploader.css')
+	script(language='JavaScript', src='/js/lib/jquery.ui.min.js')
+	script(language='JavaScript', src='/js/app/jquery.scroller.js')
 
 block scripts
 	script(type='text/x-handlebars-template', id='spots-error-template')
@@ -123,15 +125,6 @@ block scripts
 				{{ daily.summary }}
 		p
 			{{details}}
-		{{#if avghumidity}}
-		h5 Avg Humidity: {{avghumidity}} %
-		{{/if}}
-		{{#if maxhumidity}}
-		h5 Max Humidity: {{maxhumidity}} %
-		{{/if}}
-		{{#if maxwind}}
-		h5 Max Wind: {{maxwind.degrees}} {{maxwind.dir}} {{maxwind.kph}} kph / {{maxwind.mph}} mph	
-		{{/if}}
 
 	script(type='text/x-handlebars-template', id='kitespot-template')
 		{{#each results}}
@@ -146,8 +139,6 @@ block scripts
 				h4 Loading Forecast...
 			h4.distance
 				|You are within approximately {{distanceFrom}} from this spot.
-			.score
-				.onestars
 			div(id='kitegraph-{{ spotId }}-loader')
 				i.icon-spinner.icon-spin.icon-large 
 				|   Loading...

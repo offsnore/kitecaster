@@ -295,7 +295,7 @@
 
 	}
 
-	$(document).ready(function($){
+	$(document).ready(function($){	
 
 		if (typeof $("#profile-form")[0] != 'undefined') {
 			$('#profile-form').validate({
@@ -474,17 +474,21 @@
 		function newGraphic(spot_id, data, max_spots) {
 			var y = [], z=[], x=[], i=0, max_size=20, counter=0, min_size=1, top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0;
 
+			var pixel_width_length = 11;
+
 			if (!max_spots) {
-				var max_spots = 42;
+				var max_spots = 72;
 			}
 
 			x = data[0];
 			y = data[1];
 			z = data[2];
 			za = data[3];
+			
+			var picture_width = (pixel_width_length * x.length);
 
-			var b = Raphael(spot_id, '100%', 120);
-    		var r = Raphael(spot_id, '100%', 145);
+			var b = Raphael(spot_id, picture_width, 120);
+    		var r = Raphael(spot_id, picture_width, 145);
 
     		var height = 120, sleft=0, stop=0, width=0, left_position=0;
     		padding = 2;
@@ -583,7 +587,8 @@
     			counter++;
     		}
     		$("#" + spot_id + "-loader").remove();
-    		$("#" + spot_id).removeClass("hidden");
+       		
+    		$("#" + spot_id).addClass("scroll-pane ui-widget ui-widget-header ui-corner-all").removeClass("hidden");
 		}
 		
 
