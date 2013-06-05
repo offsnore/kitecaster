@@ -182,6 +182,7 @@ exports.mainIndex = function(req, res) {
 			userdata: localdata,
 			spot_url: nconf.get('api:spot:frontend_url'),
 			kite_url: nconf.get('api:kite:frontend_url'),
+			google_api_key: nconf.get('api:google:api_key'),
 			page: {
 				active: 'Home',
 			},

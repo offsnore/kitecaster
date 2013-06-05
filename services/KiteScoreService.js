@@ -139,24 +139,24 @@ app.current_weather = function(lat, lon, callback){
 	var locals = this.locals();
 	var q = lat + "," + lon;
 	var db = "weather";
+
 	Datastore.getlocalobject(db, q, function(err, res){
 		if (res != null) {
-			// the only thing I dont like about this .. is saves it with {body:{}}
 			var res = res.body;
 			callback(err, res);
 		} else {
-		   forecast.get(lat, lon, function (err, res, data) {
-           if (err) throw err;
-           if (typeof obj != 'undefined') {
-				var obj = JSON.parse(obj);
-				var obj = obj.forecast;
-				Datastore.setobject(db, q, obj, 3600, function(){
-					callback(err, obj);
-				});
-           } else {
-	           callback(err, {});
-           }
-         });
+			forecast.get(lat, lon, function (err, res, data) {
+				if (err) throw err;
+				if (typeof data != 'undefined') {
+					var obj = {};
+					obj.forecast = data;
+					Datastore.setobject(db, q, obj, 3600, function(){
+						callback(err, obj);
+					});
+				} else {
+					callback(err, {});
+				}
+			});
 			/*
 			wunder.forecast(q, function(err, obj){
 				var obj = JSON.parse(obj);

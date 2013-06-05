@@ -110,8 +110,8 @@ block scripts
 		{{/each}}
 
 	script(type='text/x-handlebars-template', id='spotweather-template')
-		p
-			img(src='{{icon_url}}')
+		h2
+			Daily: {{ daily.summary }}
 		p
 			{{details}}
 		{{#if avghumidity}}

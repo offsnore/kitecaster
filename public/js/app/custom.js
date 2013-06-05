@@ -102,6 +102,16 @@
 			$(".location_description").html(location+" ");
 		}
 		
+		_$local.hardFail = function(reason) {
+			$("#fatalError").modal();
+			if (reason) {
+				$(".reason", "#fatalError").html(reason);				
+			}
+			window.setTimeout(function(){
+				window.location.reload();
+			}, 5500);
+		}
+		
 		_$local.pullGeolocation = function(callback) {
 			if (typeof callback == 'undefined') {
     			var callback = function(){};
@@ -132,7 +142,10 @@
 							}
 						});
 					});
-				});
+				}, function(){
+					_$local.hardFail("Failed to lookup Geolocation via Browser.");
+				},
+				{timeout: "5000"});
 			} else {
 				$(".location_description").html("<p class='alert'>It seems we can't verify your location. <br /><input type='text' placeholder='Please enter a nearby city name or zipcode....' id='nearby_search' class='input-block-level nearby_search' /></p>");
 				typeahead_register();
@@ -648,16 +661,14 @@
 						current_forecast.google_image_url = data.google_image_url;
 						*/
 						
-						// forecast.io revise
-						
-						if (typeof data.currently == 'undefined') {
+						if (typeof data.forecast.currently == 'undefined') {
 							$(".active_weather", parent).html("Current weather is unavailable at the moment.");
 							return true;
 						}
 
-						var current_forecast = data.currently;
-						current_forecast.details = data.currently.summary;
-						current_forecast.google_image_url = data.icon; // need to map the options to a url! i.e. 
+						var current_forecast = data.forecast;
+						//current_forecast.details = data.forecast.currently.summary;
+						//current_forecast.google_image_url = data.forecast.icon; // need to map the options to a url! i.e. 
 						/*
    						icon: A machine-readable text summary of this data point, suitable for selecting an icon for display. If defined, this property will have one of the following values: clear-day, clear-night, rain, snow, sleet, wind, fog, cloudy, partly-cloudy-day, or partly-cloudy-night. (Developers should ensure that a sensible default is defined, as additional values, such as hail, thunderstorm, or tornado, may be defined in the future.)
    						
@@ -844,7 +855,6 @@
 						});
 					},
 					error: function() {
-						//console.log('oops');	
 					}
 				});
 			}
@@ -867,7 +877,6 @@
 						_$local.initializeGeomap(_$local.spot['lat'], _$local.spot['lon'])
 					},
 					error: function() {
-						//console.log('oops');	
 					}
 				});
 			}
@@ -941,12 +950,10 @@
 								$(".subscribe").removeClass("hidden");
 							},
 							error: function() {
-								//console.log('oops');	
 							}
 						});
 					},
 					error: function() {
-						//console.log('oops');	
 					}
 				});
 				
@@ -971,7 +978,6 @@
 									$(this).remove();
 								});
 							}, 1000);
-							//console.log('oops');	
 						}
 					});
 				});				
@@ -1038,6 +1044,7 @@
 
 		// Logic To Handle Spitting out the Spot Themselves		
 		if (typeof _$kite_url != 'undefined') {
+			/**
 			$(".browse").live("change", function(e){
 				e.preventDefault();
 				var that = this;
@@ -1067,12 +1074,12 @@
 							});
 						},
 						error: function() {
-							//console.log('oops');	
 						}
 					});
 				});
 
 			});
+			**/
 
 			if (typeof $("#kitespot-template")[0] != 'undefined') {
 				var obj = $("#kitespot-template");
@@ -1100,7 +1107,13 @@
 								});
 							},
 							error: function() {
-								//console.log('oops');	
+								var data = {};
+								var source = $("#spots-error-template").html();
+								var template = Handlebars.compile(source);
+								$(".spot_container").html(template);
+								setCountdown(59, function(){
+									document.location.reload();
+								});
 							}
 						});
 					});

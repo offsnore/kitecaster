@@ -65,9 +65,8 @@ block script_include
 		window._$spot_id = false;
 	script(type='text/javascript', src='/js/lib/uploader.js')
 	script(type='text/javascript', src='/js/lib/uploader.xss.js')
+	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=false')
 	script(type='text/javascript')
-		// load Geo
-		_$local.pullGeolocation(function(){ return true; });
 		function createUploader() {
 			var uploader = new qq.FineUploader({
 				element: document.getElementById('bootstrapped-fine-uploader'),
@@ -109,8 +108,19 @@ block scripts
 				span.countdown
 
 	script(type='text/x-handlebars-template', id='spotweather-template')
-		p
-			img(src='{{icon_url}}')
+		h4 Forecast
+		.current
+			h5.current_header
+				| Currently:
+			.current_weather
+				i(class='{{ currently.icon }}')
+				{{ currently.summary }} {{ currently.temperature }}&deg;F with wind speeds at {{ currently.windSpeed }} MPH.
+				{{ hourly.summary }}
+		.daily
+			h5.daily_header
+				| For the Day: 
+			.daily_weather
+				{{ daily.summary }}
 		p
 			{{details}}
 		{{#if avghumidity}}
