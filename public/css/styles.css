@@ -24,9 +24,16 @@ ol, ul {
 
 body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  /**
   background-image: url('../images/bw1024.jpg');
   background-size:cover;
   background-repeat:no-repeat;
+  **/
+  background: url('../images/bw1024.jpg') no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
 
 .info .location {
