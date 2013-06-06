@@ -854,6 +854,18 @@
   .controls-row [class*="span"] + [class*="span"] {
     margin-left: 0;
   }
+    .modal { 
+        position: fixed; 
+        top: 3%; 
+        right: 3%; 
+        left: 3%; 
+        width: auto; 
+        margin: 0; 
+    }
+    .modal-body { 
+        height: 60%; 
+    }
+/**
   .modal {
     position: fixed;
     top: 20px;
@@ -862,6 +874,7 @@
     width: auto;
     margin: 0;
   }
+*/
   .modal.fade.in {
     top: auto;
   }
