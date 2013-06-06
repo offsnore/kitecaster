@@ -876,7 +876,7 @@
   }
 */
   .modal.fade.in {
-    top: auto;
+    top: 5%;
   }
 }
 
