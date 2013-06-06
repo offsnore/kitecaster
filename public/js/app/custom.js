@@ -435,21 +435,23 @@
 		}
 		
 		function parseForGraph(data) {
-			var x = [], y = [], z = [], za = [];
+			var x = [], y = [], z = [], za = [], xa = [];
 			$(data).each(function(i, item){
 			     // One Forecasting System
 			     if (typeof item.time !== 'undefined') {
     			     x.push(item.time.civil);
+    			     xa.push(item.time);
 			     }
 			     // Data from another forecasting system
 			     if (typeof item.FCTTIME !== 'undefined') {
+    			     xa.push(item.FCTTIME);
     			     x.push(item.FCTTIME.civil);
     			     z.push(item.wdir);
     			     za.push(item.wspd);
 			     }
 				y.push(item.kiteScore);
 			});
-			return [x, y, z, za];
+			return [x, y, z, za, xa];
 		}
 		
 		Raphael.fn.getIcon = function(id, settings) {
@@ -474,18 +476,20 @@
 		function newGraphic(spot_id, data, max_spots) {
 			var y = [], z=[], x=[], i=0, max_size=20, counter=0, min_size=1, top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0;
 
-			var pixel_width_length = 11;
+			var pixel_width_length = 25;
 
 			if (!max_spots) {
-				var max_spots = 72;
+				// 7 Days
+				var max_spots = 168;
 			}
 
 			x = data[0];
 			y = data[1];
 			z = data[2];
 			za = data[3];
+			xa = data[4];
 			
-			var picture_width = (pixel_width_length * x.length);
+			var picture_width = (pixel_width_length * parseInt(x.length)) + 10;
 
 			var b = Raphael(spot_id, picture_width, 120);
     		var r = Raphael(spot_id, picture_width, 145);
@@ -502,12 +506,10 @@
     		var bottom_padding = 12;
     		
     		for (i in y) {
-    			if (counter >= max_spots) {
+    			if (max_spots !== "all" && counter >= max_spots) {
 	    			continue;
-    			}
-    		
+    			}    		
 	    		obj_val = y[i];
-
 	    		var bar_height = (parseInt(obj_val) * 4);
 
 	    		left_position = (x_width * i) + start_position;
@@ -568,6 +570,13 @@
 		    		var txt_header = r.text(sleft+(x_width/2), 25, x[i]);
 		    		txt_header.attr({'font':'10px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
 		    		txt_header.rotate(-90, sleft+(x_width/2), 25);
+	    		}
+	    		
+	    		if (xa[i] !== 'undefined') {
+		    		if (xa[i].ampm == "AM" && xa[i].hour == "0") {
+			    		var bar = r.rect((sleft-2), 0, 4, stop);
+			    		bar.attr({fill: '#000'});
+		    		}
 	    		}
 
 	    		// KiteScore Cirlce
