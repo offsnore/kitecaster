@@ -648,6 +648,10 @@
 							status: 'Spot for ' + json.name + ' was been created!',
 							id: json.spotId
 						};
+						// On-demand cache-generation for KiteScore
+                        Weather.runIndividualSpotCache(json.spotId, function(err, response) {
+                            Weather.runSpotWeatherCache(json.spotId);
+                        });
                         res.send(200, JSON.stringify(obj));
 					}, true);
 				} catch (e) {

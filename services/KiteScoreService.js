@@ -359,68 +359,57 @@ app.startPrecache = function(callback, interval) {
    
 }
 
-app.runSpotCache = function() {
-   var queryParams = {
-         count : true
-      };
-   // get all spots, store in redis   
-   parse.getObjects('Spot', queryParams , function(err, response, body, success) {
-     //     spotsBody = body;
-     // logger.debug('body; ' + JSON.stringify(body));
-     body.results.forEach(function(spot) {
-        var spotId = spot.spotId;
-        spot['lastUpdated'] = new Date().toUTCString();
-        var redisSpotId = "spot:" + spotId;        
-//        logger.debug('Setting spot id ' + redisSpotId + ' in redis, val: ' + JSON.stringify(spot));
-        client.set(redisSpotId, JSON.stringify(spot), function(err, replies) {
-//           logger.debug('key set for ' + redisSpotId + ', reply: ' + replies);
-            client.expire(redisSpotId, expireTimeSpot, function(err, reply) {
-               logger.debug('Expire set for spot ' + redisSpotId + ', expires: ' + expireTimeSpot / 60 + ' minutes');
-            }) ;
-        }); 
-     });
-   
-/*
-     client.set(redisKey, JSON.stringify(body),function(err, replies) {
-  // 			logger.debug('expire set for ' + redisKey  + ', reply: ' + replies);
-   		});
-*/
-
-
-     /*
-Datastore.save("Spot", redisKey, body, function(err, response) {
-        logger.debug('Dadastore data saved to resis: ' + body.count);
-     });
-*/
-
-	});
-	
-	
-	/*
-   // Use DataStore 
-		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
-   		logger.debug("Get all spots response: " + body.length);
-			//callback(err, body);
+app.runIndividualSpotCache = function(spot_id, callback) {
+	var queryParams = {
+		count : true,
+		'where': {
+			'spotId': spot_id
+		}
+	};
+    // get all spots, store in redis   
+	parse.getObjects('Spot', queryParams , function(err, response, body, success) {
+		body.results.forEach(function(spot) {
+			var spotId = spot.spotId;
+			spot['lastUpdated'] = new Date().toUTCString();
+			var redisSpotId = "spot:" + spotId;        
+			client.set(redisSpotId, JSON.stringify(spot), function(err, replies) {
+				client.expire(redisSpotId, expireTimeSpot, function(err, reply) {
+					logger.debug('Expire set for spot ' + redisSpotId + ', expires: ' + expireTimeSpot / 60 + ' minutes');
+				});
+			});
 		});
-*/
+		callback(err, body);
+	});
 }
 
-app.runSpotWeatherCache = function() {
+
+app.runSpotCache = function() {
+	var queryParams = {
+		count : true
+	};
+    // get all spots, store in redis   
+	parse.getObjects('Spot', queryParams , function(err, response, body, success) {
+		body.results.forEach(function(spot) {
+			var spotId = spot.spotId;
+			spot['lastUpdated'] = new Date().toUTCString();
+			var redisSpotId = "spot:" + spotId;        
+			client.set(redisSpotId, JSON.stringify(spot), function(err, replies) {
+				client.expire(redisSpotId, expireTimeSpot, function(err, reply) {
+					logger.debug('Expire set for spot ' + redisSpotId + ', expires: ' + expireTimeSpot / 60 + ' minutes');
+				});
+			});
+		});
+	});
+}
+
+app.runSpotWeatherCache = function(spot_id) {
    var spotLookupQuery = "spot:*";
    var weatherSpotKey = "weather:spot:"
    logger.debug('running runSpotWeatherCache, run count: ' + appCounter++);
-   // Begin rewrite
-   async.series([
-    function(){
-       
-    },
-    function(){ 
-    
-     }
-    ], function(err, result) {
-       
-       
-    });   
+
+   if (spot_id) {
+	   var spotLookupQuery = "spot:" + spot_id;
+   }
    
    /// vvvv Cut the chord from callback jungle below
    client.keys(spotLookupQuery, function(err, replies) {
