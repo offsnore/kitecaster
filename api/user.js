@@ -1,5 +1,6 @@
 	var restify = require('restify')
 	,	nconf = require('nconf')
+	,   util = require('util')
 	,   validate = require('jsonschema').validate
 	,   Parse = require('kaiseki')
 	,   winston = require('winston')
@@ -9,6 +10,7 @@
 	,   async = require('async')
 	,	jsonp = require('jsonp-handler')
 //	,	jsonp = require('jsonp-handler')
+	,   formidable = require('formidable')
 	,   Weather = require('../services/KiteScoreService')
 	,   Datastore = require('../services/DataStore')
 	,   Datasession = require('../services/DataSession')
@@ -253,5 +255,78 @@
 			}
 		});
 	});
-	
+
+	// breaking convention b/c browsers SUCK
+	server.post('user/media', function(req, res){
+
+    	var queryParts = require('url').parse(req.url, true).query;
+
+    	if (!queryParts.session_id) {
+        	res.writeHead(400, {'content-type':'text/plain'});
+        	res.end('error:\n\nNo session provided.');
+        	return true;
+    	}
+
+    	var user_object_id = queryParts.session_id;
+
+		var form = new formidable.IncomingForm({ uploadDir: require('path').resolve(__dirname, '../public/media'), keepExtensions: true }), files = [], fields = [];
+
+		form.on('field', function(field, value){
+			fields.push([field, value]);
+		});
+		
+		form.on('file', function(field, file) {
+			files.push([field, file]);
+		});
+		
+		form.on('progress', function(bytes, expected) {});
+
+		form.on('error', function(err) {
+    		res.writeHead(200, {'content-type': 'text/plain'});
+    		res.end('error:\n\n'+util.inspect(err));
+		});
+
+		form.on('end', function(){
+			for (var x in files) {
+				var file_object = files[x];
+				for (var y in file_object) {
+					var file = file_object[y];
+					if (typeof file.name == 'undefined') {
+						continue;
+					}
+					var file_path = file.path;
+					Datastore.records.file(file_path, function(url){
+						if (url) {
+							var body_url= url;
+						}
+						
+						Datastore.records.objectupdate('Profiles', user_object_id, {'profile_image': body_url}, function(err, response){
+    						if (err) {
+        						res.writeHead(409, { 'Content-Type': 'application/json' });
+        						res.end(JSON.stringify({'error': err}));
+    						} else {
+        			            res.writeHead(200, { 'Content-Type': 'application/json' });
+        			            res.end(JSON.stringify({
+        				            success: true,
+        				            url: body_url
+        			            }));        						
+    						}
+						});
+					});
+					
+					// @todo - Make this unique ID be used instead of the FileName and save the file details to the 'Parse.com' DB
+					//var file_new_path = require('path').resolve(__dirname, '../public/media') + '/' + file.name;
+					//fs.createReadStream(file_path).pipe(fs.createWriteStream(file_new_path));
+				}
+			}
+		});
+
+		form.parse(req, function(err, fields, files){});
+
+        req.on('end', function() {
+            console.log('All Done!!!!');
+        });
+		
+	});
+
 	

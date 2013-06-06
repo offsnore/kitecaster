@@ -720,6 +720,7 @@ var correctedViewportW = (function (win, docElem) {
 		}
 
 		$(".profile_avatar").live("click", function(){
+			$(".qq-upload-list", "#uploadModal").html("");
 			$("#uploadModal").modal('show');
 		});
 

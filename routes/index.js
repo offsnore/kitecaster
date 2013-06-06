@@ -170,15 +170,15 @@ exports.mainIndex = function(req, res) {
 		
 		var user_id = localdata.objectId;
 		var session_id = localdata.UserPointer.objectId;
-		
-		if (!profile_image) {
-    		var profile_image = nconf.get('site:default:image');
+				
+		if (!localdata.profile_image) {
+    		localdata.profile_image = nconf.get('site:default:image');
 		}
 
 		var params = {
 			user_id: user_id,
 			session_id: session_id,
-			profile_image: profile_image,
+			profile_image: localdata.profile_image,
 			userdata: localdata,
 			spot_url: nconf.get('api:spot:frontend_url'),
 			kite_url: nconf.get('api:kite:frontend_url'),
@@ -475,8 +475,8 @@ exports.viewSpot = function(req, res) {
 		localdata = body[0];
 		user_id = localdata.objectId;
 		session_id = localdata.UserPointer.objectId;
-		if (!profile_image) {
-    		profile_image = nconf.get('site:default:image');
+		if (!localdata.profile_image) {
+    		localdata.profile_image = nconf.get('site:default:image');
 		}
 		var objectId = req.params[0];
 		if (objectId == '') {
@@ -488,7 +488,7 @@ exports.viewSpot = function(req, res) {
 //		var user_id = session_id;
 
 		params = {
-            profile_image: profile_image,
+            profile_image: localdata.profile_image,
             userdata: localdata,
 			session_id: session_id,
 			user_id: user_id,
@@ -569,11 +569,11 @@ exports.editSpot = function(req, res) {
 		localdata = body[0];
 		user_id = localdata.objectId;
 		session_id = localdata.UserPointer.objectId;
-		if (!profile_image) {
-    		profile_image = nconf.get('site:default:image');
+		if (!localdata.profile_image) {
+    		localdata.profile_image = nconf.get('site:default:image');
 		}
 		var params = {
-            profile_image: profile_image,
+            profile_image: localdata.profile_image,
             userdata: localdata,
 			user_id: user_id,
 			session_id: session_id,
@@ -722,8 +722,8 @@ exports.mainProfile = function(req, res) {
 		var user_id = localdata.objectId;
 		var session_id = localdata.UserPointer.objectId;
 
-		if (!profile_image) {
-    		var profile_image = nconf.get('site:default:image');
+		if (!localdata.profile_image) {
+    		localdata.profile_image = nconf.get('site:default:image');
 		}
 
 		var query = {
@@ -749,7 +749,7 @@ exports.mainProfile = function(req, res) {
     			spot_url: nconf.get('api:spot:frontend_url'),
     			kite_url: nconf.get('api:kite:frontend_url'),
 				session_id: session_id,
-				profile_image: profile_image,
+				profile_image: localdata.profile_image,
 				userdata: localdata,
 				user_id: user_id,
 				data: {

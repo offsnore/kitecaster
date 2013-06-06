@@ -78,7 +78,7 @@ app.configure(function(){
   app.use(express.favicon());
   app.use(express.logger('dev'));
   app.use(express.methodOverride());
-  app.use(express.bodyParser({ keepExtensions: false, uploadDir: __dirname + '/public/uploads' }));
+  app.use(express.bodyParser({ keepExtensions: false, uploadDir: './public/uploads' }));
   app.use(express.cookieParser('your secret here'));
   app.use(express.session());
   app.use(app.router);

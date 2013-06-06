@@ -6,7 +6,7 @@ script(type='text/javascript')
 		var uploader = new qq.FineUploader({
 			element: document.getElementById('bootstrapped-fine-uploader'),
 			request: {
-				endpoint: '/user/profile'
+				endpoint: '/user/media?session_id=' + _$user_id
 			},
 			text: {
 				uploadButton: '<div><i class="icon-upload icon-white"></i> Upload a Profile Photo</div>'
@@ -20,7 +20,7 @@ script(type='text/javascript')
 			callbacks: {
 				onComplete: function(id, fileName, responseJson) {
 					if (responseJson.success) {
-						$("#success-image").html("<img src='" + responseJson.url + "' height='200' class='previewCover' /><input type='hidden' name='cover_image' id='cover_image' value='" + responseJson.url + "' />");
+						$(".image.profile_avatar").css({"background-image": "url(" + responseJson.url + ")", "background-position": "center top"});
 					}
 				}
 			},
@@ -39,7 +39,7 @@ script(type='text/javascript')
 	.modal-body
 		div(id='bootstrapped-fine-uploader')
 	.modal-footer
-		a(href='#', class='btn', data-dismiss='modal') Close
+		a(href='#', class='btn', data-dismiss='modal').close Close
 
 .modal.hide.fade(id='fatalError')
 	.modal-header

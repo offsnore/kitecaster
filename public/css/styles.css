@@ -200,7 +200,7 @@ h1, h2, h3, h4, h5 {
 
 .profile .header .image {
     background-size: cover;
-    background-position: center;
+    background-position: center top;
     border: solid 5px #fff;
     border-radius: 92px;
     top: 10px;
