@@ -1,3 +1,15 @@
+var correctedViewportW = (function (win, docElem) {
+
+    var mM = win['matchMedia'] || win['msMatchMedia']
+      , client = docElem['clientWidth']
+      , inner = win['innerWidth']
+
+    return mM && client < inner && true === mM('(min-width:' + inner + 'px)')['matches']
+        ? function () { return win['innerWidth'] }
+        : function () { return docElem['clientWidth'] }
+
+}(window, document.documentElement));
+
 // Custom Handler used to Handle Custom Calls and functionality
 (function($){	
 
@@ -474,13 +486,21 @@
 		}
 				
 		function newGraphic(spot_id, data, max_spots) {
-			var y = [], z=[], x=[], i=0, max_size=20, counter=0, min_size=1, top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0;
+			var y = [], z=[], x=[], i=0, max_size=20, counter=0, 
+			min_size=1, top_padding=0, padding=4, gutter=20, position=0, 
+			radius=20, left_side=0, top_side=0, auto_load = false, 
+			window_width = $(window).width();
 
 			var pixel_width_length = 25;
 
 			if (!max_spots) {
-				// 7 Days
-				var max_spots = 168;
+				if (window_width <= 640) {
+					max_spots = 72; // 3 days
+					auto_load = true;
+				} else {
+					// 7 Days
+					max_spots = 168;
+				}
 			}
 
 			x = data[0];
@@ -489,7 +509,7 @@
 			za = data[3];
 			xa = data[4];
 			
-			var picture_width = (pixel_width_length * parseInt(x.length)) + 10;
+			var picture_width = (pixel_width_length * parseInt(max_spots)) + 10;
 
 			var b = Raphael(spot_id, picture_width, 120);
     		var r = Raphael(spot_id, picture_width, 145);
