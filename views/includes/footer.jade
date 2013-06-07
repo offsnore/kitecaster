@@ -41,6 +41,15 @@ script(type='text/javascript')
 	.modal-footer
 		a(href='#', class='btn', data-dismiss='modal').close Close
 
+.modal.hide.fade(id='uploadModalPhoto')
+	.modal-header
+		.button(type='button', data-dismiss='modal', aria-hidden='true').close &times;
+		h3 Add Picture To Spot
+	.modal-body
+		div(id='bootstrapped-photo-uploader')
+	.modal-footer
+		a(href='#', class='btn', data-dismiss='modal').close Close
+
 .modal.hide.fade(id='fatalError')
 	.modal-header
 		h3 An unexpected error has occured.

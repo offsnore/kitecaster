@@ -18,6 +18,34 @@ ol, ul {
     max-width: none;
 }
 
+/**
+ * Special Case - Spot Specific
+ */
+
+ul.comments, ul.comments li, ul.comments li p {
+    margin-left: 0 !important;
+    padding: 5px 0 !important;
+}
+
+.small64x {
+    height: 100px;
+    width: 128px;
+    margin: 2px;
+}
+
+
+.link-like {
+    color: #00b7ff;
+    cursor: pointer;
+}
+.link-like:hover, .link-like:focus {
+    color: #005580;
+    text-decoration: underline;
+}
+
+/**
+ * General Site Wide
+ */
 #kitecasterapp {
     margin-top: 50px;
 }
@@ -293,9 +321,10 @@ a {
 .form-input > .control-group > .controls > a {
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 24px !important;
-    line-height: 35px;
+    line-height: 37px;
     font-weight: 500;
-    height: 34px;
+    height: 30px;
+    min-height: 34px
 }
 
 .form-input input {

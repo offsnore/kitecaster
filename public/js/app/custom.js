@@ -445,6 +445,25 @@ var correctedViewportW = (function (win, docElem) {
 				});
 			}
 		}
+
+		// Easy method for a Call to nearby Spots
+		function loadComments(spot_id) {
+			$.ajax({
+				url: '/spotmedia/' + spot_id,
+				datatype: "json",
+				success: function(data){
+					var d = { results: data };
+					var obj = $("#spotsview-commentphoto");
+					var source = obj.html();
+					var template = Handlebars.compile(source);
+					$(".photos").html(template(d));
+					$(".gallery1").colorbox({rel:'gallery1'});
+				},
+				error: function() {
+					$(".photos").html("We are unable to load this at the moment. Please sit tight.");
+				}
+			});
+		}
 		
 		function parseForGraph(data) {
 			var x = [], y = [], z = [], za = [], xa = [];
@@ -970,6 +989,7 @@ var correctedViewportW = (function (win, docElem) {
 							initialize(data.location.latitude, data.location.longitude);
 							loadnearby();
 							loadKitescore(_$spot_id, '#kitescore_spot');
+							loadComments(_$spot_id);
 						}
 						// ideally this information should be in the spot request (not as two seperate queries)
 						$.ajax({
@@ -1422,6 +1442,16 @@ var correctedViewportW = (function (win, docElem) {
 				_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])
 			});
 		}
+
+		$(".open-comments").live("click", function(e){
+			e.preventDefault();
+			var comments = $(".comment-add");
+			if (comments.hasClass('hidden')) {
+				comments.removeClass('hidden');
+			} else {
+				comments.addClass('hidden');				
+			}
+		})
 
 	});
 

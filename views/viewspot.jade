@@ -63,11 +63,15 @@ block content
 				include includes/footer
 
 
+block head_include
+	link(rel='stylesheet', type='text/css', href='/css/colorbox.css')
+
 block script_include
+	script(src='/js/lib/jquery.colorbox.min.js', type='text/javascript')
 	script(src='/js/lib/handlebars.js', type='text/JavaScript')
 	script(src='/js/lib/moment.min.js', type='text/JavaScript')
 	script(type='text/javascript')
-		$(document).ready(function(){
+		$(document).ready(function($){
 			setVariables({
 				spot_url: '#{spot_url}',
 				spot_id: '#{spot_id}',
@@ -183,7 +187,21 @@ block scripts
 		{{#if maxwind}}
 		h5 Max Wind: {{maxwind.degrees}} {{maxwind.dir}} {{maxwind.kph}} kph / {{maxwind.mph}} mph	
 		{{/if}}
-		
+
+	script(type='text/x-handlebars-template', id='spotsview-commentphoto')
+		{{#results }}
+		a(href='{{ photo }}').gallery1 
+			img(src='{{ photo }}').small64x.img-rounded
+		{{/results }}
+
+	script(type='text/x-handlebars-template', id='spotview-comment-template')
+		ul.comments
+		{{#comments}}
+		li
+			a(href='#') {{ poster_name }}
+			| ({{time}}):
+			| {{comment}}
+		{{/comments}}
 	script(type='text/x-handlebars-template', id='spotview-template')
 		form(action='/spot/{{ spotId }}', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send
 			input(type='hidden', name='spotName', id='spotName', value='{{ name }}')
@@ -203,6 +221,29 @@ block scripts
 						{{else}}
 						a.btn.btn-success(action='/subscribe/spot/{{spotId}}', data-attr='{{spotId}}', method='PUT').subscribe.hidden Watch
 						{{/ifCond}}
+				.control-group
+					label.control-label(for='people-saying') People Are Saying							
+					.controls
+						.photos
+							div(id='photos-loader')
+								i.icon-spinner.icon-spin.icon-large 
+								|   Loading...
+					.controls
+						p
+						| What people have said:
+						ul.comments
+							li
+								a(href='#') Kyle Jeske
+								|  (June 4, 2013):
+								| this was a killer spot 
+					.controls
+						.link-like.open-comments Add Comments or Photos
+						.comment-add
+							textarea(class='comments').span11
+							p
+							.btn.btn-success Add Comment
+							| 
+							.btn.btn-info(id='add-photo') Add Photo
 				{{#if cover_image}}
 				div.control-group
 					div.controls
@@ -249,8 +290,45 @@ block scripts
 						p
 						div#map-canvas(style='height: 300px;') Loading map...
 			script(type='text/javascript')
+				$("#add-photo").live("click", function(){
+					$("#uploadModalPhoto").modal("show");
+				});
+				$(".gallery1").colorbox({rel:'gallery1'});
 				$(".header > .spot_name").html('{{ name }}');
 				window._$winds = [];
 				{{#each wind_directions}}
 					window._$winds.push('{{this}}');
 				{{/each}}
+				function createUploader() {
+					var uploader = new qq.FineUploader({
+						element: document.getElementById('bootstrapped-photo-uploader'),
+						request: {
+							endpoint: '/spotmedia/photo?spot_id=' + _$spot_id + "&session_id=" + _$session_id
+						},
+						text: {
+							uploadButton: '<div><i class="icon-upload icon-white"></i> Upload a Photo</div>'
+						},
+						template: '<div class="qq-uploader span12">' +
+							'<pre class="qq-upload-drop-area span12"><span>{dragZoneText}</span></pre>' +
+							'<div class="qq-upload-button btn btn-success" style="width: auto;">{uploadButtonText}</div>' +
+							'<span class="qq-drop-processing"><span>{dropProcessingText}</span><span class="qq-drop-processing-spinner"></span></span>' +
+							'<ul class="qq-upload-list" style="margin-top: 10px; text-align: center;"></ul>' +
+							'</div>',
+						callbacks: {
+							onComplete: function(id, fileName, responseJson) {
+								if (responseJson.success) {
+									var obj = $("#spotsview-commentphoto");
+									var source = obj.html();
+									var template = Handlebars.compile(source);
+									$(".photos").append(template(responseJson));
+									$(".gallery1").colorbox({rel:'gallery1'});
+								}
+							}
+						},
+						classes: {
+							success: 'alert alert-success',
+							fail: 'alert alert-error'
+						}
+					});
+				}
+				createUploader();

@@ -557,6 +557,128 @@
 		});
 	});
 
+	// Retrieve specific spotId	
+	server.get('/spotmedia/:id', function(req, res) {
+		//res.send('get spot id API: ' + req.params.id);
+		var queryParams = {
+			where: {
+				spotId: parseInt(req.params.id)
+			}
+		};
+		var queryParts = require('url').parse(req.url, true).query;
+		Datastore.records.object("SpotNews", queryParams, function(err, response, body, success) {
+			if (err) {
+//				res.writeHead(409, { 'Content-Type': 'application/json' });
+				res.send(JSON.stringify({'error': err}));
+			} else {
+//				res.writeHead(200, { 'Content-Type': 'application/json' });
+				res.send(body);
+			}
+		});
+	});
+
+	// breaking convention b/c browsers SUCK
+	server.post('spotmedia/photo', function(req, res){
+
+    	var queryParts = require('url').parse(req.url, true).query;
+
+    	if (!queryParts.session_id) {
+        	res.writeHead(400, {'content-type':'text/plain'});
+        	res.end('error:\n\nNo session provided.');
+        	return true;
+    	}
+
+    	var user_object_id = queryParts.session_id;
+    	var spot_object_id = queryParts.spot_id;
+
+		var form = new formidable.IncomingForm({ uploadDir: require('path').resolve(__dirname, '../public/media'), keepExtensions: true }), files = [], fields = [];
+
+		form.on('field', function(field, value){
+			fields.push([field, value]);
+		});
+		
+		form.on('file', function(field, file) {
+			files.push([field, file]);
+		});
+		
+		form.on('progress', function(bytes, expected) {});
+
+		form.on('error', function(err) {
+    		res.writeHead(200, {'content-type': 'text/plain'});
+    		res.end('error:\n\n'+util.inspect(err));
+		});
+
+		form.on('end', function(){
+			for (var x in files) {
+				var file_object = files[x];
+				for (var y in file_object) {
+					var file = file_object[y];
+					if (typeof file.name == 'undefined') {
+						continue;
+					}
+					var file_path = file.path;
+					Datastore.records.file(file_path, function(url){
+						if (url) {
+							var body_url= url;
+						}
+												
+						var new_object = {
+    						spotId: parseInt(spot_object_id),
+							userPointer: {
+    							"__type":"Pointer",
+    							"className":"User",
+    							"objectId": user_object_id
+    						},
+    						userId: user_object_id,
+    						comment: "",
+    						photo: body_url,
+    						parent: true,
+    						child: false
+						};
+						
+						Datastore.records.createobject('SpotNews', new_object, function(err, response){
+    						if (err) {
+        						res.writeHead(409, { 'Content-Type': 'application/json' });
+        						res.end(JSON.stringify({'error': err}));
+    						} else {
+        			            res.writeHead(200, { 'Content-Type': 'application/json' });
+        			            res.end(JSON.stringify({
+        				            success: true,
+        				            url: body_url
+        			            }));        						
+    						}
+						}, false);
+						
+						console.log(body_url);
+
+/**						
+						Datastore.records.objectupdate('Profiles', user_object_id, {'profile_image': body_url}, function(err, response){
+    						if (err) {
+        						res.writeHead(409, { 'Content-Type': 'application/json' });
+        						res.end(JSON.stringify({'error': err}));
+    						} else {
+        			            res.writeHead(200, { 'Content-Type': 'application/json' });
+        			            res.end(JSON.stringify({
+        				            success: true,
+        				            url: body_url
+        			            }));        						
+    						}
+						});
+**/
+					});
+				}
+			}
+		});
+
+		form.parse(req, function(err, fields, files){});
+
+        req.on('end', function() {
+            console.log('All Done!!!!');
+        });
+		
+	});
+
+
 	// breaking convention b/c browsers SUCK
 	server.post('/media', function(req, res){
 
