@@ -72,6 +72,12 @@ block script_include
 	script(src='/js/app/handlebars.helper.js', type='text/JavaScript')
 	script(src='/js/lib/moment.min.js', type='text/JavaScript')
 	script(type='text/javascript')
+		window._$spot_url = '#{spot_url}';
+		window._$spot_id  = '#{spot_id}';
+		window._$user_id = '#{user_id}';
+		window._$session_id = '#{session_id}';
+		window._$local['ignore_geo'] = true;
+		window._$local['ignore_mapload'] = true;
 		$(document).ready(function($){
 			setVariables({
 				spot_url: '#{spot_url}',
@@ -81,11 +87,6 @@ block script_include
 			});
 			_$local.getGeolocation();
 		});
-		window._$spot_url = '#{spot_url}';
-		window._$spot_id  = '#{spot_id}';
-		window._$user_id = '#{user_id}';
-		window._$session_id = '#{session_id}';
-		window._$local['ignore_geo'] = true;
 
 	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=false')
 	script(type='text/javascript')
@@ -290,7 +291,9 @@ block scripts
 						input(type='hidden', name='location', value='{{location.latitude}},{{location.longitude}}')
 						input(type='hidden', name='lat', value='{{location.latitude}}')
 						input(type='hidden', name='lon', value='{{location.longitude}}')
-						p Lat.: {{location.latitude}}, Long.: {{location.longitude}}
+						p 
+							a(href='https://maps.google.com/maps?q={{location.latitude}},{{location.longitude}}&hl=en&sll={{location.latitude}},{{location.longitude}}&sspn=0.010761,0.019848&t=h&z=16')
+								{{location.latitude}}, {{location.longitude}}
 						p
 						div#map-canvas(style='height: 300px;') Loading map...
 			script(type='text/javascript')
