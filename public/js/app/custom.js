@@ -453,11 +453,31 @@ var correctedViewportW = (function (win, docElem) {
 				datatype: "json",
 				success: function(data){
 					var d = { results: data };
-					var obj = $("#spotsview-commentphoto");
+					
+					var comments = [], photos = [];
+					
+					for (x in d.results) {
+						if (d.results[x].type == "comment") {
+							comments.push(d.results[x]);
+						}
+						if (d.results[x].type == "photo") {
+							photos.push(d.results[x]);
+						}
+					}
+					
+					// Photos
+					var obj = $("#spotsview-photo-template");
 					var source = obj.html();
 					var template = Handlebars.compile(source);
-					$(".photos").html(template(d));
+					$(".photos").html(template(photos));
 					$(".gallery1").colorbox({rel:'gallery1'});
+
+					// Comments
+					var obj = $("#spotsview-comment-template");
+					var source = obj.html();
+					var template = Handlebars.compile(source);
+					$(".comments").html(template(comments));
+					$(".comments").attr('data-value', comments.length);
 				},
 				error: function() {
 					$(".photos").html("We are unable to load this at the moment. Please sit tight.");
@@ -514,11 +534,11 @@ var correctedViewportW = (function (win, docElem) {
 
 			if (!max_spots) {
 				if (window_width <= 640) {
-					max_spots = 72; // 3 days
+					max_spots = 18; // 3 days
 					auto_load = true;
 				} else {
 					// 7 Days
-					max_spots = 168;
+					max_spots = 32;
 				}
 			}
 
@@ -1442,9 +1462,43 @@ var correctedViewportW = (function (win, docElem) {
 				_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])
 			});
 		}
-
-		$(".open-comments").live("click", function(e){
+		
+		$(".add-comment").live("click", function(e) {
 			e.preventDefault();
+			var v = $(".comments-new");
+			var content = v.val();
+			v.val("");
+			var d = [{
+				'type': 'comment',
+				'ProfilePointer': {
+					name: 'You'
+				},
+				'comment': content
+			}];
+			/*
+			$.ajax({
+				type: 'PUT',
+				dataType: "json",
+				data: JSON.stringify({
+					userObjectId: _$session_id,
+					lat: parseFloat(lat),
+					lon: parseFloat(lon),
+					street: location
+				}),
+				success: function(data) {}
+			});
+			*/
+			var source = $("#spotsview-comment-template").html();
+			var template = Handlebars.compile(source);
+			if ($('.comments').attr('data-value') == "0") {
+				$(".comments").html(template(d));				
+			} else {
+				$(".comments").prepend(template(d));
+			}
+		});
+
+		$(".open-comments").live("click", function(e) {
+			e.preventDefault();		
 			var comments = $(".comment-add");
 			if (comments.hasClass('hidden')) {
 				comments.removeClass('hidden');
