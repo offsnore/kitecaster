@@ -292,7 +292,7 @@ block scripts
 						input(type='hidden', name='lat', value='{{location.latitude}}')
 						input(type='hidden', name='lon', value='{{location.longitude}}')
 						p 
-							a(href='https://maps.google.com/maps?q={{location.latitude}},{{location.longitude}}&hl=en&sll={{location.latitude}},{{location.longitude}}&sspn=0.010761,0.019848&t=h&z=16')
+							a(target='_new', href='https://maps.google.com/maps?q={{location.latitude}},{{location.longitude}}&hl=en&sll={{location.latitude}},{{location.longitude}}&sspn=0.010761,0.019848&t=h&z=16')
 								{{location.latitude}}, {{location.longitude}}
 						p
 						div#map-canvas(style='height: 300px;') Loading map...
