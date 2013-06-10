@@ -524,13 +524,17 @@ var correctedViewportW = (function (win, docElem) {
 			return this.path(icons[id]).attr(settings);
 		}
 				
-		function newGraphic(spot_id, data, max_spots) {
+		function newGraphic(spot_id, data, start_spot, max_spots) {
 			var y = [], z=[], x=[], i=0, max_size=20, counter=0, 
 			min_size=1, top_padding=0, padding=4, gutter=20, position=0, 
 			radius=20, left_side=0, top_side=0, auto_load = false, 
 			window_width = $(window).width();
 
 			var pixel_width_length = 25;
+			
+			if (!start_spot) {
+				start_spot = 0;
+			}
 
 			if (!max_spots) {
 				if (window_width <= 640) {
@@ -538,7 +542,7 @@ var correctedViewportW = (function (win, docElem) {
 					auto_load = true;
 				} else {
 					// 7 Days
-					max_spots = 32;
+					max_spots = 168;
 				}
 			}
 
@@ -563,8 +567,9 @@ var correctedViewportW = (function (win, docElem) {
     		var start_position = x_width - 10;
     		var starting_point = 100;
     		var bottom_padding = 12;
-    		
-    		for (i in y) {
+  
+    		for (var i = start_spot; i < max_spots; i++) {
+//    		for (i in y) {
     			if (max_spots !== "all" && counter >= max_spots) {
 	    			continue;
     			}    		

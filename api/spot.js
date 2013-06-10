@@ -633,7 +633,8 @@
     						comment: "",
     						photo: body_url,
     						parent: true,
-    						child: false
+    						child: false,
+    						type: "photo"
 						};
 						
 						Datastore.records.createobject('SpotNews', new_object, function(err, response){
