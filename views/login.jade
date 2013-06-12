@@ -28,20 +28,16 @@ block content
 							form(method='post', action='/login', enctype='application/x-www-form-urlencoded').form-input
 								fieldset
 									legend 
-										h2 Sign Into Your Account
-								.control-group
-									label.control-label Email Address
-									.controls
-										input(type='text', class='span12', id='email', name='email', placeholder='me@name.com')
-								.control-group
-									label.control-label Password
-									.controls
-										input(type='password', class='span12', id='password', name='password', placeholder='Enter your password')
+										h2 Sign In or Create Account
 								.control-group
 									.controls
+										input(type='text', class='span12', id='email', name='email', placeholder='Email')
 								.control-group
 									.controls
-										input(type='submit', class='btn btn-success', value='Login')
+										input(type='password', class='span12', id='password', name='password', placeholder='Password')
+								.control-group
+									.controls
+										input(type='submit', class='btn btn-success', value='Sign In')
 										|  or 
 										a.btn.btn-info(href='/register') Create an Account
 				.span4
