@@ -32,31 +32,25 @@ block content
 							form(method='post', action='/register', id='register-form', enctype='application/x-www-form-urlencoded').form-input
 								fieldset
 									legend 
-										h2 Register for an Account
-								.control-group
-									label.control-label First Name
-									.controls
-										input(type='text', class='span10', id='firstname', name='firstname', placeholder='Enter your name')
-								.control-group
-									label.control-label Last Name
-									.controls
-										input(type='text', class='span10', id='lastname', name='lastname', placeholder='Enter your last name')
-								.control-group
-									label.control-label Email Address
-									.controls
-										input(type='text', class='span10', id='email', name='email', placeholder='Enter your email address')
-								.control-group
-									label.control-label Password
-									.controls
-										input(type='password', class='span10', id='password', name='password', placeholder='Enter your password')
-								.control-group
-									label.control-label Confirm Password
-									.controls
-										input(type='password', class='span10', id='password_confirm', name='password_confirm', placeholder='Confirm your password')
+										h2 Create Account or Sign In
 								.control-group
 									.controls
-										br
+										input(type='text', class='span12', id='firstname', name='firstname', placeholder='First Name')
 								.control-group
 									.controls
-										input(type='submit', class='btn btn-success', value='Register!')
+										input(type='text', class='span12', id='lastname', name='lastname', placeholder='Last Name')
+								.control-group
+									.controls
+										input(type='text', class='span12', id='email', name='email', placeholder='Email Address')
+								.control-group
+									.controls
+										input(type='password', class='span12', id='password', name='password', placeholder='Password')
+								.control-group
+									.controls
+										input(type='password', class='span12', id='password_confirm', name='password_confirm', placeholder='Confirm password')
+								.control-group
+									.controls
+										input(type='submit', class='btn btn-success', value='Create Account')
+										|  or 
+										a.btn.btn-info(href='/login') Sign In
 				.span4
