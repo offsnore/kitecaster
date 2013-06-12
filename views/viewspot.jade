@@ -201,8 +201,9 @@ block scripts
 	script(type='text/x-handlebars-template', id='spotsview-comment-template')
 		{{#this}}
 		li
-			a(href='#') {{ ProfilePointer.name }}
-			| {{ comment }}
+			a(href='#') {{ profilePointer.name }} 
+			| {{ happenedAgo }} said 
+			| {{{ comment }}}
 		{{else}}
 		li
 			|Nobody has said anything about this spot yet, be the first!
@@ -230,15 +231,9 @@ block scripts
 				.control-group
 					label.control-label(for='people-saying') People Are Saying							
 					.controls
+						.btn.btn-info(id='add-photo') Add Photo
 						.photos
 							div(id='photos-loader')
-								i.icon-spinner.icon-spin.icon-large 
-								|   Loading...
-					.controls
-						p
-						| What people have said:
-						ul.comments(id='comment-loader')
-							li
 								i.icon-spinner.icon-spin.icon-large 
 								|   Loading...
 					.controls
@@ -247,8 +242,13 @@ block scripts
 							textarea(class='comments-new').span11
 							p
 							.btn.btn-success.add-comment Add Comment
-							| 
-							.btn.btn-info(id='add-photo') Add Photo
+					.controls
+						p
+						| What people have said:
+						ul.comments(id='comment-loader')
+							li
+								i.icon-spinner.icon-spin.icon-large 
+								|   Loading...
 				{{#if cover_image}}
 				div.control-group
 					div.controls
@@ -310,7 +310,7 @@ block scripts
 					var uploader = new qq.FineUploader({
 						element: document.getElementById('bootstrapped-photo-uploader'),
 						request: {
-							endpoint: '/spotmedia/photo?spot_id=' + _$spot_id + "&session_id=" + _$session_id
+							endpoint: '/spotmedia/photo?spot_id=' + _$spot_id + "&session_id=" + _$session_id + "&user_id=" + _$user_id
 						},
 						text: {
 							uploadButton: '<div><i class="icon-upload icon-white"></i> Upload a Photo</div>'
@@ -324,10 +324,13 @@ block scripts
 						callbacks: {
 							onComplete: function(id, fileName, responseJson) {
 								if (responseJson.success) {
-									var obj = $("#spotsview-commentphoto");
+									var d = [{
+										photo: responseJson.url
+									}];
+									var obj = $("#spotsview-photo-template");
 									var source = obj.html();
 									var template = Handlebars.compile(source);
-									$(".photos").append(template(responseJson));
+									$(".photos").append(template(d));
 									$(".gallery1").colorbox({rel:'gallery1'});
 								}
 							}

@@ -457,6 +457,7 @@ var correctedViewportW = (function (win, docElem) {
 					var comments = [], photos = [];
 					
 					for (x in d.results) {
+						d.results[x].happenedAgo = moment(d.results[x].createdAt).fromNow();
 						if (d.results[x].type == "comment") {
 							comments.push(d.results[x]);
 						}
@@ -1480,26 +1481,23 @@ var correctedViewportW = (function (win, docElem) {
 				},
 				'comment': content
 			}];
-			/*
 			$.ajax({
+				url: '/spotmedia/comment',
 				type: 'PUT',
 				dataType: "json",
 				data: JSON.stringify({
+					spotId: _$spot_id,	
 					userObjectId: _$session_id,
-					lat: parseFloat(lat),
-					lon: parseFloat(lon),
-					street: location
+					userId: _$user_id,
+					comment: content
 				}),
-				success: function(data) {}
+				beforeSend: function() {
+					$(".comments").prepend("<div class='loader'><i class='icon-spinner icon-spin icon-large'></i> Adding Comment...</div>");
+				},
+				success: function(data) {
+					loadComments(_$spot_id);
+				}
 			});
-			*/
-			var source = $("#spotsview-comment-template").html();
-			var template = Handlebars.compile(source);
-			if ($('.comments').attr('data-value') == "0") {
-				$(".comments").html(template(d));				
-			} else {
-				$(".comments").prepend(template(d));
-			}
 		});
 
 		$(".open-comments").live("click", function(e) {
