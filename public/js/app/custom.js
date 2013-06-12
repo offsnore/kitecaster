@@ -1199,40 +1199,37 @@ var correctedViewportW = (function (win, docElem) {
 						});
 					});
  				} else {
- 					loadDiscoverBy(_$kite_url, function(){
-						var url = "http://" + _$kite_url + "/kite";
-						$.ajax({
-							dataType: "json",
-							data: {
-								userId: _$session_id,
-								lat: _$local.geolocal.lat,
-								lon: _$local.geolocal.lon
-							},
-							url: url,
-							success: function(data) {
-								$(data).each(function(i, item){
-									item.distanceFrom = _$local.getDistanceFrom(_$local.geolocal.lat, _$local.geolocal.lon, item.location.latitude, item.location.longitude);
-								});
-								var data = {'results': data};
-								var source = obj.html();
-								var template = Handlebars.compile(source);
-								$(".spot_container").html(template(data));
-								$(data.results).each(function(i, item){
-									loadForecast(item.spotId);
-									loadKitescore(item.spotId);
-								});
-							},
-							error: function() {
-								var data = {};
-								var source = $("#spots-error-template").html();
-								var template = Handlebars.compile(source);
-								$(".spot_container").html(template);
-								setCountdown(59, function(){
-									document.location.reload();
-								});
-							}
-						});
- 					});
+					loadDiscoverBy(_$kite_url);
+					var url = "http://" + _$kite_url + "/kite";
+					$.ajax({
+						dataType: "json",
+						data: {
+							userId: _$session_id
+						},
+						url: url,
+						success: function(data) {
+							$(data).each(function(i, item){
+								item.distanceFrom = false;
+							});
+							var data = {'results': data};
+							var source = obj.html();
+							var template = Handlebars.compile(source);
+							$(".spot_container").html(template(data));
+							$(data.results).each(function(i, item){
+								loadForecast(item.spotId);
+								loadKitescore(item.spotId);
+							});
+						},
+						error: function() {
+							var data = {};
+							var source = $("#spots-error-template").html();
+							var template = Handlebars.compile(source);
+							$(".spot_container").html(template);
+							setCountdown(59, function(){
+								document.location.reload();
+							});
+						}
+					});
 				}
 			}
 		}
