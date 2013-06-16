@@ -42,20 +42,20 @@
 		"expire_time": {
 		    "default" : 900,
 		    "spot" : 3600,
-		    "weather" :  7200
+		    "weather" :  3600
 		 }
 	},
 	"spot" : {
-		"defaultLimit": "10"
+		"defaultLimit": "90"
 	},
 	"weather" : {
 		"apis" : {
 			"wunderground": "6fff3f96703a32cb",     
 			"debug": false,
 			"rate" : {
-   			"minute" : 5,
+   			"minute" : 75,
    			"hour" : 500,
-   			"day" : 10000
+   			"day" : 5000
 			}
 			
 		}
