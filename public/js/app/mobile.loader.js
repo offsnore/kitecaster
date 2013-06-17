@@ -9,30 +9,25 @@
         return this.each(function() {
             var obj = $("<div></div>");
             obj.addClass('scroll-pane');
-
-            $(".scroll-pane").bind("scroll", function(e, b){
+            $(".scroll-pane").live("scroll", function(e, b){
                 var max_left = parseInt(this.scrollWidth) - parseInt(this.clientWidth);
                 var cur_left = $(this).scrollLeft();
                 if (generating === false && cur_left >= (max_left - (max_left * .4))) {
                     generating = true;
-                    console.log('generate new subset', $(this).attr('id'));
                     for (var i in _$local.spot_cache) {
                         for (var x in _$local.spot_cache[i]) {
                             if (x != $(this).attr('id')) {
                                 continue;
                             }
                             var graph_objects = _$local.spot_cache_obj[i][x];
-                            var spot_id = x;
-                            
+                            var spot_id = x;                            
                             var start = $(this).attr('data-last-point');
                             var end = parseInt($(this).attr('data-last-point')) + 32;
                             var max = parseInt($(this).attr('data-max-point'));
-                            
                             // we dont want to contine past max
                             if (start >= max) {
 	                            return true;
                             }
-                            
                             $(this).data_loader.buildslide(_$local.spot_cache[i][x], $(this).attr('id'), start, end, graph_objects.timeline, graph_objects.winds);
                         }
                     }

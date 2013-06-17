@@ -733,10 +733,6 @@ var correctedViewportW = (function (win, docElem) {
 						$("#" + spot_id).html("");
 					}
 					newGraphic(spot_id, d);
-					// This is what handles the auto-loading of kitescore slides
-					if (typeof $.fn.data_loader === "function") {
-						$(document).data_loader();
-					}
 				}
 			})			
 		}
@@ -1534,6 +1530,10 @@ var correctedViewportW = (function (win, docElem) {
 			}
 		})
 
+		// This is what handles the auto-loading of kitescore slides
+		if (typeof $.fn.data_loader === "function") {
+			$(document).data_loader();
+		}
 	});
 
 	// Required by getDistanceFrom()
