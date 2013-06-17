@@ -555,7 +555,7 @@ var correctedViewportW = (function (win, docElem) {
 			}
 
 			if (!max_spots) {
-				if (window_Width <= 640) {
+				if (window_width <= 640) {
 					max_spots = 18;
 				} else {
 					max_spots = 32;					
