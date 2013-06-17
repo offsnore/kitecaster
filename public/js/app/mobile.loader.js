@@ -76,8 +76,6 @@
 			$(r.canvas).width(picture_width);
 		}
 
-		console.log(start_spot, max_spots);
-
     	var height = 120, sleft=0, stop=0, width=0, left_position=0, padding = 2, top_padding = 20, x_width = 25, x_padding = 2, height = 60, start_position, circle, bar_height, starting_point = 100, bottom_padding = 12;
     	start_position = x_width - 10;
     	    	

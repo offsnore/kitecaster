@@ -1529,6 +1529,11 @@ var correctedViewportW = (function (win, docElem) {
 				comments.addClass('hidden');				
 			}
 		})
+		
+		// This is what handles the auto-loading of kitescore slides
+		if (typeof $.fn.data_loader === "function") {
+			$(document).data_loader();
+		}
 
 	});
 
