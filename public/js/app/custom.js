@@ -18,6 +18,7 @@ var correctedViewportW = (function (win, docElem) {
     window._$userId = false; // I hate this @todo Make all user _user_id
     window._$spot_url = false;
     window._$spot_id = false;
+    window._$spot_cache = [];
     
     window.setVariables = function() {
         var x, y, _args;
@@ -524,20 +525,42 @@ var correctedViewportW = (function (win, docElem) {
 			};
 			return this.path(icons[id]).attr(settings);
 		}
-				
+		
+		
+		/**
+		 * @todo Move this over to using new jQuery plugin vs. this stupid method/function
+		 */
 		function newGraphic(spot_id, data, start_spot, max_spots) {
 			var y = [], z=[], x=[], i=0, max_size=20, counter=0, 
 			min_size=1, top_padding=0, padding=4, gutter=20, position=0, 
 			radius=20, left_side=0, top_side=0, auto_load = false, 
-			window_width = $(window).width();
+			window_width = $(window).width(), absolute_max_spots = 168;
 
 			var pixel_width_length = 25;
+
+			if (_$local.spot_cache === undefined) {
+				_$local.spot_cache = [];
+			}
+			if (_$local.spot_cache_obj === undefined) {
+				_$local.spot_cache_obj = [];
+			}
 			
+			// saves our data to local cache (@note - this might suck later on a phone, too much local cache)
+			var cache_obj = {};
+			cache_obj[spot_id] = data;			
+			_$local.spot_cache.push(cache_obj);
+						
 			if (!start_spot) {
 				start_spot = 0;
 			}
 
 			if (!max_spots) {
+				if (window_Width <= 640) {
+					max_spots = 18;
+				} else {
+					max_spots = 32;					
+				}
+				/**
 				if (window_width <= 640) {
 					max_spots = 18; // 3 days
 					auto_load = true;
@@ -545,6 +568,7 @@ var correctedViewportW = (function (win, docElem) {
 					// 7 Days
 					max_spots = 168;
 				}
+				**/
 			}
 
 			x = data[0];
@@ -555,8 +579,16 @@ var correctedViewportW = (function (win, docElem) {
 			
 			var picture_width = (pixel_width_length * parseInt(max_spots)) + 10;
 
+			_$local.spot_cache_objects = [];
+
 			var b = Raphael(spot_id, picture_width, 120);
     		var r = Raphael(spot_id, picture_width, 145);
+
+    		var spot_cache_obj = {};
+    		spot_cache_obj[spot_id] = {};
+    		spot_cache_obj[spot_id]['timeline'] = b;
+    		spot_cache_obj[spot_id]['winds'] = r;
+    		_$local.spot_cache_obj.push(spot_cache_obj);
 
     		var height = 120, sleft=0, stop=0, width=0, left_position=0;
     		padding = 2;
@@ -570,7 +602,6 @@ var correctedViewportW = (function (win, docElem) {
     		var bottom_padding = 12;
   
     		for (var i = start_spot; i < max_spots; i++) {
-//    		for (i in y) {
     			if (max_spots !== "all" && counter >= max_spots) {
 	    			continue;
     			}    		
@@ -643,16 +674,9 @@ var correctedViewportW = (function (win, docElem) {
 			    		bar.attr({fill: '#000'});
 		    		}
 	    		}
-
-	    		// KiteScore Cirlce
-//	    		var c2 = r.circle(sleft+(x_width/2), (starting_point + bottom_padding), 10);
-//	    		c2.attr('fill', '#000');
-//	    		c2.attr('color', '#FFF');
 	    		// Kitescore Value
 	    		var txt = r.text(sleft+(x_width/2), (starting_point + bottom_padding), obj_val);
 	    		txt.attr({'font':'12px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
-
-
 	    		var wind_speed = r.text(left_position + (x_width / 2), (starting_point - 20), za[i].english + " MPH");
 	    		wind_speed.attr({'font':'10px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
 				wind_speed.transform("r-90");
@@ -661,8 +685,7 @@ var correctedViewportW = (function (win, docElem) {
     			counter++;
     		}
     		$("#" + spot_id + "-loader").remove();
-       		
-    		$("#" + spot_id).addClass("scroll-pane ui-widget ui-widget-header ui-corner-all").removeClass("hidden");
+    		$("#" + spot_id).addClass("scroll-pane ui-widget ui-widget-header ui-corner-all").removeClass("hidden").attr('data-last-point', counter).attr('data-max-point', absolute_max_spots);
 		}
 		
 

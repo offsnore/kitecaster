@@ -239,6 +239,13 @@ app.buildKiteScore = function(model, spot, windData, callback) {
    // ignore direction first, just map speeds
    // map TOO_LIGHT = 5, VERY_LIGHT = 6, LIGHT = 7, MED_LOW = 8, MED_MED = 9, MED_HIGH = 10, HIGH_LOW = 11, HIGH_MED = 12,  HIGH_HIGH = 13, TOO_MUCH = 15;
    console.log('winddata: '.magenta + windData.length);
+   console.log(typeof windData);
+
+	// we want a nice return, not Node.JS going fuck you.   
+	if (typeof windData == 'undefined') {
+		return false;
+	}
+   
    windData.forEach(function(data) {
       var kiteScore = 0;
     //console.log('WindData.ForeEach data: ' + JSON.stringify(data)); 
