@@ -686,6 +686,10 @@ var correctedViewportW = (function (win, docElem) {
     		}
     		$("#" + spot_id + "-loader").remove();
     		$("#" + spot_id).addClass("scroll-pane ui-widget ui-widget-header ui-corner-all").removeClass("hidden").attr('data-last-point', counter).attr('data-max-point', absolute_max_spots);
+    		// implements auto-loader
+    		if (typeof $.fn.data_loader === 'function') {
+    			$("#" + spot_id + ".scroll-pane").data_loader();	    		
+    		}
 		}
 		
 
@@ -1530,10 +1534,6 @@ var correctedViewportW = (function (win, docElem) {
 			}
 		})
 
-		// This is what handles the auto-loading of kitescore slides
-		if (typeof $.fn.data_loader === "function") {
-			$(document).data_loader();
-		}
 	});
 
 	// Required by getDistanceFrom()

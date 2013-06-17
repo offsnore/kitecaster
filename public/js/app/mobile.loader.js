@@ -1,15 +1,19 @@
 (function($){
 
     var generating = false;
+        
 
     $.fn.data_loader = function(settings) {   
         var $that = $(this);
         settings = $.extend(true, {}, $.fn.data_loader.settings, settings || {});
+
+        console.log($that);
         
         return this.each(function() {
             var obj = $("<div></div>");
             obj.addClass('scroll-pane');
-            $(".scroll-pane").live("scroll", function(e, b){
+            
+            $that.bind("scroll", function(e, b){
                 var max_left = parseInt(this.scrollWidth) - parseInt(this.clientWidth);
                 var cur_left = $(this).scrollLeft();
                 if (generating === false && cur_left >= (max_left - (max_left * .4))) {
