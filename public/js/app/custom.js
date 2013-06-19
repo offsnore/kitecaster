@@ -316,7 +316,6 @@ var correctedViewportW = (function (win, docElem) {
 		_$local.mapfunc.reloadmarkers = function(e) {
 			google.maps.event.trigger(_$local.map, "dragend");
 			var zoom = _$local.map.zoom;
-			console.log(e);
 		};
 		
 		_$local.initializeGeomap = function(lat, lon) {
@@ -358,8 +357,6 @@ var correctedViewportW = (function (win, docElem) {
                               return false;
                             }
 							var addy = data.results[1].formatted_address;
-							//console.log(data.results);
-							//var address = addy[1].short_name + ", " + addy[2].short_name;
 							$(".search-query").val(addy);
 						},
 						error: function() {
@@ -534,9 +531,7 @@ var correctedViewportW = (function (win, docElem) {
 				datatype: "json",
 				success: function(data){
 					var d = { results: data };
-					
 					var comments = [], photos = [];
-					
 					for (x in d.results) {
 						d.results[x].happenedAgo = moment(d.results[x].createdAt).fromNow();
 						if (d.results[x].type == "comment") {
@@ -545,15 +540,13 @@ var correctedViewportW = (function (win, docElem) {
 						if (d.results[x].type == "photo") {
 							photos.push(d.results[x]);
 						}
-					}
-					
+					}					
 					// Photos
 					var obj = $("#spotsview-photo-template");
 					var source = obj.html();
 					var template = Handlebars.compile(source);
 					$(".photos").html(template(photos));
 					$(".gallery1").colorbox({rel:'gallery1'});
-
 					// Comments
 					var obj = $("#spotsview-comment-template");
 					var source = obj.html();
@@ -566,7 +559,7 @@ var correctedViewportW = (function (win, docElem) {
 				}
 			});
 		}
-		
+
 		function parseForGraph(data) {
 			var x = [], y = [], z = [], za = [], xa = [];
 			$(data).each(function(i, item){
@@ -605,8 +598,7 @@ var correctedViewportW = (function (win, docElem) {
 			};
 			return this.path(icons[id]).attr(settings);
 		}
-		
-		
+
 		/**
 		 * @todo Move this over to using new jQuery plugin vs. this stupid method/function
 		 */
@@ -875,14 +867,9 @@ var correctedViewportW = (function (win, docElem) {
 			$(".qq-upload-list", "#uploadModal").html("");
 			$("#uploadModal").modal('show');
 		});
-
 		$("div.btn-group input[type='button']").click(function(){
 			var hidden_label = $(this).attr('name').toString().split("_")[1];
-			//console.log(hidden_label, $(this).attr('id'));
 			$("#" + hidden_label).attr("value", $(this).attr('id'));
-		});
-		$("div.btn-group input[type='button']").click(function(){
-			//$("")
 		});
 		var default_value = 150;
 		if (typeof $("#travel_distance")[0] != 'undefiend') {
@@ -923,8 +910,6 @@ var correctedViewportW = (function (win, docElem) {
 					// does a quick pull for all spots
 					var url = "http://" + _$spot_url + "/spot?callback=?";
 					var infoWindow, latitude, longitude;
-					
-					console.log(_$local.geolocal.lat);
 					
 					latitude = _$local.geolocal.lat;
 					longitude = _$local.geolocal.lon;
@@ -1018,8 +1003,6 @@ var correctedViewportW = (function (win, docElem) {
 							var source = $("#spots-support").html();
 							var template = Handlebars.compile(source);
 							
-							console.log(latitude, longitude, local);
-							
 							$(".spot_container").html(template(data));
 							$(data.results).each(function(i, item){
 								loadKitescore(item.spotId, "#spot-detail-" + item.spotId);
@@ -1090,8 +1073,7 @@ var correctedViewportW = (function (win, docElem) {
 						window._$local.spot['lon'] = parseFloat(jQuery("#lon").val());
 						_$local.initializeGeomap(_$local.spot['lat'], _$local.spot['lon'])
 					},
-					error: function() {
-					}
+					error: function() {}
 				});
 			}
 			
@@ -1132,6 +1114,9 @@ var correctedViewportW = (function (win, docElem) {
 				}
 			});
 						
+		}
+
+		function spot_load_people() {
 			if (typeof $("#spotcheckin-template")[0] != 'undefined') {
 				function loadActivePeople() {
 					var url = "http://" + _$spot_url + "/checkin/spot/" + _$spot_id;
@@ -1169,8 +1154,10 @@ var correctedViewportW = (function (win, docElem) {
 				window.setTimeout(function(){
 					loadActivePeople();					
 				}, 1500);				
-			}
-			
+			}			
+		}
+		
+		function spot_load_forecast() {
 			if (typeof $("#spotweather-template")[0] != 'undefined') {
 				loadForecast();
 			}
@@ -1180,7 +1167,7 @@ var correctedViewportW = (function (win, docElem) {
 				var source = obj.html();
 				var template = Handlebars.compile(source);
 				$(".spot_container").html(template({}));
-			}
+			}			
 		}
 				
 		function loadDiscoverBy(_$kite_url, callback) {
@@ -1284,6 +1271,7 @@ var correctedViewportW = (function (win, docElem) {
 							loadnearby();
 							loadKitescore(_$spot_id, '#kitescore_spot');
 							loadComments(_$spot_id);
+							// @peopleload
 						}
 						// ideally this information should be in the spot request (not as two seperate queries)
 						$.ajax({
@@ -1602,6 +1590,8 @@ var correctedViewportW = (function (win, docElem) {
 		
 		function final_callback() {
 			load_spot_view();
+			spot_load_people();
+			spot_load_forecast();
 		}
 
 		final_callback();
