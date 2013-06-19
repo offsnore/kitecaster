@@ -387,7 +387,6 @@ var correctedViewportW = (function (win, docElem) {
 			_$local.getGeolocation(function(){
 				_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])
 				load_spot_list();
-
 			});
 		}
 
@@ -889,6 +888,7 @@ var correctedViewportW = (function (win, docElem) {
 		if (typeof $("#travel_distance")[0] != 'undefiend') {
 			var default_value = $("#travel_distance").val();
 		}
+
 		if ($.fn.slider) {
 			$(".distance").slider({
 			    orientation: "horizontal",
@@ -1035,7 +1035,7 @@ var correctedViewportW = (function (win, docElem) {
 						}
 					});
 				}			
-		}
+			}
 
 			if (typeof $("#spots-template")[0] != 'undefined') {
 				var obj = $("#spots-template");
@@ -1131,73 +1131,7 @@ var correctedViewportW = (function (win, docElem) {
 					loader.html("");
 				}
 			});
-			
-			if (typeof $("#spotview-template")[0] != 'undefined') {
-				var obj = $("#spotview-template");
-				// does a quick pull for all spots
-				var url = "http://" + _$spot_url + "/spot/" + _$spot_id + "?callback=?";
-				$.ajax({
-					dataType: "jsonp",
-					jsonp: "callback",
-					url: url,
-					success: function(data) {
-						var data = data[0];
-						var source = obj.html();
-						var template = Handlebars.compile(source);
-						$(".spot_container").html(template(data));
-						if (typeof initialize == 'function') {	
-							initialize(data.location.latitude, data.location.longitude);
-							loadnearby();
-							loadKitescore(_$spot_id, '#kitescore_spot');
-							loadComments(_$spot_id);
-						}
-						// ideally this information should be in the spot request (not as two seperate queries)
-						$.ajax({
-							dataType: "json",
-							url: "/subscribe/spot/" + _$spot_id,
-							data: {
-								'userId': _$session_id
-							},
-							success: function(data) {
-								if (data.length > 0) {
-									$(".subscribe", "#spot-" + _$spot_id).removeClass("btn-success").addClass("btn-warning").attr('method', 'DELETE').text("Stop watching");
-								}
-								$(".subscribe").removeClass("hidden");
-							},
-							error: function() {
-							}
-						});
-					},
-					error: function() {
-					}
-				});
-				
-				$(".checkin").live("click", function(){
-					var that = this;
-					var url = "http://" + _$spot_url + "/checkin/spot/" + _$spot_id;
-					var data = {userId: _$user_id};
-					$.ajax({
-						type: 'PUT',
-						contentType: "application/json; charset=utf-8",
-						dataType: "json",
-						data: JSON.stringify(data),
-						url: url,
-						success: function(data) {
-							$(that).remove();
-							$(".active_users").prepend("<p>You were here just now.</p>");
-						},
-						error: function() {
-							$(".active_users").prepend("<div class='alert helpful'>There was an issue checking you in, please try again.</div>");
-							setTimeout(function(){
-								$(".helpful").fadeOut(500, function(){
-									$(this).remove();
-								});
-							}, 1000);
-						}
-					});
-				});				
-			}
-			
+						
 			if (typeof $("#spotcheckin-template")[0] != 'undefined') {
 				function loadActivePeople() {
 					var url = "http://" + _$spot_url + "/checkin/spot/" + _$spot_id;
@@ -1259,43 +1193,6 @@ var correctedViewportW = (function (win, docElem) {
 
 		// Logic To Handle Spitting out the Spot Themselves		
 		if (typeof _$kite_url != 'undefined') {
-			/**
-			$(".browse").live("change", function(e){
-				e.preventDefault();
-				var that = this;
-				_$local.discover_radius = $(that).find(":selected").val();
-				$(".spot_container").html("Loading...");
-				$(".radius_distance").html(_$local.discover_radius);
-
-				loadDiscoverBy(_$kite_url, function(){
-					var url = "http://" + _$kite_url + "/spot";
-					$.ajax({
-						dataType: "json",
-						data: {
-							discover_nearby: true,
-							lat: _$local.geolocal.lat,
-							lon: _$local.geolocal.lon,
-							miles: _$local.discover_radius,
-							userId: _$session_id
-						},
-						url: url,
-						success: function(data) {
-							var source = obj.html();
-							var template = Handlebars.compile(source);
-							$(".spot_container").html(template(data));
-							$(data.results).each(function(i, item){
-								loadForecast(item.spotId);
-								loadKitescore(item.spotId);
-							});
-						},
-						error: function() {
-						}
-					});
-				});
-
-			});
-			**/
-
 			if (typeof $("#kitespot-template")[0] != 'undefined') {
 				var obj = $("#kitespot-template");
 				// discover nearby uses a different approach to getting 'spots'
@@ -1366,6 +1263,74 @@ var correctedViewportW = (function (win, docElem) {
 					});
 				}
 			}
+		}
+
+		function load_spot_view() {
+			if (typeof $("#spotview-template")[0] != 'undefined') {
+				var obj = $("#spotview-template");
+				// does a quick pull for all spots
+				var url = "http://" + _$spot_url + "/spot/" + _$spot_id + "?callback=?";
+				$.ajax({
+					dataType: "jsonp",
+					jsonp: "callback",
+					url: url,
+					success: function(data) {
+						var data = data[0];
+						var source = obj.html();
+						var template = Handlebars.compile(source);
+						$(".spot_container").html(template(data));
+						if (typeof initialize == 'function') {	
+							initialize(data.location.latitude, data.location.longitude);
+							loadnearby();
+							loadKitescore(_$spot_id, '#kitescore_spot');
+							loadComments(_$spot_id);
+						}
+						// ideally this information should be in the spot request (not as two seperate queries)
+						$.ajax({
+							dataType: "json",
+							url: "/subscribe/spot/" + _$spot_id,
+							data: {
+								'userId': _$session_id
+							},
+							success: function(data) {
+								if (data.length > 0) {
+									$(".subscribe", "#spot-" + _$spot_id).removeClass("btn-success").addClass("btn-warning").attr('method', 'DELETE').text("Stop watching");
+								}
+								$(".subscribe").removeClass("hidden");
+							},
+							error: function() {
+							}
+						});
+					},
+					error: function() {
+					}
+				});
+				
+				$(".checkin").live("click", function(){
+					var that = this;
+					var url = "http://" + _$spot_url + "/checkin/spot/" + _$spot_id;
+					var data = {userId: _$user_id};
+					$.ajax({
+						type: 'PUT',
+						contentType: "application/json; charset=utf-8",
+						dataType: "json",
+						data: JSON.stringify(data),
+						url: url,
+						success: function(data) {
+							$(that).remove();
+							$(".active_users").prepend("<p>You were here just now.</p>");
+						},
+						error: function() {
+							$(".active_users").prepend("<div class='alert helpful'>There was an issue checking you in, please try again.</div>");
+							setTimeout(function(){
+								$(".helpful").fadeOut(500, function(){
+									$(this).remove();
+								});
+							}, 1000);
+						}
+					});
+				});				
+			}				
 		}
 		
 		function setCountdown(count, callback) {
@@ -1588,7 +1553,8 @@ var correctedViewportW = (function (win, docElem) {
 						_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])
 						$(".search-query").val(_$local.returnGeolocation()['street']);
 						$(".latlon").html(_$local.returnGeolocation()['lat'] + ", " + _$local.returnGeolocation()['lon']);
-					});					
+						final_callback();
+					});
 				}
 			}
 		}
@@ -1633,6 +1599,12 @@ var correctedViewportW = (function (win, docElem) {
 				comments.addClass('hidden');				
 			}
 		})
+		
+		function final_callback() {
+			load_spot_view();
+		}
+
+		final_callback();
 
 	});
 
