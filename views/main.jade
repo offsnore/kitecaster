@@ -104,8 +104,6 @@ block scripts
 			{{/if}}
 			.active_weather
 				h4 Loading Forecast...
-			h4.distance
-				|You are within approximately {{distanceFrom}} from this spot.
 			div(id='kitegraph-{{ spotId }}-loader')
 				i.icon-spinner.icon-spin.icon-large 
 				|   Loading...
@@ -113,6 +111,6 @@ block scripts
 		{{ else }}
 		li.feed(name='feed')
 			p
-				| You aren't watching to any spots! 
+				| You aren't watching any spots! 
 			a(href='/main/spots') Check out some spots in your area.
 		{{/each}}
