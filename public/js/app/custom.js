@@ -387,6 +387,7 @@ var correctedViewportW = (function (win, docElem) {
 			_$local.getGeolocation(function(){
 				_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])
 				load_spot_list();
+
 			});
 		}
 
