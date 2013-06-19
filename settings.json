@@ -14,7 +14,7 @@
 		"spot": {
 			"frontend_url" : "local.kitecaster.com",
 			"port" : "7501",
-			"refreshSeconds" : 3600
+			"refreshSeconds" : 900
 		},
 		"model": {
 			"port" : "7504"
@@ -46,11 +46,11 @@
 		 }
 	},
 	"spot" : {
-		"defaultLimit": "90"
+		"defaultLimit": "75"
 	},
 	"weather" : {
 		"apis" : {
-			"wunderground": "6fff3f96703a32cb",     
+			"wunderground": "d423b6a14c833613",     
 			"debug": false,
 			"rate" : {
    			"minute" : 75,
