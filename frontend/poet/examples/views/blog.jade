@@ -1,0 +1,17 @@
+extends layout
+
+block content_header
+	h1 Our Recent News
+
+block content
+	- var posts = getPosts(0,5)
+	- var page  = 1
+	- each post in posts
+		=JSON.stringify(post.display_main)
+		if(!post.hide_main)
+			include includes/postSnippet
+
+	include includes/pagination
+
+
+block page_center

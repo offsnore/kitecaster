@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+urlset(xmlns='http://www.sitemaps.org/schemas/sitemap/0.9', xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance', xsi:schemaLocation='http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd')
+    url
+        loc http://www.sparky.io
+        changefreq daily
+        priority 0.8
+    url
+        loc http://www.sparky.io/blog.html
+        changefreq daily
+        priority 1.0
+    url
+        loc http://www.sparky.io/services.html
+        changefreq weekly
+        priority 0.5
+    url
+        loc http://www.sparky.io/blog.html
+        changefreq daily
+    - each cat in categoryList
+        url
+            loc http://www.sparky.io#{categoryUrl(cat)}
+            changefreq weekly
+            priority 0.1
+    
+    - var posts = getAllPosts()
+    - each post in posts
+        url
+            loc http://www.sparky.io#{post.url}.html
+            changefreq weekly
+            priority 0.5

@@ -1,0 +1,32 @@
+extends layout
+
+block content_header
+    h1 #{post.title}
+
+block content
+    .post.row-fluid
+        .span12
+            if (post.type == "article")
+                .span8
+                    .content
+                        != post.content
+                    div.widget
+                        ul.tags
+                            - each tag in post.tags
+                                li
+                                    a(href=tagUrl(tag)) #{tag}
+                .span4
+                    if (post.authorimage && post.author)
+                        .author_image(style="background-image: url('#{post.authorimage}')")
+                            .author Written By: 
+                                a(href='#{post.authorurl}') #{post.author}
+                            if (!post.hide_date)
+                                .date #{post.date.getMonth()+1}.#{post.date.getDate()}.#{post.date.getFullYear()}
+                            .date #{moment(post.date)}
+                    else
+                        .author Written By:
+                            a(href='#{post.authorurl}') #{post.author}
+                        if (!post.hide_date)
+                            .date #{post.date.getMonth()+1}.#{post.date.getDate()}.#{post.date.getFullYear()}
+            else
+                != post.content
