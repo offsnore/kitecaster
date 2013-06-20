@@ -205,6 +205,72 @@ var correctedViewportW = (function (win, docElem) {
 			}
 		}
 		
+		_$local.mapfunc.getlocalspots = function() {
+			var infoWindow, latitude, longitude, url, center, latitude, longitude;
+
+			url = "http://" + _$spot_url + "/spot?callback=?";
+			center = _$local.map.getBounds().getCenter();
+			latitude = center.lat();
+			longitude = center.lng();
+
+			$.ajax({
+				dataType: "jsonp",
+				jsonp: "callback",
+				url: url,
+				data: {
+					limit: 10,
+					lat: latitude,
+					lon: longitude
+				},
+				success: function(data) {
+					var item, obj;
+					var delay = 0;
+					// Work Around for The Map not always being loading 100% at end of page load
+					if (typeof _$local.map.mapTypeId == 'undefined') {
+						delay = 500;
+					}
+					window.setTimeout(function(){
+						for (item in data.results) {
+							obj = data.results[item];
+							obj.subscribed = false;
+							infoWindow = _$local.mapfunc.formatinfowindow(obj);
+							_$local.mapfunc.addmarker(obj.location.latitude, obj.location.longitude, infoWindow, false, obj.spotId, obj);
+						}
+						$.ajax({
+							data: {
+								userId: _$session_id
+							},
+							url: '/subscribe/spot',
+							success: function(subscribe_data) {
+								var subscribed = subscribe_data;
+								for (item in data.results) {
+									obj = data.results[item];
+									obj.subscribed = false;
+									for (x in subscribed) {
+										if (subscribed[x].spotId == obj.spotId) {
+											_$local.mapfunc.updatemarkerinfo(obj.spotId, true);
+										}
+									}
+								}
+							}
+						});
+					}, delay);
+					var source = $("#spots-support").html();
+					var template = Handlebars.compile(source);
+					$(".spot_container").html(template(data));
+				},
+				error: function() {
+					var data = {
+						results: []
+					};
+					var source = $("#spots-support").html();
+					var template = Handlebars.compile(source);
+					$(".spot_container").html(template(data));
+				}
+			});
+
+		}
+		
 		_$local.mapfunc.addmarker = function(lat, lon, html, blue, spotId, obj, open) {
 			if (!open) {
 				var open = false;
@@ -247,6 +313,11 @@ var correctedViewportW = (function (win, docElem) {
     		}
 		}
 		
+		_$local.mapfunc.reloadmarkers = function(e) {
+			google.maps.event.trigger(_$local.map, "dragend");
+			var zoom = _$local.map.zoom;
+		};
+		
 		_$local.initializeGeomap = function(lat, lon) {
 			var lat = lat;
 			var lon = lon;
@@ -286,8 +357,6 @@ var correctedViewportW = (function (win, docElem) {
                               return false;
                             }
 							var addy = data.results[1].formatted_address;
-							//console.log(data.results);
-							//var address = addy[1].short_name + ", " + addy[2].short_name;
 							$(".search-query").val(addy);
 						},
 						error: function() {
@@ -309,6 +378,14 @@ var correctedViewportW = (function (win, docElem) {
 	}
 
 	$(document).ready(function($){	
+
+		if (_$local.load_map === true) {
+			// load up the Geo and load up the Map on Map + .latlon & .search-query input
+			_$local.getGeolocation(function(){
+				_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])
+				load_spot_list();
+			});
+		}
 
 		if (typeof $("#profile-form")[0] != 'undefined') {
 			$('#profile-form').validate({
@@ -454,9 +531,7 @@ var correctedViewportW = (function (win, docElem) {
 				datatype: "json",
 				success: function(data){
 					var d = { results: data };
-					
 					var comments = [], photos = [];
-					
 					for (x in d.results) {
 						d.results[x].happenedAgo = moment(d.results[x].createdAt).fromNow();
 						if (d.results[x].type == "comment") {
@@ -465,15 +540,13 @@ var correctedViewportW = (function (win, docElem) {
 						if (d.results[x].type == "photo") {
 							photos.push(d.results[x]);
 						}
-					}
-					
+					}					
 					// Photos
 					var obj = $("#spotsview-photo-template");
 					var source = obj.html();
 					var template = Handlebars.compile(source);
 					$(".photos").html(template(photos));
 					$(".gallery1").colorbox({rel:'gallery1'});
-
 					// Comments
 					var obj = $("#spotsview-comment-template");
 					var source = obj.html();
@@ -486,7 +559,7 @@ var correctedViewportW = (function (win, docElem) {
 				}
 			});
 		}
-		
+
 		function parseForGraph(data) {
 			var x = [], y = [], z = [], za = [], xa = [];
 			$(data).each(function(i, item){
@@ -525,8 +598,7 @@ var correctedViewportW = (function (win, docElem) {
 			};
 			return this.path(icons[id]).attr(settings);
 		}
-		
-		
+
 		/**
 		 * @todo Move this over to using new jQuery plugin vs. this stupid method/function
 		 */
@@ -795,19 +867,15 @@ var correctedViewportW = (function (win, docElem) {
 			$(".qq-upload-list", "#uploadModal").html("");
 			$("#uploadModal").modal('show');
 		});
-
 		$("div.btn-group input[type='button']").click(function(){
 			var hidden_label = $(this).attr('name').toString().split("_")[1];
-			//console.log(hidden_label, $(this).attr('id'));
 			$("#" + hidden_label).attr("value", $(this).attr('id'));
-		});
-		$("div.btn-group input[type='button']").click(function(){
-			//$("")
 		});
 		var default_value = 150;
 		if (typeof $("#travel_distance")[0] != 'undefiend') {
 			var default_value = $("#travel_distance").val();
 		}
+
 		if ($.fn.slider) {
 			$(".distance").slider({
 			    orientation: "horizontal",
@@ -834,100 +902,122 @@ var correctedViewportW = (function (win, docElem) {
 			$(".distance .echo").html(default_value);
 		}
 
-		// Logic To Handle Spitting out the Spot Themselves		
-		if (typeof _$spot_url != 'undefined') {
-			if (typeof $("#spots-old-template")[0] != 'undefined') {
-				var obj = $("#spots-template");
-				// does a quick pull for all spots
-				var url = "http://" + _$spot_url + "/spot?callback=?";
-				var infoWindow;
-				$.ajax({
-					dataType: "jsonp",
-					jsonp: "callback",
-					url: url,
-					success: function(data) {
-						var item, obj;
-						var delay = 0;
-						// Work Around for The Map not always being loading 100% at end of page load
-						if (typeof _$local.map.mapTypeId == 'undefined') {
-							delay = 500;
-						}
-						window.setTimeout(function(){
-							// @todo Make this information available in the Spot callback
-							// @todo rather than doing 2 seperate queries
-							for (item in data.results) {
-								obj = data.results[item];
-								obj.subscribed = false;
-								infoWindow = formatInfoWindow(obj);
-								_$local.mapfunc.addmarker(obj.location.latitude, obj.location.longitude, infoWindow, false, obj.spotId, obj);
+		function load_spot_list() {
+			// Logic To Handle Spitting out the Spot Themselves		
+			if (typeof _$spot_url != 'undefined') {
+				if (typeof $("#spots-old-template")[0] != 'undefined') {
+					var obj = $("#spots-template");
+					// does a quick pull for all spots
+					var url = "http://" + _$spot_url + "/spot?callback=?";
+					var infoWindow, latitude, longitude;
+					
+					latitude = _$local.geolocal.lat;
+					longitude = _$local.geolocal.lon;
+									
+					$.ajax({
+						dataType: "jsonp",
+						jsonp: "callback",
+						url: url,
+						data: {
+							limit: 10,
+							lat: latitude,
+							lon: longitude
+						},
+						success: function(data) {
+							var item, obj, local;
+							
+							local = data;
+							
+							var delay = 0;
+							// Work Around for The Map not always being loading 100% at end of page load
+							if (typeof _$local.map.mapTypeId == 'undefined') {
+								delay = 500;
 							}
-							$.ajax({
-								data: {
-									userId: _$session_id
-								},
-								url: '/subscribe/spot',
-								success: function(subscribe_data) {
-									var subscribed = subscribe_data;
-									for (item in data.results) {
-										obj = data.results[item];
-										obj.subscribed = false;
-										for (x in subscribed) {
-											if (subscribed[x].spotId == obj.spotId) {
-												_$local.mapfunc.updatemarkerinfo(obj.spotId, true);
+							window.setTimeout(function(){
+								// @todo Make this information available in the Spot callback
+								// @todo rather than doing 2 seperate queries
+								for (item in data.results) {
+									obj = data.results[item];
+									obj.subscribed = false;
+									infoWindow = formatInfoWindow(obj);
+									_$local.mapfunc.addmarker(obj.location.latitude, obj.location.longitude, infoWindow, false, obj.spotId, obj);
+								}
+								$.ajax({
+									data: {
+										userId: _$session_id
+									},
+									url: '/subscribe/spot',
+									success: function(subscribe_data) {
+										var subscribed = subscribe_data;
+										for (item in data.results) {
+											obj = data.results[item];
+											obj.subscribed = false;
+											for (x in subscribed) {
+												if (subscribed[x].spotId == obj.spotId) {
+													_$local.mapfunc.updatemarkerinfo(obj.spotId, true);
+												}
 											}
 										}
 									}
-								}
-							});
-							
-							var input = document.getElementById("search_spot_input");
-							var autocomplete = new google.maps.places.Autocomplete(input);
-							autocomplete.bindTo("bounds", _$local.map);
-
-							google.maps.event.addListener(autocomplete, "place_changed", function(){
-								var place = autocomplete.getPlace();
-								_$local.maptemp = place;
-								if (place.geometry.viewport) {
-									_$local.map.fitBounds(place.geometry.viewport);
-								} else {
-									_$local.map.setCenter(place.geometry.location);
-									_$local.map.setZoom(15);
-								}
-								
-								// @todo Make this be the updated Marker (of me) -- in 'Red'
-								marker.setPosition(place.geometry.location);
-							})
-							
-							google.maps.event.addListener(_$local.map, "click", function(event){
-								var lat = event.latLng.lat();
-								var lng = event.latLng.lng();
-								var location = new google.maps.LatLng(lat, lng);
-								var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&sensor=true";
-								$.getJSON(url, function(data){
-									var location = data.results[0].formatted_address;
-									var html = _$local.mapfunc.formatNewSpotWindow({name: location, lat: lat, lng: lng});
-									_$local.mapfunc.addmarker(lat, lng, html, false, null, null, true);
 								});
-							})
+								
+								var input = document.getElementById("search_spot_input");
+								var autocomplete = new google.maps.places.Autocomplete(input);
+								autocomplete.bindTo("bounds", _$local.map);
+	
+								google.maps.event.addListener(autocomplete, "place_changed", function(){
+									var place = autocomplete.getPlace();
+									_$local.maptemp = place;
+									if (place.geometry.viewport) {
+										_$local.map.fitBounds(place.geometry.viewport);
+									} else {
+										_$local.map.setCenter(place.geometry.location);
+										_$local.map.setZoom(15);
+									}
+									
+									// @todo Make this be the updated Marker (of me) -- in 'Red'
+									marker.setPosition(place.geometry.location);
+								})
+								
+								google.maps.event.addListener(_$local.map, "zoom_changed", function(){
+									_$local.mapfunc.reloadmarkers(event);
+								});
+								
+								google.maps.event.addListener(_$local.map, "dragend", function(){
+									_$local.mapfunc.getlocalspots();
+								});
+								
+								google.maps.event.addListener(_$local.map, "click", function(event){
+									var lat = event.latLng.lat();
+									var lng = event.latLng.lng();
+									var location = new google.maps.LatLng(lat, lng);
+									var url = "//maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&sensor=true";
+									$.getJSON(url, function(data){
+										var location = data.results[0].formatted_address;
+										var html = _$local.mapfunc.formatNewSpotWindow({name: location, lat: lat, lng: lng});
+										_$local.mapfunc.addmarker(lat, lng, html, false, null, null, true);
+									});
+								})
+								
+							}, delay);
+							var source = $("#spots-support").html();
+							var template = Handlebars.compile(source);
 							
-						}, delay);
-						var source = $("#spots-support").html();
-						var template = Handlebars.compile(source);
-						$(".spot_container").html(template(data));
-						$(data.results).each(function(i, item){
-//							loadForecast(item.spotId);
-							loadKitescore(item.spotId, "#spot-detail-" + item.spotId);
-						});
-					},
-					error: function() {
-						var data = {
-							results: []
-						};
-						var source = $("#spots-support").html();
-						var template = Handlebars.compile(source);
-						$(".spot_container").html(template(data));
-					}
-				});
+							$(".spot_container").html(template(data));
+							$(data.results).each(function(i, item){
+								loadKitescore(item.spotId, "#spot-detail-" + item.spotId);
+							});
+						},
+						error: function() {
+							var data = {
+								results: []
+							};
+							var source = $("#spots-support").html();
+							var template = Handlebars.compile(source);
+							$(".spot_container").html(template(data));
+						}
+					});
+				}			
 			}
 
 			if (typeof $("#spots-template")[0] != 'undefined') {
@@ -983,8 +1073,7 @@ var correctedViewportW = (function (win, docElem) {
 						window._$local.spot['lon'] = parseFloat(jQuery("#lon").val());
 						_$local.initializeGeomap(_$local.spot['lat'], _$local.spot['lon'])
 					},
-					error: function() {
-					}
+					error: function() {}
 				});
 			}
 			
@@ -1024,73 +1113,10 @@ var correctedViewportW = (function (win, docElem) {
 					loader.html("");
 				}
 			});
-			
-			if (typeof $("#spotview-template")[0] != 'undefined') {
-				var obj = $("#spotview-template");
-				// does a quick pull for all spots
-				var url = "http://" + _$spot_url + "/spot/" + _$spot_id + "?callback=?";
-				$.ajax({
-					dataType: "jsonp",
-					jsonp: "callback",
-					url: url,
-					success: function(data) {
-						var data = data[0];
-						var source = obj.html();
-						var template = Handlebars.compile(source);
-						$(".spot_container").html(template(data));
-						if (typeof initialize == 'function') {	
-							initialize(data.location.latitude, data.location.longitude);
-							loadnearby();
-							loadKitescore(_$spot_id, '#kitescore_spot');
-							loadComments(_$spot_id);
-						}
-						// ideally this information should be in the spot request (not as two seperate queries)
-						$.ajax({
-							dataType: "json",
-							url: "/subscribe/spot/" + _$spot_id,
-							data: {
-								'userId': _$session_id
-							},
-							success: function(data) {
-								if (data.length > 0) {
-									$(".subscribe", "#spot-" + _$spot_id).removeClass("btn-success").addClass("btn-warning").attr('method', 'DELETE').text("Stop watching");
-								}
-								$(".subscribe").removeClass("hidden");
-							},
-							error: function() {
-							}
-						});
-					},
-					error: function() {
-					}
-				});
-				
-				$(".checkin").live("click", function(){
-					var that = this;
-					var url = "http://" + _$spot_url + "/checkin/spot/" + _$spot_id;
-					var data = {userId: _$user_id};
-					$.ajax({
-						type: 'PUT',
-						contentType: "application/json; charset=utf-8",
-						dataType: "json",
-						data: JSON.stringify(data),
-						url: url,
-						success: function(data) {
-							$(that).remove();
-							$(".active_users").prepend("<p>You were here just now.</p>");
-						},
-						error: function() {
-							$(".active_users").prepend("<div class='alert helpful'>There was an issue checking you in, please try again.</div>");
-							setTimeout(function(){
-								$(".helpful").fadeOut(500, function(){
-									$(this).remove();
-								});
-							}, 1000);
-						}
-					});
-				});				
-			}
-			
+						
+		}
+
+		function spot_load_people() {
 			if (typeof $("#spotcheckin-template")[0] != 'undefined') {
 				function loadActivePeople() {
 					var url = "http://" + _$spot_url + "/checkin/spot/" + _$spot_id;
@@ -1128,8 +1154,10 @@ var correctedViewportW = (function (win, docElem) {
 				window.setTimeout(function(){
 					loadActivePeople();					
 				}, 1500);				
-			}
-			
+			}			
+		}
+		
+		function spot_load_forecast() {
 			if (typeof $("#spotweather-template")[0] != 'undefined') {
 				loadForecast();
 			}
@@ -1139,7 +1167,7 @@ var correctedViewportW = (function (win, docElem) {
 				var source = obj.html();
 				var template = Handlebars.compile(source);
 				$(".spot_container").html(template({}));
-			}
+			}			
 		}
 				
 		function loadDiscoverBy(_$kite_url, callback) {
@@ -1152,43 +1180,6 @@ var correctedViewportW = (function (win, docElem) {
 
 		// Logic To Handle Spitting out the Spot Themselves		
 		if (typeof _$kite_url != 'undefined') {
-			/**
-			$(".browse").live("change", function(e){
-				e.preventDefault();
-				var that = this;
-				_$local.discover_radius = $(that).find(":selected").val();
-				$(".spot_container").html("Loading...");
-				$(".radius_distance").html(_$local.discover_radius);
-
-				loadDiscoverBy(_$kite_url, function(){
-					var url = "http://" + _$kite_url + "/spot";
-					$.ajax({
-						dataType: "json",
-						data: {
-							discover_nearby: true,
-							lat: _$local.geolocal.lat,
-							lon: _$local.geolocal.lon,
-							miles: _$local.discover_radius,
-							userId: _$session_id
-						},
-						url: url,
-						success: function(data) {
-							var source = obj.html();
-							var template = Handlebars.compile(source);
-							$(".spot_container").html(template(data));
-							$(data.results).each(function(i, item){
-								loadForecast(item.spotId);
-								loadKitescore(item.spotId);
-							});
-						},
-						error: function() {
-						}
-					});
-				});
-
-			});
-			**/
-
 			if (typeof $("#kitespot-template")[0] != 'undefined') {
 				var obj = $("#kitespot-template");
 				// discover nearby uses a different approach to getting 'spots'
@@ -1259,6 +1250,75 @@ var correctedViewportW = (function (win, docElem) {
 					});
 				}
 			}
+		}
+
+		function load_spot_view() {
+			if (typeof $("#spotview-template")[0] != 'undefined') {
+				var obj = $("#spotview-template");
+				// does a quick pull for all spots
+				var url = "http://" + _$spot_url + "/spot/" + _$spot_id + "?callback=?";
+				$.ajax({
+					dataType: "jsonp",
+					jsonp: "callback",
+					url: url,
+					success: function(data) {
+						var data = data[0];
+						var source = obj.html();
+						var template = Handlebars.compile(source);
+						$(".spot_container").html(template(data));
+						if (typeof initialize == 'function') {	
+							initialize(data.location.latitude, data.location.longitude);
+							loadnearby();
+							loadKitescore(_$spot_id, '#kitescore_spot');
+							loadComments(_$spot_id);
+							// @peopleload
+						}
+						// ideally this information should be in the spot request (not as two seperate queries)
+						$.ajax({
+							dataType: "json",
+							url: "/subscribe/spot/" + _$spot_id,
+							data: {
+								'userId': _$session_id
+							},
+							success: function(data) {
+								if (data.length > 0) {
+									$(".subscribe", "#spot-" + _$spot_id).removeClass("btn-success").addClass("btn-warning").attr('method', 'DELETE').text("Stop watching");
+								}
+								$(".subscribe").removeClass("hidden");
+							},
+							error: function() {
+							}
+						});
+					},
+					error: function() {
+					}
+				});
+				
+				$(".checkin").live("click", function(){
+					var that = this;
+					var url = "http://" + _$spot_url + "/checkin/spot/" + _$spot_id;
+					var data = {userId: _$user_id};
+					$.ajax({
+						type: 'PUT',
+						contentType: "application/json; charset=utf-8",
+						dataType: "json",
+						data: JSON.stringify(data),
+						url: url,
+						success: function(data) {
+							$(that).remove();
+							$(".active_users").prepend("<p>You were here just now.</p>");
+						},
+						error: function() {
+							$(".active_users").prepend("<div class='alert helpful'>There was an issue checking you in, please try again.</div>");
+							setTimeout(function(){
+								$(".helpful").fadeOut(500, function(){
+									$(this).remove();
+								});
+							}, 1000);
+						}
+					});
+				});				
+			}				
 		}
 		
 		function setCountdown(count, callback) {
@@ -1481,16 +1541,10 @@ var correctedViewportW = (function (win, docElem) {
 						_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])
 						$(".search-query").val(_$local.returnGeolocation()['street']);
 						$(".latlon").html(_$local.returnGeolocation()['lat'] + ", " + _$local.returnGeolocation()['lon']);
-					});					
+						final_callback();
+					});
 				}
 			}
-		}
-		
-		if (_$local.load_map === true) {
-			// load up the Geo and load up the Map on Map + .latlon & .search-query input
-			_$local.getGeolocation(function(){
-				_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])
-			});
 		}
 		
 		$(".add-comment").live("click", function(e) {
@@ -1533,6 +1587,14 @@ var correctedViewportW = (function (win, docElem) {
 				comments.addClass('hidden');				
 			}
 		})
+		
+		function final_callback() {
+			load_spot_view();
+			spot_load_people();
+			spot_load_forecast();
+		}
+
+		final_callback();
 
 	});
 

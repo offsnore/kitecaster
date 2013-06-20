@@ -154,6 +154,10 @@ h2.head_title {
     border-top-right-radius: 8px;
 }
 
+.status_opener {
+    cursor: pointer;   
+}
+
 .profile > .body > .info ul {
     margin: 20px auto 20px;
     width: 80%;
