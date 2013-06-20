@@ -88,7 +88,7 @@ exports.registerAction = function(req, res) {
 			var session_token = _params[2];
 		}
 		if (error.length > 0) {
-			res.redirect('/register?msg=' + encodeURIComponent(error));			
+			res.redirect('/main/register?msg=' + encodeURIComponent(error));			
 		} else {
 			var q = {
 				username: org_data.email,
@@ -100,7 +100,7 @@ exports.registerAction = function(req, res) {
 					Datasession.setlogincookie(res, data);
 					res.redirect('/main');
 				} else {
-					res.redirect('/login?msg=' + encodeURIComponent(data.error));			
+					res.redirect('/main/login?msg=' + encodeURIComponent(data.error));			
 				}
 			});
 		}
@@ -136,14 +136,14 @@ exports.loginAction = function(req, res) {
 			Datasession.setlogincookie(res, data);
 			res.redirect('/main');
 		} else {
-			res.redirect('/login?msg=' + encodeURIComponent(data.error));			
+			res.redirect('/main/login?msg=' + encodeURIComponent(data.error));			
 		}
 	});
 }
 
 exports.logoutIndex = function(req, res) {
 	Datasession.logout(res, function(res){
-		res.redirect("/login?txt=" + encodeURIComponent("You have successfully logged out."));
+		res.redirect("/main/login?txt=" + encodeURIComponent("You have successfully logged out."));
 	});
 }
 
@@ -832,7 +832,7 @@ exports.mainProfileSave = function(req, res) {
 }
 
 function kickOut(res, mesg) {
-	res.redirect("/login?txt="+encodeURIComponent(mesg));
+	res.redirect("/main/login?txt="+encodeURIComponent(mesg));
 }
 
 /**

@@ -114,16 +114,18 @@ app.get('/foo', function(req, res) {
 });
 app.get('/start', routes.start);
 
-app.get('/login', routes.loginIndex);
-app.post('/login', routes.loginAction);
+// @moved everything to /main b/c below that is a differnet APP now
+
+app.get('/main/login', routes.loginIndex);
+app.post('/main/login', routes.loginAction);
 
 // These two are alias' of each other
-app.get('/logout', routes.logoutIndex);
+app.get('/main/logout', routes.logoutIndex);
 app.get('/main/logout', routes.logoutIndex);
 
 // Register
-app.get('/register', routes.registerIndex);
-app.post('/register', routes.registerAction);
+app.get('/main/register', routes.registerIndex);
+app.post('/main/register', routes.registerAction);
 
 // @todo make this routing come from a config file and executed via a LOOP
 app.get('/main', routes.mainIndex);
