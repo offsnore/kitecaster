@@ -1,0 +1,132 @@
+!!!
+<!--[if IE 7]> <html lang="en" class="ie7"> <![endif]-->  
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->  
+<!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->  
+html
+	head
+		title= 'KiteCaster.com - Beta'
+		meta(charset='utf-8')
+		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+
+		link(rel="stylesheet", href="/assets/plugins/bootstrap/css/bootstrap.min.css")
+		link(rel="stylesheet", href="/assets/css/style.css")
+		link(rel="stylesheet", href="/assets/css/headers/header1.css")
+		link(rel="stylesheet", href="/assets/plugins/bootstrap/css/bootstrap-responsive.min.css")
+		link(rel="stylesheet", href="/assets/css/style_responsive.css")
+		link(rel="shortcut icon", href="favicon.ico")
+		<!-- CSS Implementing Plugins -->    
+		link(rel="stylesheet", href="/assets/plugins/font-awesome/css/font-awesome.css")
+		link(rel="stylesheet", href="/assets/css/effects.css")
+		link(rel="stylesheet", href="/assets/plugins/fancybox/source/jquery.fancybox.css")
+		link(rel="stylesheet", href="/assets/plugins/flexslider/flexslider.css", type="text/css", media="screen")
+		link(rel="stylesheet", href="/assets/plugins/revolution_slider/css/rs-style.css", media="screen")
+		link(rel="stylesheet", href="/assets/plugins/revolution_slider/rs-plugin/css/settings.css", media="screen")    
+		<!-- CSS Theme -->    
+		link(rel="stylesheet", href="/assets/css/themes/default.css", id="style_color")
+		link(rel="stylesheet", href="/assets/css/themes/headers/default.css", id="style_color-header-1")
+	body
+		.top
+			.container
+				p
+				br
+		.header
+			.container
+				.logo
+					a(href='#')
+						span.main_logo KiteCaster
+				.navbar
+					.navbar-inner
+						a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+							span.icon-bar
+							span.icon-bar
+							span.icon-bar
+						.nav-collapse.collapse
+							ul.nav.top-2
+								li.active
+									a(href='#', class='dropdown-toggle', data-toggle='dropdown') Home
+										b.caret
+									ul.dropdown-menu
+										li
+											a(href='/') Home
+										li
+											a(href='/blog.html') Articles
+										li
+											a(href='/main/login') Login
+									b.caret-out
+								li
+									a(href='#', class='dropdown-toggle', data-toggle='dropdown') Contact
+										b.caret
+									ul.dropdown-menu
+										li
+											a(href='/who-are-we.html') About Us
+								li
+									a(href='/main/register') Create an Account
+							.search-open
+								.input-append
+									form
+										input(type='text', placeholder='Search').span3
+										button(type='submit').btn-u
+											| Go
+		.breadcrumbs.margin-bottom-20
+			.container
+				h1.color-green.pull-left 
+					block content_header
+				ul.pull-right.breadcrumb
+					li
+						a(href='/') Home
+						span.divider
+					li.active Blog
+		.container
+			.row-fluid.blog-page
+				block content
+
+		.footer
+			.container
+				.row-fluid
+					.span4
+						.headline
+							h3 About
+						.margin-bottom-25 KiteCaster is an application built for KiteBoarders by KiteBoarders in an effort to streamline the kiteboarding experience.
+					.span4
+						.posts
+							.headline
+								h3 Recent Blog Entries
+								block content
+					.span4
+						.headline
+							h3 Get in Touch with Us
+						address
+							| Email:
+							a(href='mailto:support@kitecaster.com') support@kitecaster.com
+
+						.headline
+							h3 Stay Connected
+						ul.social-icons
+							li
+								a(href='#', data-original-title='Feed').social_rss
+							li
+								a(href='#', data-original-title='Facebook').social_facebook
+							li
+								a(href='#', data-original-title='Twitter').social_twitter
+
+		script(type='text/javascript', src='/assets/js/jquery-1.8.2.min.js')
+		script(type='text/javascript', src='/assets/js/modernizr.custom.js')
+		script(type='text/javascript', src='/assets/plugins/bootstrap/js/bootstrap.min.js')
+		script(type='text/javascript', src='/assets/plugins/flexslider/jquery.flexslider-min.js')
+		script(type='text/javascript', src='/assets/plugins/back-to-top.js')
+		script(type='text/javascript', src='/assets/plugins/fancybox/source/jquery.fancybox.pack.js')
+		script(type='text/javascript', src='/assets/plugins/revolution_slider/rs-plugin/js/jquery.themepunch.revolution.min.js')
+		script(type='text/javascript', src='/assets/plugins/revolution_slider/rs-plugin/js/jquery.themepunch.plugins.min.js')
+		script(type='text/javascript', src='/assets/js/app.js')
+		script(type='text/javascript', src='/assets/js/pages/index.js')
+		script(type='text/javascript')
+			jQuery(document).ready(function() {
+				App.init();
+				App.initFancybox();
+				App.initSliders();
+				Index.initRevolutionSlider();        
+			});
+		<!--[if lt IE 9]>
+		script(type='text/javascript', src='/assets/js/respond.js')
+		<![endif]-->
