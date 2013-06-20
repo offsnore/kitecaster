@@ -1,0 +1,205 @@
+!!!
+<!--[if IE 7]> <html lang="en" class="ie7"> <![endif]-->  
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->  
+<!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->  
+html
+	head
+		title= 'KiteCaster.com - Beta'
+		meta(charset='utf-8')
+		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+
+		link(rel="stylesheet", href="/assets/plugins/bootstrap/css/bootstrap.min.css")
+		link(rel="stylesheet", href="/assets/css/style.css")
+		link(rel="stylesheet", href="/assets/css/headers/header1.css")
+		link(rel="stylesheet", href="/assets/plugins/bootstrap/css/bootstrap-responsive.min.css")
+		link(rel="stylesheet", href="/assets/css/style_responsive.css")
+		link(rel="shortcut icon", href="favicon.ico")
+		<!-- CSS Implementing Plugins -->    
+		link(rel="stylesheet", href="/assets/plugins/font-awesome/css/font-awesome.css")
+		link(rel="stylesheet", href="/assets/css/effects.css")
+		link(rel="stylesheet", href="/assets/plugins/fancybox/source/jquery.fancybox.css")
+		link(rel="stylesheet", href="/assets/plugins/flexslider/flexslider.css", type="text/css", media="screen")
+		link(rel="stylesheet", href="/assets/plugins/revolution_slider/css/rs-style.css", media="screen")
+		link(rel="stylesheet", href="/assets/plugins/revolution_slider/rs-plugin/css/settings.css", media="screen")    
+		<!-- CSS Theme -->    
+		link(rel="stylesheet", href="/assets/css/themes/default.css", id="style_color")
+		link(rel="stylesheet", href="/assets/css/themes/headers/default.css", id="style_color-header-1")
+	body
+		.top
+			.container
+				p
+				br
+		.header
+			.container
+				.logo
+					a(href='#')
+						span.main_logo KiteCaster
+				.navbar
+					.navbar-inner
+						a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+							span.icon-bar
+							span.icon-bar
+							span.icon-bar
+						.nav-collapse.collapse
+							ul.nav.top-2
+								li.active
+									a(href='#', class='dropdown-toggle', data-toggle='dropdown') Home
+										b.caret
+									ul.dropdown-menu
+										li
+											a(href='/') Home
+										li
+											a(href='/blog.html') Articles
+										li
+											a(href='/main/login') Login
+									b.caret-out
+								li
+									a(href='#', class='dropdown-toggle', data-toggle='dropdown') Contact
+										b.caret
+									ul.dropdown-menu
+										li
+											a(href='/who-are-we.html') About Us
+								li
+									a(href='/main/register') Create an Account
+							.search-open
+								.input-append
+									form
+										input(type='text', placeholder='Search').span3
+										button(type='submit').btn-u
+											| Go
+		.fullwidthbanner-container
+			.fullwidthabnner
+				ul
+					li(data-transition='slideleft', data-slotamount='1', data-masterspeed='300', data-thumb='/assets/img/bw1024.jpg')
+						img(src='/assets/img/bw1024.jpg')
+						.caption.large_text.sft(data-x='10', data-y='44', data-speed='300', data-start='800', data-easing='easeOutExpo') 
+							| Go bigger, every time.
+						.caption.large_text.sft(data-x='1', data-y='404', data-speed='300', data-start='1400', data-easing='easeOutExpo') 
+							| Our detailed information lets you plan your trips.
+					li(data-transition="papercut", data-slotamount="15", data-masterspeed="300", data-delay="9400", data-thumb="/assets/img/caster-preview.png")
+						img(src='/assets/img/caster-preview.png', alt='')
+						.caption.very_big_white.lfl.stl(data-x="18", data-y="343", data-speed="300", data-start="500", data-easing="easeOutExpo", data-end="8800", data-endspeed="300", data-endeasing="easeInSine")
+							| Check out your favorite spots, at a glance!
+					li(data-transition="papercut", data-slotamount="15", data-masterspeed="300", data-delay="9400", data-thumb="/assets/img/kiteboard-image.jpg")
+						img(src='/assets/img/kiteboard-image.jpg', alt='')
+						.caption.very_big_white.sft.stl(data-x="18", data-y="343", data-speed="300", data-start="500", data-easing="easeOutExpo", data-end="8800", data-endspeed="300", data-endeasing="easeInSine")
+							span.stl Know when & where to kite 
+						.caption.very_big_white.lfl.stl(data-x="18", data-y="203", data-speed="300", data-start="600", data-easing="easeOutExpo", data-end="8800", data-endspeed="300", data-endeasing="easeInSine")
+							span.stl Get the most out of your days.
+					li(data-transition="slideleft", data-slotamount="15", data-masterspeed="300", data-delay="9400", data-thumb="/assets/img/caster-preview.png")
+						img(src='/assets/img/caster-preview.png', alt='')
+						.caption.very_big_white.lfl.stl(data-x='18', data-y='200', data-speed='300', data-easing='easeOutExpo')
+							| Sign Up Today and load up your favorite kiting spots!
+				.tp-bannertime.tp-bottom
+
+		.row-fluid.purchase.margin-bottom-30
+			.container
+				.span9
+					span 
+						| KiteCaster is a clean, easy way to track your favorite kite spots!
+				a(href='/register').btn-buy.hover-effect
+					| Sign Up
+
+		.container-fluid.one-page
+			.one-page-inner.one-default
+				.container
+					h1 Searching for your favoriate spot is easy
+					.row-fluid
+						.span6
+							p With our easy to use searching tools, finding and watching your favorite kiting spots is as easy as viewing a map.
+							a.btn-u.btn-u-large.btn-u-green.one-page-btn(href='/register')
+								i.icon-bolt 	
+								| Search for your spot...
+						.span6
+							a(href='/assets/img/kite-demo-search.png', title='Search for your favorite spot', data-rel='fancybox-button').fancybox-button.zoomer
+								.overlay-zoom
+									img(alt='', src='/assets/img/kite-demo-search.png')
+									.zoom-icon
+			.one-page-inner.one-default
+				.container
+					h1 Share your experiences on Any Device
+					.row-fluid
+						.span6
+							a(href='/assets/img/kite-demo-spot-mobile.png', title='Share your experiences on Any Device', data-rel='fancybox-button').fancybox-button.zoomer
+								.overlay-zoom
+									img(alt='', src='/assets/img/kite-demo-spot-mobile.png').force-max
+									.zoom-icon
+						.span6
+							p In addition to getting forecasts and kiting information: upload photos, checkin to spots, and comment on the current condition of the spot you're at!
+							a.btn-u.btn-u-large.btn-u-red.one-page-btn
+								i.icon-thumbs-up 
+								| Create an Account!
+				hr
+				.row-fluid
+					.span3
+						i.icon-flag.icon-3x
+						h3
+							a(href='#') Kiting Score
+						p Our unique tools give you a kiting score, with this score, you can check any spot at a glance.
+					.span3
+						i.icon-tint.icon-3x
+						h3
+							a(href='#') Weather Forecast
+						p Wind speed, cloud coverage, temperature, humidity, and precipitation are some of the details provided with each spot.
+					.span3
+						i.icon-group.icon-3x
+						h3
+							a(href='#') Share with your friends
+						p Upload photos and comment on your experience while you're at your favorite spot!
+					.span3
+						i.icon-bookmark-empty.icon-3x
+						h3
+							a(href='#') MyFavorite List
+						p A unique collection of your favorite spots all in one place where checking kite scores and weather conditions is a breeze.
+
+
+		.footer
+			.container
+				.row-fluid
+					.span4
+						.headline
+							h3 About
+						.margin-bottom-25 KiteCaster is an application built for KiteBoarders by KiteBoarders in an effort to streamline the kiteboarding experience.
+					.span4
+						.posts
+							.headline
+								h3 Recent Blog Entries
+								block content
+					.span4
+						.headline
+							h3 Get in Touch with Us
+						address
+							| Email:
+							a(href='mailto:support@kitecaster.com') support@kitecaster.com
+
+						.headline
+							h3 Stay Connected
+						ul.social-icons
+							li
+								a(href='#', data-original-title='Feed').social_rss
+							li
+								a(href='#', data-original-title='Facebook').social_facebook
+							li
+								a(href='#', data-original-title='Twitter').social_twitter
+
+		script(type='text/javascript', src='/assets/js/jquery-1.8.2.min.js')
+		script(type='text/javascript', src='/assets/js/modernizr.custom.js')
+		script(type='text/javascript', src='/assets/plugins/bootstrap/js/bootstrap.min.js')
+		script(type='text/javascript', src='/assets/plugins/flexslider/jquery.flexslider-min.js')
+		script(type='text/javascript', src='/assets/plugins/back-to-top.js')
+		script(type='text/javascript', src='/assets/plugins/fancybox/source/jquery.fancybox.pack.js')
+		script(type='text/javascript', src='/assets/plugins/revolution_slider/rs-plugin/js/jquery.themepunch.revolution.min.js')
+		script(type='text/javascript', src='/assets/plugins/revolution_slider/rs-plugin/js/jquery.themepunch.plugins.min.js')
+		script(type='text/javascript', src='/assets/js/app.js')
+		script(type='text/javascript', src='/assets/js/pages/index.js')
+		script(type='text/javascript')
+			jQuery(document).ready(function() {
+				App.init();
+				App.initFancybox();
+				App.initSliders();
+				Index.initRevolutionSlider();        
+			});
+		<!--[if lt IE 9]>
+		script(type='text/javascript', src='/assets/js/respond.js')
+		<![endif]-->
