@@ -333,9 +333,9 @@ app.buildKiteScore = function(model, spot, windData, callback) {
          var closestDifference = Math.abs(closestDir - windDirDegrees);
          // normalize the difference into 1/8 points to subtract from kitescore
          var kiteScoreSubtraction = closestDifference / 45;
-         //logger.debug('taking off ' + kiteScoreSubtraction + ' because the closest wind dir is ' + closestDir + ' and wind degree is ' + windDirDegrees);
+         logger.debug('taking off ' + kiteScoreSubtraction + ' because the closest wind dir is ' + closestDir + ' and wind degree is ' + windDirDegrees);
          
-         kiteScore -= closestDifference / 45; 
+         kiteScore -= (2 * kiteScoreSubtraction ); 
       }
       var floorScore = Math.floor(kiteScore);
       data['kiteScore'] = floorScore < 0 ? 0 : floorScore ;
