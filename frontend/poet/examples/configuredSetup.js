@@ -6,7 +6,7 @@ var
 
 poet.set({
   postsPerPage : 3,
-  posts        : './_newposts',
+  posts        : require('path').resolve(__dirname, './_newposts'),
   metaFormat   : 'json'
 }).createPostRoute( '/:post.html', 'post' )
   .createSitemapRoute('/sitemap.xml')
