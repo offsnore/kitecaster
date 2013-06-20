@@ -1,0 +1,7 @@
+div.post
+  h1
+    a(href=post.url+".html")
+      = post.title
+  span.date #{post.date.getMonth()+1}.#{post.date.getDate()}.#{post.date.getFullYear()} - #{moment(post.date)}
+  div.post.content
+    != post.preview

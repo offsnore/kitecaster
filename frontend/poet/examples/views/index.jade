@@ -1,0 +1,79 @@
+extends layout
+
+block content_header
+	h1 Our Recent News
+
+block page_center
+	.span12.dark
+		.span2
+		.span8.top-level
+			.carousel.slide(id='myCarousel')
+				ol.carousel-indicators
+					li(data-target='#myCarousel', data-slide-to='0').active
+					li(data-target='#myCarousel', data-slide-to='1')
+				.carousel-inner
+					.item
+						img(src='/img/chef-happy-client.jpg', alt='we deal in people. we provide solutions.').stretched_image
+						.carousel-text.right.white
+							h3 
+								| We're interested in 
+								h2 problems 
+									i.icon-bug
+							p
+							h4
+								| Making people happy is our by-product.
+								
+						.carousel-caption
+							h4 Regardless of your profession..
+							p We're here to use our tools to make your life simplier, faster, better.
+					.item.active
+						img(src='/img/tampa-night-view.jpg', alt='Image Test').marginslide
+						.carousel-text.left.marginoffsetmobile.white
+							h4 
+								p
+								| We keep up with advances in Medical, eCommerce, and Telecommunications -
+							p
+							h3
+								| You get the benefits of our knowledge.
+						.carousel-caption
+							h4 Resources at your fingertips, we've got resources all over the Tampa Bay Area and beyond.
+							p We're in touch with the pulse of industries from California's northern shores to the Southern most tip of the Florida keys.
+				.carousel-control.left(href='#myCarousel', data-slide='prev')&lsaquo;
+				.carousel-control.right(href='#myCarousel', data-slide='next')&rsaquo;
+	.span12.noisy
+		.span2
+		.span8
+			.fluid-container.text-center
+				h3 What We Do
+				hr.dashed
+				.row-fluid
+					.span4
+						.icon_wrapper
+							i.icon-code.icon-4x
+						h3 	Fast Turn-Around
+						p
+							| We use agile development and open source technology to simplify the typical (and not so typical) enterprise project. Our goal is to have your product in your hands within 12-16 weeks.
+					.span4
+						.icon_wrapper
+							i.icon-building.icon-4x
+						h3 Grow your workforce
+						p
+							| Our staff of developers, contractors, and managers allow us to support the IT costs you don't want to invest in. Using our workforce allows you to develop your project within a managable budget.
+					.span4
+						.icon_wrapper
+							i.icon-tasks.icon-4x
+						h3 Improve Client Relations
+						p
+							| We believe the client should be as involved as they want to be. We provide tools that integrate into our systems so clients can check their progress without having to schedule a phone call or send an email.
+
+block content
+	- var posts = getPosts(0,3)
+	- var page  = 1
+	- each post in posts
+		=JSON.stringify(post.display_main)
+		if(!post.hide_main)
+			include includes/postSnippet
+
+	a(href='/blog.html') Even More Articles &nbsp;
+	i.icon-chevron-right
+	p &nbsp;
