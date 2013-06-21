@@ -73,6 +73,9 @@ exports.registerAction = function(req, res) {
 
 	var error, response, session_token;
 
+	// We standardize Email Addyz
+	data.email = (data.email).toString().toLowerCase();
+
 	Datasession.registerUser(data, res, function(){
 		var _args = arguments;
 		if (_args) {
@@ -127,7 +130,7 @@ exports.loginAction = function(req, res) {
 	var nconf = getSettings();
 	var data = req.body;
 	var q = {
-		username: data.email,
+		username: (data.email).toLowerCase(),
 		password: data.password
 	};
 	Datasession.login(q, function(data){

@@ -44,6 +44,9 @@ app.newuser = function(req, callback_method) {
 					"className" : "_User",
 					"objectId" : body.objectId
 				};
+				if (userInfo['password']) {
+				    delete userInfo['password'];    				
+				}
 				Datastore.records.createobject("Profiles", userInfo, function(err, response, body) {
 					if (body.error) {
 						callback_method(body, body.error);
