@@ -74,12 +74,14 @@ var correctedViewportW = (function (win, docElem) {
 
 		// GeoLocation Stuff
 		_$local.geolocal = {};
-		_$local.getGeolocation = function(callback) {
+		_$local.getGeolocation = function(callback, callback_fail) {
 			if (typeof _$session_id == 'undefined') {
 				return false;
 			}
+			console.log('checking location..');
 			// @todo - check for new Location
 			var url = "/user/location?userObjectId=" + encodeURIComponent(_$session_id);
+
 			// lets check our DB first
 			$.getJSON(url, function(data){
 				if (data.length > 0) {
@@ -90,7 +92,11 @@ var correctedViewportW = (function (win, docElem) {
 						callback(data);
 					}
 				} else {
-					_$local.pullGeolocation();
+					_$local.pullGeolocation(callback);
+				}
+			}).error(function(){
+				if (typeof callback_fail == 'undefined') {
+					callback_fail();
 				}
 			});
 		}
@@ -1170,22 +1176,30 @@ var correctedViewportW = (function (win, docElem) {
 			}			
 		}
 				
-		function loadDiscoverBy(_$kite_url, callback) {
+		function loadDiscoverBy(_$kite_url, callback, callback_fail) {
 			_$local.getGeolocation(function(){
+				console.log('success.');
 				if (typeof callback == 'function') {
 					callback();
+				}
+			}, function(){
+				console.log('failed.');
+				if (typeof callback_fail == 'function') {
+					callback_fail();
 				}
 			});
 		}
 
-		// Logic To Handle Spitting out the Spot Themselves		
-		if (typeof _$kite_url != 'undefined') {
-			if (typeof $("#kitespot-template")[0] != 'undefined') {
-				var obj = $("#kitespot-template");
-				// discover nearby uses a different approach to getting 'spots'
-				if (_$local.discover_nearby === true) {
+		function load_kite_spots() {
+			console.log('loading kiting spots...');
+			// Logic To Handle Spitting out the Spot Themselves	
+			if (typeof _$kite_url != 'undefined') {
+				if (typeof $("#kitespot-template")[0] !== 'undefined') {
+					var obj = $("#kitespot-template");
+					// discover nearby uses a different approach to getting 'spots'
+					var url = "http://" + _$kite_url + "/kite";
+
 					loadDiscoverBy(_$kite_url, function(){
-						var url = "http://" + _$kite_url + "/spot";
 						$.ajax({
 							dataType: "json",
 							data: {
@@ -1197,6 +1211,44 @@ var correctedViewportW = (function (win, docElem) {
 							},
 							url: url,
 							success: function(data) {
+								$(data).each(function(i, item){
+									item.distanceFrom = false;
+								});
+								var data = {'results': data};
+								var source = obj.html();
+								var template = Handlebars.compile(source);
+								$(".spot_container").html(template(data));
+								$(data.results).each(function(i, item){
+									loadForecast(item.spotId);
+									loadKitescore(item.spotId);
+								});
+							},
+							error: function() {
+								var data = {};
+								var source = $("#spots-error-template").html();
+								var template = Handlebars.compile(source);
+								$(".spot_container").html(template);
+								setCountdown(59, function(){
+									document.location.reload();
+								});
+							}
+						});
+					}, function(){
+						loadDiscoverBy(_$kite_url);
+						var url = "http://" + _$kite_url + "/kite";
+						$.ajax({
+							dataType: "json",
+							data: {
+								userId: _$session_id,
+								lat: _$local.geolocal.lat,
+								lon: _$local.geolocal.lon
+							},
+							url: url,
+							success: function(data) {
+								$(data).each(function(i, item){
+									item.distanceFrom = false;
+								});
+								var data = {'results': data};
 								var source = obj.html();
 								var template = Handlebars.compile(source);
 								$(".spot_container").html(template(data));
@@ -1216,38 +1268,44 @@ var correctedViewportW = (function (win, docElem) {
 							}
 						});
 					});
- 				} else {
-					loadDiscoverBy(_$kite_url);
-					var url = "http://" + _$kite_url + "/kite";
-					$.ajax({
-						dataType: "json",
-						data: {
-							userId: _$session_id
-						},
-						url: url,
-						success: function(data) {
-							$(data).each(function(i, item){
-								item.distanceFrom = false;
-							});
-							var data = {'results': data};
-							var source = obj.html();
-							var template = Handlebars.compile(source);
-							$(".spot_container").html(template(data));
-							$(data.results).each(function(i, item){
-								loadForecast(item.spotId);
-								loadKitescore(item.spotId);
-							});
-						},
-						error: function() {
-							var data = {};
-							var source = $("#spots-error-template").html();
-							var template = Handlebars.compile(source);
-							$(".spot_container").html(template);
-							setCountdown(59, function(){
-								document.location.reload();
-							});
-						}
-					});
+/*
+	 				} else {
+						loadDiscoverBy(_$kite_url);
+						var url = "http://" + _$kite_url + "/kite";
+						console.log(_$local.geolocal.lat);
+						$.ajax({
+							dataType: "json",
+							data: {
+								userId: _$session_id,
+								lat: _$local.geolocal.lat,
+								lon: _$local.geolocal.lon
+							},
+							url: url,
+							success: function(data) {
+								$(data).each(function(i, item){
+									item.distanceFrom = false;
+								});
+								var data = {'results': data};
+								var source = obj.html();
+								var template = Handlebars.compile(source);
+								$(".spot_container").html(template(data));
+								$(data.results).each(function(i, item){
+									loadForecast(item.spotId);
+									loadKitescore(item.spotId);
+								});
+							},
+							error: function() {
+								var data = {};
+								var source = $("#spots-error-template").html();
+								var template = Handlebars.compile(source);
+								$(".spot_container").html(template);
+								setCountdown(59, function(){
+									document.location.reload();
+								});
+							}
+						});
+					}
+*/
 				}
 			}
 		}
@@ -1592,6 +1650,7 @@ var correctedViewportW = (function (win, docElem) {
 			load_spot_view();
 			spot_load_people();
 			spot_load_forecast();
+			load_kite_spots();
 		}
 
 		final_callback();

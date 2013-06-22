@@ -68,6 +68,10 @@ body {
     margin-left: 3px;
 }
 
+#register-form label.valid {
+    display: none !important;
+}
+
 .body-inside {
   background: #e9eef1;    
 }
