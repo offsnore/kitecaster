@@ -6,8 +6,6 @@
     $.fn.data_loader = function(settings) {   
         var $that = $(this);
         settings = $.extend(true, {}, $.fn.data_loader.settings, settings || {});
-
-        console.log($that);
         
         return this.each(function() {
             var obj = $("<div></div>");

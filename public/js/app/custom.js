@@ -78,10 +78,8 @@ var correctedViewportW = (function (win, docElem) {
 			if (typeof _$session_id == 'undefined') {
 				return false;
 			}
-			console.log('checking location..');
 			// @todo - check for new Location
 			var url = "/user/location?userObjectId=" + encodeURIComponent(_$session_id);
-
 			// lets check our DB first
 			$.getJSON(url, function(data){
 				if (data.length > 0) {
@@ -1060,29 +1058,7 @@ var correctedViewportW = (function (win, docElem) {
 					error: function() {
 					}
 				});
-			}
-			if (typeof $("#spotedit-template")[0] != 'undefined') {
-				var obj = $("#spotedit-template");
-				// does a quick pull for all spots
-				var url = "http://" + _$spot_url + "/spot/" + _$spot_id + "?callback=?";
-				$.ajax({
-					dataType: "jsonp",
-					jsonp: "callback",
-					url: url,
-					success: function(data) {
-						var data = data[0];
-						var source = obj.html();
-						var template = Handlebars.compile(source);
-						$(".spot_container").html(template(data));
-						loadWindConditions();
-						window._$local.spot['lat'] = parseFloat(jQuery("#lat").val());
-						window._$local.spot['lon'] = parseFloat(jQuery("#lon").val());
-						_$local.initializeGeomap(_$local.spot['lat'], _$local.spot['lon'])
-					},
-					error: function() {}
-				});
-			}
-			
+			}			
 			$(".status_opener, .load-spot-details").live("click", function(e){
 				e.preventDefault();
 				var that, spot_id, loader, status;
@@ -1178,12 +1154,10 @@ var correctedViewportW = (function (win, docElem) {
 				
 		function loadDiscoverBy(_$kite_url, callback, callback_fail) {
 			_$local.getGeolocation(function(){
-				console.log('success.');
 				if (typeof callback == 'function') {
 					callback();
 				}
 			}, function(){
-				console.log('failed.');
 				if (typeof callback_fail == 'function') {
 					callback_fail();
 				}
@@ -1191,14 +1165,12 @@ var correctedViewportW = (function (win, docElem) {
 		}
 
 		function load_kite_spots() {
-			console.log('loading kiting spots...');
 			// Logic To Handle Spitting out the Spot Themselves	
 			if (typeof _$kite_url != 'undefined') {
 				if (typeof $("#kitespot-template")[0] !== 'undefined') {
 					var obj = $("#kitespot-template");
 					// discover nearby uses a different approach to getting 'spots'
 					var url = "http://" + _$kite_url + "/kite";
-
 					loadDiscoverBy(_$kite_url, function(){
 						$.ajax({
 							dataType: "json",
@@ -1272,7 +1244,6 @@ var correctedViewportW = (function (win, docElem) {
 	 				} else {
 						loadDiscoverBy(_$kite_url);
 						var url = "http://" + _$kite_url + "/kite";
-						console.log(_$local.geolocal.lat);
 						$.ajax({
 							dataType: "json",
 							data: {
@@ -1310,7 +1281,31 @@ var correctedViewportW = (function (win, docElem) {
 			}
 		}
 
+		/**
+		 * Handles Spot View & Spot Edit Logics
+		 */
 		function load_spot_view() {
+			if (typeof $("#spotedit-template")[0] != 'undefined') {
+				var obj = $("#spotedit-template");
+				// does a quick pull for all spots
+				var url = "http://" + _$spot_url + "/spot/" + _$spot_id + "?callback=?";
+				$.ajax({
+					dataType: "jsonp",
+					jsonp: "callback",
+					url: url,
+					success: function(data) {
+						var data = data[0];
+						var source = obj.html();
+						var template = Handlebars.compile(source);
+						$(".spot_container").html(template(data));
+						loadWindConditions();
+						window._$local.spot['lat'] = parseFloat(jQuery("#lat").val());
+						window._$local.spot['lon'] = parseFloat(jQuery("#lon").val());
+						_$local.initializeGeomap(_$local.spot['lat'], _$local.spot['lon'])
+					},
+					error: function() {}
+				});
+			}
 			if (typeof $("#spotview-template")[0] != 'undefined') {
 				var obj = $("#spotview-template");
 				// does a quick pull for all spots
@@ -1457,9 +1452,7 @@ var correctedViewportW = (function (win, docElem) {
 					}
 					$('html:not(:animated), body:not(:animated)').animate({ scrollTop: 0 }, 'fast');
 				},
-				error: function(xhr) {
-					//console.log(xhr);
-				}
+				error: function(xhr) {}
 			});
 			return true;
 		});
