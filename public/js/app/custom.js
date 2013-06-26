@@ -75,27 +75,30 @@ var correctedViewportW = (function (win, docElem) {
 		// GeoLocation Stuff
 		_$local.geolocal = {};
 		_$local.getGeolocation = function(callback, callback_fail) {
+			console.log(callback, callback_fail);
+			if (typeof callback == 'undefined') {
+				var callback = function(){};
+			}
+			if (typeof callback_fail == 'undefined') {
+				var callback_fail = function(){};
+			}
 			if (typeof _$session_id == 'undefined') {
 				return false;
 			}
 			// @todo - check for new Location
 			var url = "/user/location?userObjectId=" + encodeURIComponent(_$session_id);
 			// lets check our DB first
-			$.getJSON(url, function(data){
+			var req = $.getJSON(url, function(data){
 				if (data.length > 0) {
 					var data = data[0];
 					_$local.geolocal = data;
 					_$local.parseGeoFormat(data);
-					if (typeof callback == 'function') {
-						callback(data);
-					}
+					callback(data);
 				} else {
 					_$local.pullGeolocation(callback);
 				}
-			}).error(function(){
-				if (typeof callback_fail == 'undefined') {
-					callback_fail();
-				}
+			}).fail(function(){
+				callback_fail();
 			});
 		}
 		
@@ -129,9 +132,12 @@ var correctedViewportW = (function (win, docElem) {
 			}, 5500);
 		}
 		
-		_$local.pullGeolocation = function(callback) {
+		_$local.pullGeolocation = function(callback, callback_fail) {
 			if (typeof callback == 'undefined') {
     			var callback = function(){};
+			}
+			if (typeof callback_fail == 'undefined') {
+				var callback_fail = function(){};
 			}
 				// attempt w Html5 first
 			if (navigator.geolocation) {
@@ -156,6 +162,9 @@ var correctedViewportW = (function (win, docElem) {
 							}),
 							success: function() {
     							callback();
+							},
+							error: function() {
+								callback_fail();
 							}
 						});
 					});
@@ -388,6 +397,8 @@ var correctedViewportW = (function (win, docElem) {
 			_$local.getGeolocation(function(){
 				_$local.initializeGeomap(_$local.returnGeolocation()['lat'], _$local.returnGeolocation()['lon'])
 				load_spot_list();
+			}, function(){
+				_$local.hardFail("Unable to get location - User API Failure.");
 			});
 		}
 
@@ -1154,15 +1165,13 @@ var correctedViewportW = (function (win, docElem) {
 		}
 				
 		function loadDiscoverBy(_$kite_url, callback, callback_fail) {
-			_$local.getGeolocation(function(){
-				if (typeof callback == 'function') {
-					callback();
-				}
-			}, function(){
-				if (typeof callback_fail == 'function') {
-					callback_fail();
-				}
-			});
+			if (typeof callback != 'function') {
+				var callback = function(){};
+			}
+			if (typeof callback_fail != 'function') {
+				var callback_fail = function(){};
+			}
+			_$local.getGeolocation(callback, callback_fail);
 		}
 
 		function load_kite_spots() {
@@ -1207,7 +1216,9 @@ var correctedViewportW = (function (win, docElem) {
 							}
 						});
 					}, function(){
-						loadDiscoverBy(_$kite_url);
+						loadDiscoverBy(_$kite_url, function(){}, function(){
+							_$local.hardFail("User Location API failure.")
+						});
 						var url = "http://" + _$kite_url + "/kite";
 						$.ajax({
 							dataType: "json",
