@@ -378,6 +378,10 @@ label.error {
     background: #f8f8f8;
 }
 
+.spot-preview .scroll-pane {
+    width: 800px;
+}
+
 /**
  * jQuery Scroll Styles
  */

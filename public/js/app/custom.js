@@ -1078,6 +1078,7 @@ var correctedViewportW = (function (win, docElem) {
 						},
 						url: '/subscribe/spot',
 						success: function(data) {
+//							$(".scroll-pane", "#spot-" + spot_id).data_loader();
 							$.each(data, function(i, item){
 								if (item.spotId) {
 									var id = item.spotId;

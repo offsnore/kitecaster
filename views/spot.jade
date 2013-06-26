@@ -91,7 +91,7 @@ block script_include
 block scripts
 	script(type='text/x-handlebars-template', id='spots-support')
 		{{#each results}}
-		li(name='feed', id='spot-{{ spotId }}').feed
+		li(name='feed', id='spot-{{ spotId }}').feed.spot-preview
 			.row-fluid
 				.span12
 					.span1
