@@ -75,7 +75,6 @@ var correctedViewportW = (function (win, docElem) {
 		// GeoLocation Stuff
 		_$local.geolocal = {};
 		_$local.getGeolocation = function(callback, callback_fail) {
-			console.log(callback, callback_fail);
 			if (typeof callback == 'undefined') {
 				var callback = function(){};
 			}
@@ -688,14 +687,15 @@ var correctedViewportW = (function (win, docElem) {
     		var starting_point = 100;
     		var bottom_padding = 12;
   
-    		for (var i = start_spot; i < max_spots; i++) {
+    		for (var zx = start_spot; zx < max_spots; zx++) {
     			if (max_spots !== "all" && counter >= max_spots) {
 	    			continue;
-    			}    		
+    			}
+    			i = counter;
 	    		obj_val = y[i];
 	    		var bar_height = (parseInt(obj_val) * 4);
 
-	    		left_position = (x_width * i) + start_position;
+	    		left_position = (x_width * zx) + start_position;
     			width = obj_val + (2 * parseInt(x_padding));
 	    		sleft = left_position;
 	    		stop = starting_point - ((parseInt(height) / 2) + (width / 2) + top_padding);
@@ -769,7 +769,9 @@ var correctedViewportW = (function (win, docElem) {
 				wind_speed.transform("r-90");
 
 	    		position += width;
-    			counter++;
+
+				// should skip to every 3 hrs	    		
+	    		counter = (parseInt(counter) + 3);
     		}
     		$("#" + spot_id + "-loader").remove();
     		$("#" + spot_id).addClass("scroll-pane ui-widget ui-widget-header ui-corner-all").removeClass("hidden").attr('data-last-point', counter).attr('data-max-point', absolute_max_spots);
@@ -823,7 +825,8 @@ var correctedViewportW = (function (win, docElem) {
 					if (override === true) {
 						$("#" + spot_id).html("");
 					}
-					newGraphic(spot_id, d);
+					$(document).data_loader.buildslide(d, spot_id);
+//					(spot_id, d);
 				}
 			})			
 		}
