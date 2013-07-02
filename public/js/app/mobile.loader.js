@@ -245,6 +245,12 @@
 		    		var bar = r.rect((sleft-2), 0, 4, stop);
 		    		bar.attr({fill: '#000'});
 	    		}
+	    		if (xa[i].ampm == "AM" && parseInt(xa[i].hour) < 6 || xa[i].ampm == "PM" && parseInt(xa[i].hour) > 19) {
+//		    		var bar = r.rect(sleft, (starting_point - bar_height), x_width, bar_height);
+		    		var bar = r.rect(sleft, 0, x_width, starting_point);
+		    		console.log(starting_point, bar_height);
+		    		bar.attr({fill: '#A4A4A4', stroke: 'none', 'opacity': .5});
+	    		}
     		}
     		var txt = r.text(sleft+(x_width/2), (starting_point + bottom_padding), obj_val);
     		txt.attr({'font':'12px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
