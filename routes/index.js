@@ -555,8 +555,13 @@ exports.viewPublicSpot = function(req, res) {
 
 	geo_location = lookup.geolookup.getCurrent(req);
 
+	var queryParams = require('url').parse(req.url).query
+	var query = req.url.split("/");
 
-	var objectId = req.params[0];
+	var myRespEx = /\d+/g.exec(query[(query.length-1)]);
+	var spot_id = myRespEx[0];
+
+	var objectId = spot_id;
 	if (objectId == '') {
 		errorPage(res, "We were unable to locate this spot (missing ID).");
 	}

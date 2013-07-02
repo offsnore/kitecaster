@@ -136,7 +136,7 @@ app.get('/main/discover/spots', routes.discoverSpot);
 app.get('/main/spots/new', routes.newSpot);
 app.post('/main/spots/new/save', routes.newSpotSave);
 
-app.get('/main/p/*', routes.viewPublicSpot);
+app.get('/main/p/*/*\.html', routes.viewPublicSpot);
 
 app.get('/main/spots/view/*', routes.viewSpot);
 app.get('/main/spots/edit/*', routes.editSpot);
