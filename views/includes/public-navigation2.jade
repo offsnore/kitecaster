@@ -1,0 +1,7 @@
+ul.nav.nav-pills.visible-desktop
+	each name in ["Home", "Sign Up"]
+			li
+				if (name=="Home")
+					a(href='/main/')= name
+				else
+					a(href='/main/#{name.toLowerCase()}')= name

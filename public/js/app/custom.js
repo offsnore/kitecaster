@@ -530,9 +530,11 @@ var correctedViewportW = (function (win, docElem) {
 					url: '/spot/' + _$spot_id + "?discover=true",
 					datatype: "json",
 					success: function(data){
-						$(data).each(function(i, item){
-							_$local.map.loadSpots(item.location.latitude, item.location.longitude, item.name);
-						});
+						if (typeof _$local.map.loadSpots == 'function') {
+							$(data).each(function(i, item){
+									_$local.map.loadSpots(item.location.latitude, item.location.longitude, item.name);
+							});
+						}
 					}
 				});
 			}
@@ -830,7 +832,7 @@ var correctedViewportW = (function (win, docElem) {
 				}
 			})			
 		}
-
+		
 		// Easy method for a Call to Weather Forecast
 		function loadForecast(spot_id) {
 			var spot = spot_id || _$spot_id;
@@ -1334,13 +1336,14 @@ var correctedViewportW = (function (win, docElem) {
 						var source = obj.html();
 						var template = Handlebars.compile(source);
 						$(".spot_container").html(template(data));
+						$(".spot_name").html(data.name);
 						if (typeof initialize == 'function') {	
 							initialize(data.location.latitude, data.location.longitude);
-							loadnearby();
-							loadKitescore(_$spot_id, '#kitescore_spot');
-							loadComments(_$spot_id);
 							// @peopleload
 						}
+						loadnearby();
+						loadComments(_$spot_id);
+						loadKitescore(_$spot_id, '#kitescore_spot');
 						// ideally this information should be in the spot request (not as two seperate queries)
 						$.ajax({
 							dataType: "json",
@@ -1659,6 +1662,8 @@ var correctedViewportW = (function (win, docElem) {
 			spot_load_people();
 			spot_load_forecast();
 			load_kite_spots();
+			
+			_$local.load_kite_spots = load_kite_spots;
 		}
 
 		final_callback();

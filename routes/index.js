@@ -543,6 +543,43 @@ exports.viewSpot = function(req, res) {
 //	});
 };
 
+/**
+ * editSpot()
+ * Spots Page for Application
+ * @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
+ */
+exports.viewPublicSpot = function(req, res) {
+	var nconf = getSettings();
+
+	var session_id, profile_image, geo_location, localdata, user_id, session_id, params = {};
+
+	geo_location = lookup.geolookup.getCurrent(req);
+
+
+	var objectId = req.params[0];
+	if (objectId == '') {
+		errorPage(res, "We were unable to locate this spot (missing ID).");
+	}
+
+	params = {
+		spot_url: nconf.get('api:spot:frontend_url'),
+		spot_id: objectId,
+		google_api_key: nconf.get('api:google:api_key'),
+		title: nconf.get('site:frontend:title'),
+	    dateNow: function() {
+	        var dateNow = new Date();
+	        var dd = dateNow.getDate();
+	        var monthSingleDigit = dateNow.getMonth() + 1,
+	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+	        var yy = dateNow.getFullYear().toString().substr(2);
+	
+	        return (mm + '/' + dd + '/' + yy);
+	    }
+	}
+	res.render('public-viewspot', params);
+
+};
+
 
 /**
  * editSpot()

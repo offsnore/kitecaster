@@ -50,6 +50,15 @@ h1 i, h2 i, h3 i, h4 i, h5 i {
 	margin-right:7px;
 }
 
+.photos .small64x {
+    width: 64px;
+}
+
+.scroll-pane {
+	width: 550px;
+	overflow: scroll;
+}
+
 /*Block headline*/
 .heading {
 	padding:5px 20px 5px 20px;
