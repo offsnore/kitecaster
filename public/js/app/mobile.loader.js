@@ -248,7 +248,6 @@
 	    		if (xa[i].ampm == "AM" && parseInt(xa[i].hour) < 6 || xa[i].ampm == "PM" && parseInt(xa[i].hour) > 19) {
 //		    		var bar = r.rect(sleft, (starting_point - bar_height), x_width, bar_height);
 		    		var bar = r.rect(sleft, 0, x_width, starting_point);
-		    		console.log(starting_point, bar_height);
 		    		bar.attr({fill: '#A4A4A4', stroke: 'none', 'opacity': .5});
 	    		}
     		}
