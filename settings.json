@@ -14,7 +14,7 @@
 		"spot": {
 			"frontend_url" : "local.kitecaster.com",
 			"port" : "7501",
-			"refreshSeconds" : 900
+			"refreshSeconds" : 7200
 		},
 		"model": {
 			"port" : "7504"
@@ -29,7 +29,8 @@
 		"kitescore": {
 			"port" : "7503",
 			"expiration_time" : 7200,
-			"start_cache" : true
+			"start_cache" : true,
+			"refreshSeconds" : 7200
 		},
 		"google": {
 			"api_key": "AIzaSyDBD7vGX-y9pO8PP8bHCOQlKztjWzcJNf8"
@@ -53,7 +54,7 @@
 			"wunderground": "d423b6a14c833613",     
 			"debug": false,
 			"rate" : {
-   			"minute" : 75,
+   			"minute" : 25,
    			"hour" : 500,
    			"day" : 5000
 			}

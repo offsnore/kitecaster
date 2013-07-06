@@ -68,7 +68,7 @@ var compassDegrees = {
    'South'  : 180,
    'S'  : 180,
    'SSW': 203,
-   'SW' : 255,
+   'SW' : 225,
    'WSW': 248,
    'West'  : 270,
    'W'  : 270,
@@ -173,6 +173,11 @@ app.current_weather = function(lat, lon, callback){
 // the API might return data in different format. This if for handling the hourly response
 app.processHourly = function(hourly, callback) {
    var windData = [];
+   var hourlyKeys = Object.keys(hourly);
+   
+   hourlyKeys.forEach(function(key) {
+      console.log('hourly KEY: '.red + key);
+   })
    // wundernode
    if (hourly.hourly_forecast) {
       logger.debug ('Running wundernode data ingest');
@@ -199,7 +204,7 @@ app.processHourly = function(hourly, callback) {
       });      
    }
    else {
-      callback("Unable to determine data source");
+      callback("Unable to determine data source", null);
    }
    callback(null, windData);   
    // shouldn't build kitescore here
@@ -245,8 +250,10 @@ app.buildKiteScore = function(model, spot, windData, callback) {
 	if (typeof windData == 'undefined') {
 		return false;
 	}
-   
+   console.log('HERES AGAIN: '.red + windData.length);
+   console.log('First windData: '.red + JSON.stringify(windData[0]));
    windData.forEach(function(data) {
+      
       var kiteScore = 0;
     //console.log('WindData.ForeEach data: ' + JSON.stringify(data)); 
       var speed = parseInt(data.wspd);
@@ -254,14 +261,17 @@ app.buildKiteScore = function(model, spot, windData, callback) {
          speed = data.wspd.english; // if not cached the same way?
       }
       var wdir;//  = parseInt(data.wdir);
+
       if (data.wdir.degrees) {
          wdir = data.wdir.degrees;
       }
       else wdir = data.wdir;
+         
       var wx    = data.wx;
       var hour, time;
       if (data.FCTTIME) hour  = data.FCTTIME.hour;
       else if (data.time) time = data.time;
+      
       var rangeEnd = -1;
       if (speed <= windLowMax) {
          if (speed >= windLowMin) {
@@ -321,29 +331,40 @@ app.buildKiteScore = function(model, spot, windData, callback) {
          logger.debug(wdir.dir  +':' + speed + ', score: ' + kiteScore );
          logger.debug('spot wind dirs: ' + JSON.stringify(spot.wind_directions));
 */
-         var closestDir = 360;;
+         
+         var closestDir = 360, closestDiff = 360;
          spot.wind_directions.forEach(function(direction) {
             var spotWindDegree = compassDegrees[direction];
-            var diff = Math.abs(spotWindDegree - windDirDegrees)
+
+            var diff = Math.abs(spotWindDegree - windDirDegrees);
+            console.log('Subtracting spot diegree of ' + spotWindDegree + ' from wind report degrees of ' + windDirDegrees + ' to get diff: ' + diff);
             // get minimum difference
-            if ( diff <  closestDir) {
+            if ( diff <  closestDiff) {
+               console.log('Found closer dir, resetting closest from ' + closestDir + ' to ' + spotWindDegree + ' because diff is ' + diff);               
                closestDir = spotWindDegree;
+               closestDiff = diff;
             }
+            console.log('Spot direction: '.red + direction + '. Wind direction: ' + windDirDegrees +  '. Compass degree: ' + spotWindDegree + '. difference: ' + diff + '. closest dir: ' + closestDir + '. closests diff: ' + closestDiff);
          })
          var closestDifference = Math.abs(closestDir - windDirDegrees);
          // normalize the difference into 1/8 points to subtract from kitescore
          var kiteScoreSubtraction = closestDifference / 45;
          logger.debug('taking off ' + kiteScoreSubtraction + ' because the closest wind dir is ' + closestDir + ' and wind degree is ' + windDirDegrees);
+         kiteScore -= ( kiteScoreSubtraction ); 
          
-         kiteScore -= (2 * kiteScoreSubtraction ); 
       }
       var floorScore = Math.floor(kiteScore);
+      data['closest_wind_dir_degrees'] = closestDir;
+      data['wind_dir_dg'] = windDirDegrees;
+      
       data['kiteScore'] = floorScore < 0 ? 0 : floorScore ;
       data['lastUpdated'] = new Date().toUTCString();
+      
       scores.push(data);
-      logger.debug('KiteScore determined for spot ' + spot.spotId + '(dirs ' + spot.wind_directions+') at ' + data.FCTTIME.pretty + ': ' + data['kiteScore'] + "(" + speed  +data.wdir.dir  +")");      
-   });
 
+//      logger.debug('KiteScore determined for spot ' + spot.spotId + '(dirs ' + spot.wind_directions+') at ' + data.FCTTIME.pretty + ': ' + data['kiteScore'] + "(" + speed  +data.wdir.dir  +")");      
+   });
+      console.log('ITERATING still?? '.blue) ;
    callback(null, scores);
 }
 
