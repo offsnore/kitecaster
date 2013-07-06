@@ -92,17 +92,22 @@ SpotService.getSpot = function(id, callback) {
 				spotId: id
 			}
 		};
+		try {
 		DataStore.records.object("Spot", queryParams, function(err, response, body, success) {
 			if (body.length == 0) {
-				obj = {"error":"Spot " + id + "not found."};
+				callback(404, "error: Spot " + id + " not found.");
 			} else {
 				obj = body;
+				callback(err, obj);
 			}
 			// gets Spots within certain distance of THIS spot (for mapping)		
-			callback(err, obj);
+			
 
 			
 		});
+		} catch (error ) {
+   		callback(error, "Error occured");
+		}
    /* broked
    var redisKey = 'spot:id:' + id;
    client.exists(redisKey , function (err, reply){

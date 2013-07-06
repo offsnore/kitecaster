@@ -173,11 +173,7 @@ app.current_weather = function(lat, lon, callback){
 // the API might return data in different format. This if for handling the hourly response
 app.processHourly = function(hourly, callback) {
    var windData = [];
-   var hourlyKeys = Object.keys(hourly);
    
-   hourlyKeys.forEach(function(key) {
-      console.log('hourly KEY: '.red + key);
-   })
    // wundernode
    if (hourly.hourly_forecast) {
       logger.debug ('Running wundernode data ingest');
@@ -238,20 +234,18 @@ app.buildKiteScore = function(model, spot, windData, callback) {
 
    if (windData.hourly_forecast) {
       windData = windData.hourly_forecast;
-      console.log('hourly length: '.magenta + windData.length);
+
    }
    
    // ignore direction first, just map speeds
    // map TOO_LIGHT = 5, VERY_LIGHT = 6, LIGHT = 7, MED_LOW = 8, MED_MED = 9, MED_HIGH = 10, HIGH_LOW = 11, HIGH_MED = 12,  HIGH_HIGH = 13, TOO_MUCH = 15;
-   console.log('winddata: '.magenta + windData.length);
+
    console.log(typeof windData);
 
 	// we want a nice return, not Node.JS going fuck you.   
 	if (typeof windData == 'undefined') {
 		return false;
 	}
-   console.log('HERES AGAIN: '.red + windData.length);
-   console.log('First windData: '.red + JSON.stringify(windData[0]));
    windData.forEach(function(data) {
       
       var kiteScore = 0;
@@ -337,34 +331,32 @@ app.buildKiteScore = function(model, spot, windData, callback) {
             var spotWindDegree = compassDegrees[direction];
 
             var diff = Math.abs(spotWindDegree - windDirDegrees);
-            console.log('Subtracting spot diegree of ' + spotWindDegree + ' from wind report degrees of ' + windDirDegrees + ' to get diff: ' + diff);
+/*             console.log('Subtracting spot diegree of ' + spotWindDegree + ' from wind report degrees of ' + windDirDegrees + ' to get diff: ' + diff); */
             // get minimum difference
             if ( diff <  closestDiff) {
-               console.log('Found closer dir, resetting closest from ' + closestDir + ' to ' + spotWindDegree + ' because diff is ' + diff);               
+/*                console.log('Found closer dir, resetting closest from ' + closestDir + ' to ' + spotWindDegree + ' because diff is ' + diff);                */
                closestDir = spotWindDegree;
                closestDiff = diff;
             }
-            console.log('Spot direction: '.red + direction + '. Wind direction: ' + windDirDegrees +  '. Compass degree: ' + spotWindDegree + '. difference: ' + diff + '. closest dir: ' + closestDir + '. closests diff: ' + closestDiff);
+/*             console.log('Spot direction: '.red + direction + '. Wind direction: ' + windDirDegrees +  '. Compass degree: ' + spotWindDegree + '. difference: ' + diff + '. closest dir: ' + closestDir + '. closests diff: ' + closestDiff); */
          })
          var closestDifference = Math.abs(closestDir - windDirDegrees);
          // normalize the difference into 1/8 points to subtract from kitescore
          var kiteScoreSubtraction = closestDifference / 45;
-         logger.debug('taking off ' + kiteScoreSubtraction + ' because the closest wind dir is ' + closestDir + ' and wind degree is ' + windDirDegrees);
-         kiteScore -= ( kiteScoreSubtraction ); 
+/*          logger.debug('taking off ' + kiteScoreSubtraction + ' because the closest wind dir is ' + closestDir + ' and wind degree is ' + windDirDegrees); */
+         data['kitescore_orig'] = kiteScore;
+         kiteScore -= (Math.floor(kiteScoreSubtraction) ); 
          
       }
       var floorScore = Math.floor(kiteScore);
       data['closest_wind_dir_degrees'] = closestDir;
-      data['wind_dir_dg'] = windDirDegrees;
-      
       data['kiteScore'] = floorScore < 0 ? 0 : floorScore ;
       data['lastUpdated'] = new Date().toUTCString();
-      
+      data['kitescore_subtraction'] = kiteScoreSubtraction;
       scores.push(data);
 
 //      logger.debug('KiteScore determined for spot ' + spot.spotId + '(dirs ' + spot.wind_directions+') at ' + data.FCTTIME.pretty + ': ' + data['kiteScore'] + "(" + speed  +data.wdir.dir  +")");      
    });
-      console.log('ITERATING still?? '.blue) ;
    callback(null, scores);
 }
 
@@ -380,7 +372,6 @@ app.startPrecache = function(callback, interval) {
       secondsInterval = interval * 1000;
    // 15 minute default
    else secondsInterval = 60 * 60 * 1000; 
-   logger.debug('Started running precache every '.magenta + interval + ' seconds'.magenta);   
    setInterval(app.runSpotCache, secondsInterval);
    setInterval(app.runSpotWeatherCache, secondsInterval);
  
@@ -463,7 +454,7 @@ app.runSpotWeatherCache = function(spot_id) {
                var redisWeatherKey = weatherSpotKey + spotId;
                logger.debug('Pulling weather for lat ' + lat + ', lon: ' + lon);
                var latLonQuery = lat + ',' + lon;
-                wunder.hourly7day(latLonQuery, function(err, response) {
+                wunder.hourly10day(latLonQuery, function(err, response) {
                   logger.debug('Got weather for latlon query: ' + latLonQuery);
                   if ( response != null ) {
                      var weather = JSON.parse(response);
@@ -478,7 +469,7 @@ app.runSpotWeatherCache = function(spot_id) {
                                                       
                                  app.buildKiteScore(defaultModel, jsonSpot, weather, function(err, scores) {
                                     //console.log('Got kitescores for data: ' + JSON.stringify(scores));
-                                    var redisScoresKey = "scores:7day:spot:" + jsonSpot.spotId;
+                                    var redisScoresKey = "scores:10day:spot:" + jsonSpot.spotId;
                                      client.set(redisScoresKey, JSON.stringify(scores), function(err, replies) {
                                         logger.debug('redisScoresKey ' + redisScoresKey + ' set, reply: ' + replies);
                                         client.expire(redisScoresKey, expireTimeWeather, function(err, reply) {

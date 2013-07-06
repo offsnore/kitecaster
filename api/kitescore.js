@@ -329,7 +329,6 @@ server.get('score/10day/:id', function(req, res) {
          if (spotId) {
             async.parallel([
                function(callback) {
-                  console.log('GETTING MODEL'.magenta);
                   // get model if specified        
                   if (modelId){
                        console.log('returning  model ID : '.magenta + modelId);
@@ -344,13 +343,23 @@ server.get('score/10day/:id', function(req, res) {
                   // get spot if specified
                   if (spotId) {
                       SpotService.getSpot(parseInt(spotId), function(err, spot) {
-                        callback(err, spot[0]);                              
+                        if (err) {       
+                           console.log('Error: ' + err);                    
+                           callback(err);
+                        } else {
+                           callback(err, spot[0]);                              
+                        }
                      });
                   } else {
          	         callback("no spot ID Specified", null);
                   }
                }],
                function(err, results) {
+                  if (err) {
+                     res.send(err, "Error retreiving spot: " + err);
+                     res.end();
+                     return;
+                  }
                   model = results[0];
                   spot = results[1];
                   var lat = spot.location.latitude;
@@ -372,10 +381,7 @@ server.get('score/10day/:id', function(req, res) {
                            console.log('KEY: '.red + key);
                         });
                         KiteScoreService.processHourly(jsonWeather, function(err, windData) {
-                           KiteScoreService.buildKiteScore(model, spot, windData, function(err, scores) {
-                                 console.log('Error: '.red + err);
-                                 console.log('Scores:'.red + scores.length);
-                                 
+                           KiteScoreService.buildKiteScore(model, spot, windData, function(err, scores) {                              
                                   client.set(redis10DayKey, JSON.stringify(scores),function(err, replies) {
                                     client.expire(redis10DayKey, redis10DayExpireTime, function (err, replies) {
                               			logger.debug('expire set for ' + redis10DayKey + ' to ' + redis10DayExpireTime + ' seconds.');
@@ -402,16 +408,6 @@ server.get('score/10day/:id', function(req, res) {
    }); 
 
 });
-
-var getKeys = function(obj){
-   var keys = [];
-   for(var key in obj){
-      keys.push(key);
-   }
-   return keys;
-}
-
-
 
 pullWeather = function(mode, lat, lon, model, callback) {
    var latLonQuery = lat + ',' + lon;
