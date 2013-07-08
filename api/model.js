@@ -28,12 +28,19 @@ logger.info("Started model service".debug);
 
 nconf.argv()
        .env()
-       .file({ file: '../settings.json' });
+       .file({ file: require('path').resolve(__dirname, '../settings.json') });
 
 var redisExpireTime = parseInt(nconf.get('redis:expireTime'))       
 var DEFAULT_PORT = 8502;
+
 var parse = new Parse( nconf.get('parse:appId'),  nconf.get('parse:restKey')); 
-var restPort = DEFAULT_PORT;
+var restPort = nconf.get('api:model:port');
+if ( !restPort ) {
+   restPort = DEFAULT_PORT;
+}
+console.log('nconf port: '.magenta + nconf.get('api:model:port'));
+console.log('parse appid: '.magenta + nconf.get('parse:appId'));
+logger.info('Starting model api on port: ' + restPort);
 
 var windSchema = {
    "id": "/SimpleWind",

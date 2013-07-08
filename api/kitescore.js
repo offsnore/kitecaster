@@ -298,22 +298,130 @@ server.get('score/7day/:id', function(req, res) {
    
 });
 
-server.get('score/10day', function(req, res) {
+server.get('score/10day/:id', function(req, res) {
+   var me = this;
    var queryParts = require('url').parse(req.url, true).query;
-   var lat, lon;
+   var lat, lon, modelId;
+   
+   // modeId check
+   if (queryParts.modelId) {
+      modelId = queryParts.modelId;
+      // need wait library to load model before continuing (callback hell?)
+   }   else { 
+   // set model to the default
+      me.model = defaultModel;
+   }
+   var spotId = req.params.id;
+   var redis10DayKey = "scores:10day:spot:" + spotId;
+   if (!spotId) {
+      res.send(404, "Missing spotId param");
+      res.end();
+   }
+   var redis10DayKey = "scores:10day:spot:" + spotId;
+   var redis10DayExpireTime = nconf.get("api:kitescore:expiration_time");
+   client.get(redis10DayKey, function(err, reply) {
+      if (reply) {
+         logger.debug("Scores found for key " + redis10DayKey);         
+         res.send(200, JSON.parse(reply));
+      }
+      else {
+         // pull on demand
+         if (spotId) {
+            async.parallel([
+               function(callback) {
+                  // get model if specified        
+                  if (modelId){
+                       console.log('returning  model ID : '.magenta + modelId);
+                     ModelService.getModel(modelId, function(err, model) {
+                        callback(err, JSON.parse(model));                              
+                     });
+                  } else {
+         	     	callback(null, me.model);   
+                  }
+               },
+               function(callback) {
+                  // get spot if specified
+                  if (spotId) {
+                      SpotService.getSpot(parseInt(spotId), function(err, spot) {
+                        if (err) {       
+                           console.log('Error: ' + err);                    
+                           callback(err);
+                        } else {
+                           callback(err, spot[0]);                              
+                        }
+                     });
+                  } else {
+         	         callback("no spot ID Specified", null);
+                  }
+               }],
+               function(err, results) {
+                  if (err) {
+                     res.send(err, "Error retreiving spot: " + err);
+                     res.end();
+                     return;
+                  }
+                  model = results[0];
+                  spot = results[1];
+                  var lat = spot.location.latitude;
+                  var lon = spot.location.longitude;
+                  var latLonQuery = lat + ',' + lon;
+                  console.log('Pulling weather mode: '.magenta + HOURLY_10DAY);
+                  pullWeather(HOURLY_10DAY,lat, lon, model, function(err, weatherData) {
+                     var jsonModel = JSON.parse(defaultModel);
+                     if (me.model != null && weatherData != null) {
+                        var model = JSON.parse(me.model);
+                        console.log('HERE'.red);
+                        var jsonWeather = JSON.parse(weatherData);
+                  //      console.log('HERE2, hourly length: '.red + JSON.stringify(jsonWeather.hourly ));
+         //               logger.debug('here after pullWeather: ' + weatherData);
+                        
+                        var weatherKeys = Object.keys(jsonWeather);
+                        
+                        weatherKeys.forEach(function(key) {
+                           console.log('KEY: '.red + key);
+                        });
+                        KiteScoreService.processHourly(jsonWeather, function(err, windData) {
+                           KiteScoreService.buildKiteScore(model, spot, windData, function(err, scores) {                              
+                                  client.set(redis10DayKey, JSON.stringify(scores),function(err, replies) {
+                                    client.expire(redis10DayKey, redis10DayExpireTime, function (err, replies) {
+                              			logger.debug('expire set for ' + redis10DayKey + ' to ' + redis10DayExpireTime + ' seconds.');
+                              		});
+               
+                                 });
+                                 res.writeHead(200, {
+                                    'Content-Type' : 'application/json'
+                                 });
+                                 res.end(JSON.stringify(scores));                  
+                              });                              
+                           });
+
+                     } else {
+                     	res.send(500, "Invalid server response");
+                     	res.end();
+                     }
+                     return; 
+                  });
+               });
+            }
+         
+      }
+   }); 
+
 });
 
-pullWeather = function(mode, lat, lon,  callback) {
+pullWeather = function(mode, lat, lon, model, callback) {
    var latLonQuery = lat + ',' + lon;
    var redisKey = "weather:" +  mode  + ":" +  lat+ ":" +  lon;
+   console.log('redis key check: '.red + redisKey);
    // This will return a JavaScript String
    client.get(redisKey, function (err, reply) { 
         if (reply) {
          logger.debug('Weather found in redis for key ' + redisKey);
+         console.log('Reply typeof:'.red + typeof reply);
          callback(null, reply);
         }
         else {
-           if (mode = HOURLY_1DAY) {
+           if (mode === HOURLY_1DAY) {
              forecast.get(lat, lon, function(err, response, data) {
                   var dataStr = JSON.stringify(data);
                   var dataJson = JSON.parse(dataStr);
@@ -322,13 +430,13 @@ pullWeather = function(mode, lat, lon,  callback) {
                      logger.error('Error running wunder.hourly: ' + err);
                      throw err;
                   }
-                  var jsonModel = JSON.parse(defaultModel);
+                  var jsonModel = JSON.parse(model);
                   client.set(redisKey,  dataStr,function(err, setRepky) {
                      client.expire(redisKey, expiration_time, function (err, expireReply) {
                         logger.debug('kitescore:redis key expire set for ' + redisKey);
                         
                		});
-               		console.log('redisKey before returning weather? '.magenta + dataStr);
+               		//console.log('redisKey before returning weather? '.magenta + dataStr);
                  		callback(null,  dataStr);
                   
                   });
@@ -336,7 +444,7 @@ pullWeather = function(mode, lat, lon,  callback) {
              });
       
           }
-          else if (mode = HOURLY_7DAY) {
+          else if (mode === HOURLY_7DAY) {
              wunder.hourly7day(latLonQuery, function(err, response) {
                   var jsonModel = JSON.parse(defaultModel);
                   if ( response != null ) {
@@ -348,15 +456,13 @@ pullWeather = function(mode, lat, lon,  callback) {
              });
       
           } 
-          else if (mode = HOURLY_10DAY) {
+          else if (mode === HOURLY_10DAY) {
+             console.log("HERE IN HOURLY10DAY PULLWEATHER".red);
              wunder.hourly10day(latLonQuery, function(err, response) {
                   var jsonModel = JSON.parse(defaultModel);
-                  if ( response != null ) {
-                     var weather = JSON.parse(response);
-                     callback(null, weather);
-                  } else {
-                     callback("invalid response");
-                  }
+                  console.log('Hourly 10 day returned: '.red );
+                  callback(null, response);
+
              });
       
           } 
