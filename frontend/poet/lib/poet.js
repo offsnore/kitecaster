@@ -3,6 +3,7 @@ var
   yamlFm   = require( 'front-matter' ),
   jsonFm   = require( 'json-front-matter' ).parse,
   templates = require( './poet/templates' ),
+  Datastore = require(require('path').resolve(__dirname, './poet/DataStore.js')),
   app, storage, options;
 
 var core, locals, routeFns, refs, utils;
@@ -147,6 +148,12 @@ function getTemplateFor ( filename ) {
     });
   });
   return templateFn;
+}
+
+function getAllSpots (callback) {
+    Datastore.records.object("Spot", {}, function(req, res, body) {
+        callback(body);
+    });
 }
 
 exports.addTemplate         = addTemplate;

@@ -7,7 +7,6 @@ module.exports = function ( _options, _storage ) {
   return {
 
     // Posts
-
     postList     : storage.orderedPosts,
     getPostCount : getPostCount,
     getPost      : getPost,

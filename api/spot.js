@@ -429,10 +429,9 @@
 			}
 		};
 		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
-			if (body.length == 0) {
-				obj = {"error":"Spot" + id + "not found."};
-				res.send(obj);
-				res.end(400);
+			if (success != true) {
+				res.send(404, "Spot " + id + " not found");
+				res.end();
 			} else {
 				obj = body;
 				var google_api_key = nconf.get("api:google:api_key");
@@ -461,7 +460,7 @@
 		var queryParts = require('url').parse(req.url, true).query;
 		Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
 			if (body.length == 0) {
-				obj = {"error":"Spot" + id + "not found."};
+				obj = {"error":"Spot " + id + " not found."};
 			} else {
 				obj = body;
 			}
