@@ -347,7 +347,7 @@ app.buildKiteScore = function(model, spot, windData, callback) {
          data['kitescore_orig'] = kiteScore;
          kiteScore -= (Math.floor(kiteScoreSubtraction) ); 
          
-#         kiteScore -= ( kiteScoreSubtraction ); 
+//         kiteScore -= ( kiteScoreSubtraction ); 
       }
       var floorScore = Math.floor(kiteScore);
       data['closest_wind_dir_degrees'] = closestDir;
