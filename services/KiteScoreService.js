@@ -278,6 +278,8 @@ app.buildKiteScore = function(model, spot, windData, callback) {
 
       if (data.wdir.degrees) {
          wdir = data.wdir.degrees;
+      } else {
+          wdir = data.wdir;
       }
       else wdir = data.wdir;
       
@@ -297,42 +299,43 @@ app.buildKiteScore = function(model, spot, windData, callback) {
          if (speed >= windLowMin) {
             if (speed <= windLowMid) {
                kiteScore = VERY_LIGHT;
-            } else kiteScore = LIGHT;
-         } else kiteScore = TOO_LIGHT;
-      }
-      else if (speed <= windMedMax) {  
+            } else {
+            	kiteScore = LIGHT;
+            }
+         } else {
+         	kiteScore = TOO_LIGHT;
+         }
+      } else if (speed <= windMedMax) {  
 		 // map wind into 3 steps of medium
          var step =(windMedRange / 3);
          if ((speed + step) < windMedMid) {
             kiteScore = MED_LOW;
-         }
-         else if ((speed + step) < windMedMid)  {
+         } else if ((speed + step) < windMedMid)  {
             kiteScore = MED_MED;
-         }
-         else if ((speed + step) > windMedMid) {
+         } else if ((speed + step) > windMedMid) {
             kiteScore = MED_HIGH;
          }
-      } 
-      else if (speed <= windHighMax) {
+      } else if (speed <= windHighMax) {
 	  // map wind into 3 steps of high
          var step =(windHighRange / 3);
          if ((speed + step) < windHighMid) {
             kiteScore = HIGH_LOW;
-         }
-         else if ((speed + step) < windHighMid)  {
+         } else if ((speed + step) < windHighMid)  {
             kiteScore = HIGH;
-         }
-         else if ((speed + step) > windHighMid) {
+         } else if ((speed + step) > windHighMid) {
             kiteScore = HIGH_HIGH;
          }
-      }
-      else if (speed > windHighMax) {
+      } else if (speed > windHighMax) {
          kiteScore = TOO_MUCH;
+      } else {
+      	 console.log("WTF, no kitescore determiend. speed:" + speed);
+         return false;
+//         throw new Error('WTF happened, no kite score determined, speed: ' + speed);
       }
       else {
          console.log('WHy is I here, speed is: '.red + speed + ', type: ' + typeof speed + '. source: ' + JSON.stringify(data.wspd) + '. parsed: '  + parseInt(data.wspd));
          throw new Error('WTF happened, no kite score determined');
-         
+         // @note - this should be a nice error, with a console.log // thorw new causes node.js to die :P
       }
       
       // TODO: change score based on wind direction. generic search (query for location) without a spot cannot account for specific wind direction.

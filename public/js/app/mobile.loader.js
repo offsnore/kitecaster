@@ -11,11 +11,19 @@
             var obj = $("<div></div>");
             obj.addClass('scroll-pane');
             
-            $that.bind("scroll", function(e, b){
+            $('.kitegraph').bind("scroll", function(e){
+            
+            	var that = $(this);
+            
                 var max_left = parseInt(this.scrollWidth) - parseInt(this.clientWidth);
-                var cur_left = $(this).scrollLeft();
-                if (generating === false && cur_left >= (max_left - (max_left * .4))) {
-                    generating = true;
+                var cur_left = that.scrollLeft();
+
+                var generating = $(this).attr('data-generating');
+
+                if (generating == 'false' && cur_left >= (max_left - (max_left * .4))) {
+
+                	$(this).attr('data-generating', true);
+
                     if (_$local.spot_cache_obj.length != _$local.spot_cache.length) {
 	                    for (var i in _$local.spot_cache) {
 	                        for (var x in _$local.spot_cache[i]) {
@@ -36,7 +44,6 @@
 	                            if (start >= max) {
 		                            return true;
 	                            }
-	                            console.log(start);
 	                            $(this).data_loader.buildslide(_$local.spot_cache[i][x], $(this).attr('id'), start, end, graph_objects.timeline, graph_objects.winds);
 	                        }
 						}
@@ -57,7 +64,7 @@
 	                            }
 	                            $(this).data_loader.buildslide(_$local.spot_cache[i][x], $(this).attr('id'), start, end, graph_objects.timeline, graph_objects.winds);
 	                        }
-	                    }	                    
+	                    }
                     }
                 }
             });
@@ -220,7 +227,7 @@
 	    	circle.attr("fill", wind_color);
 			circle.attr("stroke", "none");	    		
 			circle.data({
-				"value": za[i] +" MPH",
+				"value": (typeof za[i].english !== undefined ? za[i].english +" MPG" : ""),
 				"x": sleft,
 				"y": stop,
 				"r": obj_val,
@@ -246,7 +253,6 @@
 		    		bar.attr({fill: '#000'});
 	    		}
 	    		if (xa[i].ampm == "AM" && parseInt(xa[i].hour) < 6 || xa[i].ampm == "PM" && parseInt(xa[i].hour) > 19) {
-//		    		var bar = r.rect(sleft, (starting_point - bar_height), x_width, bar_height);
 		    		var bar = r.rect(sleft, 0, x_width, starting_point);
 		    		bar.attr({fill: '#A4A4A4', stroke: 'none', 'opacity': .5});
 	    		}
@@ -257,7 +263,6 @@
     		wind_speed.attr({'font':'10px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
 			wind_speed.transform("r-90");
     		position += width;
-//	    	counter = (parseInt(counter) + 3);	
 	    	counter++;	
 		}
 		
@@ -271,6 +276,8 @@
 		if (initial) {
 			obj.attr('data-max-point', absolute_max_spots);
 		}
+
+		obj.attr('data-generating', false);
 
 		$("#" + spot_id + ".scroll-pane").data_loader();
     }

@@ -9,6 +9,15 @@ var redis = require('redis')
 var app = module.exports.records = {};
 var base = module.exports;
 
+base.getSettings = function() {
+	nconf.argv()
+	       .env()
+	       .file({ file: require('path').resolve(__dirname,'../settings.json') });
+    return nconf;
+}
+
+nconf = base.getSettings();
+
 app.results = {}
 
 /**

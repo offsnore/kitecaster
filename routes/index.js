@@ -586,6 +586,19 @@ exports.viewPublicSpot = function(req, res) {
 };
 
 
+exports.mainSitemap = function(req, res) {
+	var nconf = getSettings();
+    var params = {};
+    var queryParams = {};
+
+	// Use DataStore Instead
+	Datastore.records.object("Spot", queryParams, function(err, response, body, success) {
+        params['data'] = body;
+    	res.render('sitemap-xml', params);
+	});
+
+};
+
 /**
  * editSpot()
  * Spots Page for Application

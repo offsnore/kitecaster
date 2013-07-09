@@ -1,0 +1,20 @@
+-function name_to_url(name) {
+-    name = name.toLowerCase(); // lowercase
+-    name = name.replace(/[^a-z|0-9|\s{1}]/g, ''); // remove everything that is not [a-z] or -
+-    name = name.replace(/^\s+|\s+$/g, ''); // remove leading and trailing whitespaces
+-    name = name.replace(/ +(?= )/g, '');
+-    name = name.replace(/\s+/g, '-'); // convert (continuous) whitespaces to one -
+-    return name;
+-}
+<?xml version="1.0" encoding="UTF-8"?>
+urlset(xmlns='http://www.sitemaps.org/schemas/sitemap/0.9', xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance', xsi:schemaLocation='http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd')
+url
+    loc http://www.kitecaster.com
+    changefreq daily
+    priority 0.8
+each item in data
+    - var name = name_to_url(item.name);
+    url
+        loc http://www.kitecaster.com/main/p/#{name}/#{item.spotId}.html
+        changefreq hourly
+        priority 0.9

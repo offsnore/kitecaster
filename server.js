@@ -142,6 +142,8 @@ app.get('/main/spots/view/*', routes.viewSpot);
 app.get('/main/spots/edit/*', routes.editSpot);
 //app.post('/main/spots/edit/*', routes.editSpotSave);
 
+app.get('/main/sitemap.xml', routes.mainSitemap);
+
 app.get('/main/profile', routes.mainProfile);
 app.post('/main/profile/save', routes.mainProfileSave);
 
