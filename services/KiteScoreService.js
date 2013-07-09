@@ -240,73 +240,77 @@ app.buildKiteScore = function(model, spot, windData, callback) {
    // ignore direction first, just map speeds
    // map TOO_LIGHT = 5, VERY_LIGHT = 6, LIGHT = 7, MED_LOW = 8, MED_MED = 9, MED_HIGH = 10, HIGH_LOW = 11, HIGH_MED = 12,  HIGH_HIGH = 13, TOO_MUCH = 15;
 
-   console.log(typeof windData);
-
 	// we want a nice return, not Node.JS going fuck you.   
 	if (typeof windData == 'undefined') {
 		return false;
 	}
+
    windData.forEach(function(data) {
-      
+
+      var wdir;//  = parseInt(data.wdir);
       var kiteScore = 0;
-    //console.log('WindData.ForeEach data: ' + JSON.stringify(data)); 
+      var hour, time;
+
       var speed = parseInt(data.wspd);
+
       if (!speed) {
          speed = data.wspd.english; // if not cached the same way?
       }
-      var wdir;//  = parseInt(data.wdir);
 
       if (data.wdir.degrees) {
          wdir = data.wdir.degrees;
+      } else {
+          wdir = data.wdir;
       }
-      else wdir = data.wdir;
-         
-      var wx    = data.wx;
-      var hour, time;
-      if (data.FCTTIME) hour  = data.FCTTIME.hour;
-      else if (data.time) time = data.time;
-      
+
+      var wx = data.wx;
+
+      if (data.FCTTIME) {
+	      hour  = data.FCTTIME.hour;          
+      } else if (data.time) {
+	      time = data.time;
+      }
+
       var rangeEnd = -1;
+
       if (speed <= windLowMax) {
          if (speed >= windLowMin) {
             if (speed <= windLowMid) {
                kiteScore = VERY_LIGHT;
-            } else kiteScore = LIGHT;
-         } else kiteScore = TOO_LIGHT;
-      }
-      else if (speed <= windMedMax) {  
+            } else {
+            	kiteScore = LIGHT;
+            }
+         } else {
+         	kiteScore = TOO_LIGHT;
+         }
+      } else if (speed <= windMedMax) {  
 		 // map wind into 3 steps of medium
          var step =(windMedRange / 3);
          if ((speed + step) < windMedMid) {
             kiteScore = MED_LOW;
-         }
-         else if ((speed + step) < windMedMid)  {
+         } else if ((speed + step) < windMedMid)  {
             kiteScore = MED_MED;
-         }
-         else if ((speed + step) > windMedMid) {
+         } else if ((speed + step) > windMedMid) {
             kiteScore = MED_HIGH;
          }
-      } 
-      else if (speed <= windHighMax) {
+      } else if (speed <= windHighMax) {
 	  // map wind into 3 steps of high
          var step =(windHighRange / 3);
          if ((speed + step) < windHighMid) {
             kiteScore = HIGH_LOW;
-         }
-         else if ((speed + step) < windHighMid)  {
+         } else if ((speed + step) < windHighMid)  {
             kiteScore = HIGH;
-         }
-         else if ((speed + step) > windHighMid) {
+         } else if ((speed + step) > windHighMid) {
             kiteScore = HIGH_HIGH;
          }
-      }
-      else if (speed > windHighMax) {
+      } else if (speed > windHighMax) {
          kiteScore = TOO_MUCH;
+      } else {
+      	 console.log("WTF, no kitescore determiend. speed:" + speed);
+         return false;
+//         throw new Error('WTF happened, no kite score determined, speed: ' + speed);
       }
-      else {
-         throw new Error('WTF happened, no kite score determined, speed: ' + speed);
-         
-      }
+
       // TODO: change score based on wind direction. generic search (query for location) without a spot cannot account for specific wind direction.
       if (spot) {
          //logger.debug('wind dir: ' + JSON.stringify(wdir));
