@@ -303,6 +303,10 @@ server.get('score/10day/:id', function(req, res) {
    var queryParts = require('url').parse(req.url, true).query;
    var lat, lon, modelId;
    
+   var force = false;
+   if (queryParts.force === 'true') {
+      force = true;
+   }
    // modeId check
    if (queryParts.modelId) {
       modelId = queryParts.modelId;
@@ -320,7 +324,7 @@ server.get('score/10day/:id', function(req, res) {
    var redis10DayKey = "scores:10day:spot:" + spotId;
    var redis10DayExpireTime = nconf.get("api:kitescore:expiration_time");
    client.get(redis10DayKey, function(err, reply) {
-      if (reply) {
+      if (reply && force === false) {
          logger.debug("Scores found for key " + redis10DayKey);         
          res.send(200, JSON.parse(reply));
       }
@@ -368,19 +372,18 @@ server.get('score/10day/:id', function(req, res) {
                   console.log('Pulling weather mode: '.magenta + HOURLY_10DAY);
                   pullWeather(HOURLY_10DAY,lat, lon, model, function(err, weatherData) {
                      var jsonModel = JSON.parse(defaultModel);
-                     if (me.model != null && weatherData != null) {
-                        var model = JSON.parse(me.model);
-                        console.log('HERE'.red);
+                     if (model != null && weatherData != null) {
+                        if (typeof model === 'string')
+                        {
+                             model = JSON.parse(me.model);
+                        }
+                        if (typeof spot === 'string') {
+                           spot = JSON.parse(spot);
+                        }
+                        
                         var jsonWeather = JSON.parse(weatherData);
-                  //      console.log('HERE2, hourly length: '.red + JSON.stringify(jsonWeather.hourly ));
-         //               logger.debug('here after pullWeather: ' + weatherData);
-                        
-                        var weatherKeys = Object.keys(jsonWeather);
-                        
-                        weatherKeys.forEach(function(key) {
-                           console.log('KEY: '.red + key);
-                        });
                         KiteScoreService.processHourly(jsonWeather, function(err, windData) {
+                           console.log('WTF is going on here? model:' + model + ' spot: ' + spot);
                            KiteScoreService.buildKiteScore(model, spot, windData, function(err, scores) {                              
                                   client.set(redis10DayKey, JSON.stringify(scores),function(err, replies) {
                                     client.expire(redis10DayKey, redis10DayExpireTime, function (err, replies) {
@@ -457,10 +460,8 @@ pullWeather = function(mode, lat, lon, model, callback) {
       
           } 
           else if (mode === HOURLY_10DAY) {
-             console.log("HERE IN HOURLY10DAY PULLWEATHER".red);
              wunder.hourly10day(latLonQuery, function(err, response) {
-                  var jsonModel = JSON.parse(defaultModel);
-                  console.log('Hourly 10 day returned: '.red );
+                  var jsonModel = JSON.parse(defaultModel);         
                   callback(null, response);
 
              });

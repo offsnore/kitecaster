@@ -806,7 +806,7 @@ var correctedViewportW = (function (win, docElem) {
 				var override = false;
 			}
 			
-			var url = "http://" + _$spot_url + "/score/7day/" + spot;
+			var url = "http://" + _$spot_url + "/score/10day/" + spot;
 			var parent = "spot-" + spot;
 			$.ajax({
 				type: "GET",

@@ -220,7 +220,7 @@
 	    	circle.attr("fill", wind_color);
 			circle.attr("stroke", "none");	    		
 			circle.data({
-				"value": za[i].english +" MPG",
+				"value": za[i] +" MPH",
 				"x": sleft,
 				"y": stop,
 				"r": obj_val,
