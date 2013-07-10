@@ -138,7 +138,7 @@
     };
 
     $.fn.data_loader.buildslide = function(data, spot_id, start_spot, max_spots, graph_object, wind_object) {
-		var y = [], z=[], x=[], i=0, pixel_width_length=25, max_size=20, initial=false, absolute_max_spots=168, counter=0, min_size=1, top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0, auto_load = false, window_width = $(window).width();
+		var y = [], z=[], x=[], i=0, pixel_width_length=25, max_size=20, initial=false, absolute_max_spots=408, counter=0, min_size=1, top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0, auto_load = false, window_width = $(window).width();
 
 		// clears out the cache for this spot_id
 		this.build_cache_tables(spot_id);
@@ -202,6 +202,7 @@
     		sleft = left_position;
     		stop = starting_point - ((parseInt(height) / 2) + (width / 2) + top_padding);
     		circle = r.rect(sleft, (starting_point - bar_height), x_width, bar_height);
+
     		if (obj_val >= 0 && obj_val <= 3) {
     			wind_color = "#99FFCC";
     		}
@@ -225,21 +226,32 @@
     		}
 
 	    	circle.attr("fill", wind_color);
-			circle.attr("stroke", "none");	    		
+			circle.attr("stroke", "none");
+			
+			var wind_text = "";
+			if (typeof za[i].english !== 'undefined') {
+				wind_text = za[i].english + " MPG";
+			}
+			
 			circle.data({
-				"value": (typeof za[i].english !== undefined ? za[i].english +" MPG" : ""),
+				"value": wind_text,
 				"x": sleft,
 				"y": stop,
 				"r": obj_val,
 				"w": x_width
-			});
-						
+			});			
+			// Bottom Arrow Winds
 			var icon = b.getIcon("arrow-wind", {fill: wind_color});
 			if (typeof z[i] !== 'undefined') {
-				var degree = parseInt(z[i].degrees) + 180;
-				icon.transform("t" + left_position + ",0r" + degree + "t0,0s.8");
-				var text_direction = b.text(left_position + (x_width / 2), 45, z[i].dir);
-				text_direction.transform("r-90");
+				var text_direction = false;
+				if (typeof z[i].degrees !== 'undefined') {
+					var degree = parseInt(z[i].degrees) + 180;
+					icon.transform("t" + left_position + ",0r" + degree + "t0,0s.8");
+					var text_direction = b.text(left_position + (x_width / 2), 45, z[i].dir);
+				}
+				if (text_direction) {
+					text_direction.transform("r-90");					
+				}
 			}
     		// Text (time)
     		if (typeof x[i] != 'undefined') {
@@ -247,7 +259,7 @@
 	    		txt_header.attr({'font':'10px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
 	    		txt_header.rotate(-90, sleft+(x_width/2), 25);
     		}
-    		if (xa[i] !== 'undefined') {
+    		if (xa[i] !== 'undefined') {    		
 	    		if (xa[i].ampm == "AM" && xa[i].hour == "0" || xa[i].ampm == "PM" && xa[i].hour == "1") {
 		    		var bar = r.rect((sleft-2), 0, 4, stop);
 		    		bar.attr({fill: '#000'});
@@ -257,11 +269,25 @@
 		    		bar.attr({fill: '#A4A4A4', stroke: 'none', 'opacity': .5});
 	    		}
     		}
+
     		var txt = r.text(sleft+(x_width/2), (starting_point + bottom_padding), obj_val);
     		txt.attr({'font':'12px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
-    		var wind_speed = r.text(left_position + (x_width / 2), (starting_point - 20), za[i].english + " MPH");
-    		wind_speed.attr({'font':'10px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
-			wind_speed.transform("r-90");
+
+    		// Wind Speeds (MPH) overlayed on Graph
+    		if (typeof za[i] !== 'undefined') {
+    			var wind_text = false;
+
+    			if (typeof za[i].english !== 'undefined') {
+    				var wind_text = (typeof za[i].english !== 'undefined') ? za[i].english + " MPH" : "";
+    			}
+    			
+    			if (wind_text) {
+		    		var wind_speed = r.text(left_position + (x_width / 2), (starting_point - 20), wind_text);
+		    		wind_speed.attr({'font':'10px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
+					wind_speed.transform("r-90");	    			
+    			}
+    		}
+
     		position += width;
 	    	counter++;	
 		}

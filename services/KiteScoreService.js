@@ -77,6 +77,20 @@ var compassDegrees = {
    'NNW': 338  
 };
 
+var getBearingDirection = function(bearing) {
+   var bearingInt = 0;
+   try {
+      bearingInt = parseInt(bearing, 10);
+   } catch (Error) {
+      console.log('Error parsing int: ' + bearing);
+      return "error";
+   }
+   var compassArray = [ 'N', 'NNE', 'NE', 'ENE', 'E',
+    'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW' ];
+   var dir = compassArray[Math.floor((((bearing * 100) + 1125) % 36000) / 2250)];
+   return dir;
+}
+
 // color range: grey, dark grey, light green, green, dark green, orange, red, pink
 // score 0-8? ideal conditions 4-6 (e.g. 18-28mph)
 // with low, med, high wind (split in 2 for low/high end), plus one for (no kite), one for (too much wind (pink))
@@ -200,8 +214,10 @@ app.processHourly = function(hourly, callback) {
       });      
    }
    else {
-      callback("Unable to determine data source", null);
+      console.log('what the fuck'.red);
+      //callback("Unable to determine data source", null);
    }
+   
    callback(null, windData);   
    // shouldn't build kitescore here
 /*
@@ -221,9 +237,10 @@ app.buildKiteScore = function(model, spot, windData, callback) {
    var scores = [];
    var windLowMin = model.wind_low.min;
    var windLowMax = model.wind_low.max;
+     
    var windLowMid = ( windLowMin + windLowMax ) / 2;
    var windMedMin = model.wind_med.min;
-   var windMedMax = model.wind_med.max;
+   var windMedMax = model.wind_med.max; 
    var windMedMid = ( windMedMin + windMedMax ) / 2;
    var windHighMin = model.wind_high.min;
    var windHighMax = model.wind_high.max;
@@ -246,33 +263,36 @@ app.buildKiteScore = function(model, spot, windData, callback) {
 	}
 
    windData.forEach(function(data) {
+      var returnData = {};
+      var kiteScore = 0;
+    //console.log('WindData.ForeEach data: ' + JSON.stringify(data)); 
+      var speed = 0;
+      if (typeof data.wspd === 'object') 
+      {
+         speed = parseInt(data.wspd.english);
+      } else {
+         speed = parseInt(data.wspd);
+      }
 
       var wdir;//  = parseInt(data.wdir);
-      var kiteScore = 0;
-      var hour, time;
-
-      var speed = parseInt(data.wspd);
-
-      if (!speed) {
-         speed = data.wspd.english; // if not cached the same way?
-      }
 
       if (data.wdir.degrees) {
          wdir = data.wdir.degrees;
       } else {
           wdir = data.wdir;
       }
-
-      var wx = data.wx;
-
+      
+      var wx    = data.wx;
+      var hour, time;
       if (data.FCTTIME) {
-	      hour  = data.FCTTIME.hour;          
-      } else if (data.time) {
-	      time = data.time;
+         data.time = data.FCTTIME;
+//         hour  = data.time.hour;
+         delete data.FCTTIME;
+      } else {
       }
-
-      var rangeEnd = -1;
-
+   
+      var rangeEnd = -1; 
+   
       if (speed <= windLowMax) {
          if (speed >= windLowMin) {
             if (speed <= windLowMid) {
@@ -306,11 +326,11 @@ app.buildKiteScore = function(model, spot, windData, callback) {
       } else if (speed > windHighMax) {
          kiteScore = TOO_MUCH;
       } else {
-      	 console.log("WTF, no kitescore determiend. speed:" + speed);
-         return false;
-//         throw new Error('WTF happened, no kite score determined, speed: ' + speed);
+         console.log('WHy is I here, speed is: '.red + speed + ', type: ' + typeof speed + '. source: ' + JSON.stringify(data.wspd) + '. parsed: '  + parseInt(data.wspd));
+         throw new Error('WTF happened, no kite score determined');
+         // @note - this should be a nice error, with a console.log // thorw new causes node.js to die :P
       }
-
+      
       // TODO: change score based on wind direction. generic search (query for location) without a spot cannot account for specific wind direction.
       if (spot) {
          //logger.debug('wind dir: ' + JSON.stringify(wdir));
@@ -337,7 +357,7 @@ app.buildKiteScore = function(model, spot, windData, callback) {
             var diff = Math.abs(spotWindDegree - windDirDegrees);
 /*             console.log('Subtracting spot diegree of ' + spotWindDegree + ' from wind report degrees of ' + windDirDegrees + ' to get diff: ' + diff); */
             // get minimum difference
-            if ( diff <  closestDiff) {
+            if ( diff <  closestDiff) { 
 /*                console.log('Found closer dir, resetting closest from ' + closestDir + ' to ' + spotWindDegree + ' because diff is ' + diff);                */
                closestDir = spotWindDegree;
                closestDiff = diff;
@@ -349,23 +369,32 @@ app.buildKiteScore = function(model, spot, windData, callback) {
          var kiteScoreSubtraction = closestDifference / 45;
 /*          logger.debug('taking off ' + kiteScoreSubtraction + ' because the closest wind dir is ' + closestDir + ' and wind degree is ' + windDirDegrees); */
          data['kitescore_orig'] = kiteScore;
-         kiteScore -= (Math.floor(kiteScoreSubtraction) ); 
+         kiteScore -= ( 2 * Math.floor(kiteScoreSubtraction) ); 
          
 //         kiteScore -= ( kiteScoreSubtraction ); 
       }
+      
       var floorScore = Math.floor(kiteScore);
-      data['closest_wind_dir_degrees'] = closestDir;
-      data['kiteScore'] = floorScore < 0 ? 0 : floorScore ;
-      data['lastUpdated'] = new Date().toUTCString();
-      data['kitescore_subtraction'] = kiteScoreSubtraction;
-      scores.push(data);
-
+      returnData['epoch'] = data.time.epoch;
+      returnData['wdir'] = wdir;
+      returnData['wspd'] = speed;
+      returnData['wdir_compass'] = getBearingDirection(data.wdir);
+      returnData['timestamp'] = data.time.civil;
+      returnData['ampm'] = data.time.ampm;
+      returnData['datestamp'] = data.time.mon_padded + '-' + data.time.mday_padded + '-' + data.time.year;
+      returnData['closest_spot_direction_degrees'] = closestDir;
+      returnData['closest_spot_direction'] = getBearingDirection(closestDir);
+      returnData['kiteScore'] = floorScore < 0 ? 0 : floorScore ;
+      returnData['lastUpdated'] = new Date().toUTCString();
+      returnData['kitescore_subtraction'] = kiteScoreSubtraction;
+      scores.push(returnData);
+      
 //      logger.debug('KiteScore determined for spot ' + spot.spotId + '(dirs ' + spot.wind_directions+') at ' + data.FCTTIME.pretty + ': ' + data['kiteScore'] + "(" + speed  +data.wdir.dir  +")");      
    });
    callback(null, scores);
 }
 
-var cacheRunCount = 0;
+var cacheRunCount = 0; 
 var runCache = true;
 var spotsBody;
 // precache weather related data for spots, in seconds
@@ -398,7 +427,7 @@ app.runIndividualSpotCache = function(spot_id, callback) {
 			var redisSpotId = "spot:" + spotId;        
 			client.set(redisSpotId, JSON.stringify(spot), function(err, replies) {
 				client.expire(redisSpotId, expireTimeSpot, function(err, reply) {
-					logger.debug('Expire set for spot ' + redisSpotId + ', expires: ' + expireTimeSpot / 60 + ' minutes');
+					logger.debug('Expire set for spot redis key \'' + redisSpotId + '\', expires: ' + expireTimeSpot / 60 + ' minutes');
 				});
 			});
 		});
@@ -444,7 +473,7 @@ app.runSpotWeatherCache = function(spot_id) {
             logger.debug('got spot id: ' + key); 
             client.get(key, function(err, reply) {
                var jsonSpot = JSON.parse(reply);
-               console.log('runSpotWeatherCache reply: ' + reply);
+
                try {
                		console.log('Got spot geoloc for cache: ' + jsonSpot.location.latitude + ', ' + jsonSpot.location.longitude);
                } catch (err) {
@@ -469,8 +498,8 @@ app.runSpotWeatherCache = function(spot_id) {
                            logger.debug('redis key set for ' + redisWeatherKey + ', replies: ' + replies);
                            if (replies === "OK") {                     
                               // run kite scores for saved spots' weather
-                              if (jsonSpot && defaultModel && weatherStr) {
-                                 logger.debug('building kitescores for weather cache');
+                              if (jsonSpot && defaultModel && weather) {
+                                 logger.debug('building kitescores for weather cache: types: ' + typeof weather + ' model: ' + typeof defaultModel + ', spot: ' + typeof jsonSpot) ;
                                                       
                                  app.buildKiteScore(defaultModel, jsonSpot, weather, function(err, scores) {
                                     //console.log('Got kitescores for data: ' + JSON.stringify(scores));

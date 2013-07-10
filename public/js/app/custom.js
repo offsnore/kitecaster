@@ -577,6 +577,43 @@ var correctedViewportW = (function (win, docElem) {
 		}
 
 		function parseForGraph(data) {
+			_$temp = data;
+			var x = [], y = [], z = [], za = [], xa = [];
+			$(data).each(function(i, item){
+				 if (typeof item.epoch !== 'undefined') {
+					// Time, KiteScore, and Basic Details
+				 	xa.push(item)
+				 	x.push(item.timestamp);
+				 	
+				 	// Speeds
+				 	var spdz = {};
+				 	spdz['english'] =  item.wspd;
+				 	za.push(spdz);
+
+				 	// Wind Details
+				 	var windz = {};
+				 	windz['degrees'] = (parseInt(item.wdir) - 180); // @the 180 is b/c of the other feed needs a plus 180 (and it was here first)
+				 	windz['dir'] = item.wdir_compass;
+				 	z.push(windz);
+				 }
+			     // One Forecasting System
+			     if (typeof item.time !== 'undefined') {
+    			     x.push(item.time.civil);
+    			     xa.push(item.time);
+			     }
+			     // Data from another forecasting system
+			     if (typeof item.FCTTIME !== 'undefined') {
+    			     xa.push(item.FCTTIME);
+    			     x.push(item.FCTTIME.civil);
+    			     z.push(item.wdir);
+    			     za.push(item.wspd);
+			     }
+				y.push(item.kiteScore);
+			});
+			return [x, y, z, za, xa];
+		}
+
+		function parseForGraphLegacy(data) {
 			var x = [], y = [], z = [], za = [], xa = [];
 			$(data).each(function(i, item){
 			     // One Forecasting System
