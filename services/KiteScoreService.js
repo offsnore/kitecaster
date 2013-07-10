@@ -371,6 +371,7 @@ app.buildKiteScore = function(model, spot, windData, callback) {
          data['kitescore_orig'] = kiteScore;
          kiteScore -= ( 2 * Math.floor(kiteScoreSubtraction) ); 
          
+//         kiteScore -= ( kiteScoreSubtraction ); 
       }
       
       var floorScore = Math.floor(kiteScore);

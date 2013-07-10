@@ -1,28 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 sitemapindex(xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance', xsi:schemaLocation='http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd', xmlns='http://www.sitemaps.org/schemas/sitemap/0.9')
-sitemap
-    loc http://www.kitecaster.com/main/sitemap.xml
-    changefreq daily
-    priority 1.0
-
-urlset(xmlns='http://www.sitemaps.org/schemas/sitemap/0.9', xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance', xsi:schemaLocation='http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd')
-    url
-        loc http://www.kitecaster.com
-        changefreq daily
-        priority 0.8
-    url
-        loc http://www.kitecaster.com/blog.html
-        changefreq daily
-        priority 1.0
-    - each cat in categoryList
-        url
-            loc http://www.kitecaster.com#{categoryUrl(cat)}
-            changefreq weekly
-            priority 0.1
-    
-    - var posts = getAllPosts()
-    - each post in posts
-        url
-            loc http://www.kitecaster.com#{post.url}.html
-            changefreq weekly
-            priority 0.5
+    sitemap
+         loc http://www.kitecaster.com/main/sitemap.xml
+    sitemap
+         loc http://www.kitecaster.com/sitemap-frontend.xml
