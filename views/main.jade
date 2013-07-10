@@ -63,6 +63,11 @@ block script_include
 		window._$user_id = '#{user_id}';
 		window._$session_id = '#{session_id}';
 		window._$spot_id = false;
+		if (#{first_login} != false) {
+			jQuery(document).ready(function(){
+				_$local.upload_location();
+			});
+		}
 	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=false')
 block head_include
 	script(language='JavaScript', src='/js/lib/jquery.ui.min.js')

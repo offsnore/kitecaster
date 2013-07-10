@@ -101,7 +101,7 @@ exports.registerAction = function(req, res) {
 				if (data.sessionToken) {
 					data.timestamp = new Date();
 					Datasession.setlogincookie(res, data);
-					res.redirect('/main');
+					res.redirect('/main?first_login=true');
 				} else {
 					res.redirect('/main/login?msg=' + encodeURIComponent(data.error));			
 				}
@@ -137,7 +137,7 @@ exports.loginAction = function(req, res) {
 		if (data.sessionToken) {
 			data.timestamp = new Date();
 			Datasession.setlogincookie(res, data);
-			res.redirect('/main');
+			res.redirect('/main?first_login=true');
 		} else {
 			res.redirect('/main/login?msg=' + encodeURIComponent(data.error));			
 		}
@@ -161,6 +161,14 @@ exports.mainIndex = function(req, res) {
 	var geo_location = lookup.geolookup.getCurrent(req);
 	var profile_data = {};
 	var session_id;
+	
+	var queryParams = require('url').parse(req.url, true).query
+
+	var first_login = false;
+
+	if (queryParams.first_login) {
+    	first_login = true;
+	}
 
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){		
@@ -179,6 +187,7 @@ exports.mainIndex = function(req, res) {
 		}
 
 		var params = {
+			first_login: first_login,
 			user_id: user_id,
 			session_id: session_id,
 			profile_image: localdata.profile_image,

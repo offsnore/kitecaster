@@ -1618,6 +1618,11 @@ var correctedViewportW = (function (win, docElem) {
 			});
 		}
 		
+		_$local.upload_location = function() {
+			$(".location_description").html("Getting Update...");
+			_$local.pullGeolocation();
+		}
+		
 		$(".update_location, .location_description").live("click", function(e){
 			e.preventDefault();
 			$(".location_description").html("Getting Update...");
