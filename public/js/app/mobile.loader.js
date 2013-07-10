@@ -138,7 +138,7 @@
     };
 
     $.fn.data_loader.buildslide = function(data, spot_id, start_spot, max_spots, graph_object, wind_object) {
-		var y = [], z=[], x=[], i=0, pixel_width_length=25, max_size=20, initial=false, absolute_max_spots=168, counter=0, min_size=1, top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0, auto_load = false, window_width = $(window).width();
+		var y = [], z=[], x=[], i=0, pixel_width_length=25, max_size=20, initial=false, absolute_max_spots=408, counter=0, min_size=1, top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0, auto_load = false, window_width = $(window).width();
 
 		// clears out the cache for this spot_id
 		this.build_cache_tables(spot_id);
@@ -225,9 +225,10 @@
     		}
 
 	    	circle.attr("fill", wind_color);
-			circle.attr("stroke", "none");	    		
+			circle.attr("stroke", "none");
+						
 			circle.data({
-				"value": (typeof za[i].english !== undefined ? za[i].english +" MPG" : ""),
+				"value": (typeof za[i] !== 'undefined' ? za[i].english + " MPG" : ""),
 				"x": sleft,
 				"y": stop,
 				"r": obj_val,
@@ -259,7 +260,7 @@
     		}
     		var txt = r.text(sleft+(x_width/2), (starting_point + bottom_padding), obj_val);
     		txt.attr({'font':'12px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
-    		var wind_speed = r.text(left_position + (x_width / 2), (starting_point - 20), za[i].english + " MPH");
+    		var wind_speed = r.text(left_position + (x_width / 2), (starting_point - 20), (typeof za[i] !== 'undefined' ? za[i].english + " MPH" : "") );
     		wind_speed.attr({'font':'10px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
 			wind_speed.transform("r-90");
     		position += width;
