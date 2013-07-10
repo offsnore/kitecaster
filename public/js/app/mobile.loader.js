@@ -247,7 +247,9 @@
 				if (typeof z[i].degrees !== 'undefined') {
 					var degree = parseInt(z[i].degrees) + 180;
 					icon.transform("t" + left_position + ",0r" + degree + "t0,0s.8");
-					var text_direction = b.text(left_position + (x_width / 2), 45, z[i].dir);
+					if (typeof z[i].dir !== 'undefined') {
+						var text_direction = b.text(left_position + (x_width / 2), 45, z[i].dir);						
+					}
 				}
 				if (text_direction) {
 					text_direction.transform("r-90");					
