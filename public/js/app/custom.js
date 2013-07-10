@@ -593,7 +593,7 @@ var correctedViewportW = (function (win, docElem) {
 				 	// Wind Details
 				 	var windz = {};
 				 	windz['degrees'] = (parseInt(item.wdir) - 180); // @the 180 is b/c of the other feed needs a plus 180 (and it was here first)
-				 	windz['dir'] = item.wdir_compass;
+				 	windz['dir'] = item.closest_spot_direction;
 				 	z.push(windz);
 				 }
 			     // One Forecasting System
