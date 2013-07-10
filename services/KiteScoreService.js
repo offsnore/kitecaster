@@ -281,7 +281,6 @@ app.buildKiteScore = function(model, spot, windData, callback) {
       } else {
           wdir = data.wdir;
       }
-      else wdir = data.wdir;
       
       var wx    = data.wx;
       var hour, time;
@@ -289,8 +288,7 @@ app.buildKiteScore = function(model, spot, windData, callback) {
          data.time = data.FCTTIME;
 //         hour  = data.time.hour;
          delete data.FCTTIME;
-      }
-      else {
+      } else {
       }
    
       var rangeEnd = -1; 
@@ -328,11 +326,6 @@ app.buildKiteScore = function(model, spot, windData, callback) {
       } else if (speed > windHighMax) {
          kiteScore = TOO_MUCH;
       } else {
-      	 console.log("WTF, no kitescore determiend. speed:" + speed);
-         return false;
-//         throw new Error('WTF happened, no kite score determined, speed: ' + speed);
-      }
-      else {
          console.log('WHy is I here, speed is: '.red + speed + ', type: ' + typeof speed + '. source: ' + JSON.stringify(data.wspd) + '. parsed: '  + parseInt(data.wspd));
          throw new Error('WTF happened, no kite score determined');
          // @note - this should be a nice error, with a console.log // thorw new causes node.js to die :P
