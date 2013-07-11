@@ -592,7 +592,7 @@ var correctedViewportW = (function (win, docElem) {
 
 				 	// Wind Details
 				 	var windz = {};
-				 	windz['degrees'] = (parseInt(item.wdir) - 180); // @the 180 is b/c of the other feed needs a plus 180 (and it was here first)
+				 	windz['degrees'] = parseInt(item.wdir); // @the 180 is b/c of the other feed needs a plus 180 (and it was here first)
 				 	windz['dir'] = item.wdir_compass;
 				 	z.push(windz);
 				 }
