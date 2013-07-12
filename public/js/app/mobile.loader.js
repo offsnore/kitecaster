@@ -138,7 +138,7 @@
     };
 
     $.fn.data_loader.buildslide = function(data, spot_id, start_spot, max_spots, graph_object, wind_object) {
-		var y = [], z=[], x=[], i=0, pixel_width_length=25, max_size=20, initial=false, absolute_max_spots=408, counter=0, min_size=1, top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0, auto_load = false, window_width = $(window).width();
+		var y = [], z=[], x=[], i=0, pixel_width_length=25, max_size=20, initial=false, absolute_max_spots=384, counter=0, min_size=1, top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0, auto_load = false, window_width = $(window).width();
 
 		// clears out the cache for this spot_id
 		this.build_cache_tables(spot_id);
@@ -255,11 +255,12 @@
 					text_direction.transform("r-90");					
 				}
 			}
+
     		// Text (time)
     		if (typeof x[i] != 'undefined') {
-	    		var txt_header = r.text(sleft+(x_width/2), 25, x[i]);
+	    		var txt_header = r.text(sleft+(x_width/2), 35, x[i]);
 	    		txt_header.attr({'font':'10px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
-	    		txt_header.rotate(-90, sleft+(x_width/2), 25);
+	    		txt_header.rotate(-90, sleft+(x_width/2), 35);
     		}
     		
     		if (xa[i] !== 'undefined') {
@@ -268,9 +269,18 @@
     				var date_time = new Date(Date.parse(date_timestamp));
     				xa[i].hour = date_time.getHours();
     			}		
-	    		if (xa[i].ampm == "AM" && xa[i].hour == "0" || xa[i].ampm == "PM" && xa[i].hour == "1") {
+	    		if ((xa[i].ampm == "AM" && xa[i].hour == "0" || xa[i].ampm == "AM" && xa[i].hour == "1") || (xa[i].ampm == "PM" && xa[i].hour == "1" || xa[i].ampm == "PM" && xa[i].hour == "0")) {
 		    		var bar = r.rect((sleft-2), 0, 4, stop);
 		    		bar.attr({fill: '#000'});
+		    		
+		    		var date_text_source = "", date_text = "";
+		    		
+		    		if (typeof moment == 'function') {
+			    		date_text_source = moment(date_time).format("MMMM Do YYYY");
+		    		} else {
+			    		date_text_source = date_time;
+		    		}
+		    		var date_text = r.text(sleft+(x_width/2) + 100, 4, date_text_source);
 	    		}
 	    		if (xa[i].ampm == "AM" && parseInt(xa[i].hour) < 6 || xa[i].ampm == "PM" && parseInt(xa[i].hour) > 19) {
 		    		var bar = r.rect(sleft, 0, x_width, starting_point);
