@@ -140,7 +140,7 @@ body {
 .content_feed .body ul li {
     clear: both;
     border-bottom: solid 1px #dfe0e2;
-    padding: 30px 40px;
+    padding: 5px 15px;
 }
 
 h2.head_title {
@@ -383,9 +383,18 @@ label.error {
 }
 
 /**
+ * Daily/Weather Feed
+ */
+.feed .current_header { margin: 0; float: left; }
+.feed .current_weather { margin-left: 100px; }
+
+.feed .daily_header { margin: 0; float: left; }
+.feed .daily_weather { margin-left: 100px; }
+
+/**
  * jQuery Scroll Styles
  */
-.scroll-pane { overflow-x: scroll; overflow-y: hidden; width: 99%; }
+.scroll-pane { overflow-x: scroll; overflow-y: hidden; width: 99%; height: 235px; }
 .scroll-content { width: 2440px; float: left; }
 .scroll-content-item { width: 100px; height: 100px; float: left; margin: 10px; font-size: 3em; line-height: 96px; text-align: center; }
 .scroll-bar-wrap { clear: left; padding: 0 4px 0 2px; margin: 0 -1px -1px -1px; }

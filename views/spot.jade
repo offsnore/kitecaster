@@ -110,7 +110,6 @@ block scripts
 		{{/each}}
 
 	script(type='text/x-handlebars-template', id='spotweather-template')
-		h4 Forecast
 		.current
 			h5.current_header
 				| Currently:
@@ -120,7 +119,7 @@ block scripts
 				{{ hourly.summary }}
 		.daily
 			h5.daily_header
-				| For the Day: 
+				| Outlook: 
 			.daily_weather
 				{{ daily.summary }}
 		p
