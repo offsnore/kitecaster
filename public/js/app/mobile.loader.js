@@ -38,7 +38,7 @@
 	                            }
 	                            var spot_id = x;                            
 	                            var start = $(this).attr('data-last-point');
-	                            var end = parseInt($(this).attr('data-last-point')) + 96;
+	                            var end = parseInt($(this).attr('data-last-point')) + 72;
 	                            var max = parseInt($(this).attr('data-max-point'));
 	                            // we dont want to contine past max
 	                            if (start >= max) {
@@ -56,7 +56,7 @@
 	                            var graph_objects = _$local.spot_cache_obj[i][x];
 	                            var spot_id = x;                            
 	                            var start = $(this).attr('data-last-point');
-	                            var end = parseInt($(this).attr('data-last-point')) + 96;
+	                            var end = parseInt($(this).attr('data-last-point')) + 72;
 	                            var max = parseInt($(this).attr('data-max-point'));
 	                            // we dont want to contine past max
 	                            if (start >= max) {
@@ -138,7 +138,8 @@
     };
 
     $.fn.data_loader.buildslide = function(data, spot_id, start_spot, max_spots, graph_object, wind_object) {
-		var y = [], z=[], x=[], i=0, pixel_width_length=25, max_size=20, initial=false, absolute_max_spots=408, counter=0, min_size=1, top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0, auto_load = false, window_width = $(window).width();
+		var y = [], z=[], x=[], i=0, pixel_width_length=25, max_size=20, initial=false, absolute_max_spots=384, counter=0, min_size=1, sub_set = 4,
+		top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0, auto_load = false, window_width = $(window).width();
 
 		// clears out the cache for this spot_id
 		this.build_cache_tables(spot_id);
@@ -154,9 +155,9 @@
 			max_spots = 108;
 		}
 
-		var sub_set = 4;
-
 		var data = this.parse_set(data, sub_set);
+
+//		console.log(sub_set);
 
 		x = data[0]; y = data[1]; z = data[2]; za = data[3]; xa = data[4];
 		var picture_width = ((pixel_width_length * parseInt(max_spots)) / sub_set) + 10;
@@ -182,17 +183,28 @@
 		spot_cache_obj[spot_id]['winds'] = r;
 		_$local.spot_cache_obj.push(spot_cache_obj);
 
-    	var height = 120, sleft=0, stop=0, width=0, left_position=0, padding = 2, top_padding = 20, x_width = 25, x_padding = 2, height = 60, start_position, circle, bar_height, starting_point = 100, bottom_padding = 12, counter = 0;
+    	var height = 120, sleft = 0, stop = 0, width = 0, left_position = 0, padding = 2, top_padding = 20, x_width = 25, x_padding = 2, 
+    	height = 60, start_position, circle, bar_height, starting_point = 100, bottom_padding = 12, counter = 0;
+    	
     	start_position = x_width - 10;
+    	
+    	if (max_spots > absolute_max_spots) {
+	    	var max_spots = absolute_max_spots;
+    	}
 
 		for (var zx = start_spot; zx < max_spots; zx++) {
 			if (max_spots !== "all" && counter >= max_spots) {
     			continue;
 			}
+
+    		if ((counter + max_spots) >= absolute_max_spots) {
+	    		continue;
+    		}
+
 			i = counter;
     		obj_val = y[i];
     		
-    		if (obj_val === undefined) {
+    		if (typeof obj_val === 'undefined') {
 	    		continue;
     		}
     		
@@ -239,7 +251,8 @@
 				"y": stop,
 				"r": obj_val,
 				"w": x_width
-			});			
+			});
+
 			// Bottom Arrow Winds
 			var icon = b.getIcon("arrow-wind", {fill: wind_color});
 			if (typeof z[i] !== 'undefined') {
@@ -264,7 +277,8 @@
     		}
 
 			// Handle the bar splits and date infos    		
-    		if (xa[i] !== 'undefined') {    		
+    		if (xa[i] !== 'undefined') {
+    			// Sort out our Dates
     			if (typeof xa[i].timestamp !== 'undefined') {
     				xa[i].datestamp = xa[i].datestamp.replace(/\-/g, '/');
     				var date_timestamp = xa[i].datestamp + " " + xa[i].timestamp;
@@ -273,17 +287,19 @@
     				var date_time = new Date(xa[i].parsed);
     				xa[i].hour = date_time.getHours();
     			}
+    			// Date for the Day & Bar Sep. Days
 	    		if ((xa[i].ampm == "AM" && xa[i].hour == "0" || xa[i].ampm == "AM" && xa[i].hour == "1") || (xa[i].ampm == "PM" && xa[i].hour == "1" || xa[i].ampm == "PM" && xa[i].hour == "0")) {
 		    		var bar = r.rect((sleft-2), 0, 4, stop);
 		    		bar.attr({fill: '#000'});
 		    		var date_text_source = "", date_text = "";
 		    		if (typeof moment == 'function') {
-			    		date_text_source = moment(date_time).format("MMMM Do YYYY");
+			    		date_text_source = moment(date_time).format("dddd MMMM Do");
 		    		} else {
 			    		date_text_source = date_time;
 		    		}
 		    		var date_text = r.text(sleft+(x_width/2) + 100, 4, date_text_source);
 	    		}
+	    		// Grey-out unavailable hours
 	    		if (xa[i].ampm == "AM" && parseInt(xa[i].hour) < 6 || xa[i].ampm == "PM" && parseInt(xa[i].hour) > 19) {
 		    		var bar = r.rect(sleft, 0, x_width, starting_point);
 		    		bar.attr({fill: '#A4A4A4', stroke: 'none', 'opacity': .5});
