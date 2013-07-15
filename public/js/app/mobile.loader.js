@@ -138,7 +138,7 @@
     };
 
     $.fn.data_loader.buildslide = function(data, spot_id, start_spot, max_spots, graph_object, wind_object) {
-		var y = [], z=[], x=[], i=0, pixel_width_length=25, max_size=20, initial=false, absolute_max_spots=384, counter=0, min_size=1, top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0, auto_load = false, window_width = $(window).width();
+		var y = [], z=[], x=[], i=0, pixel_width_length=25, max_size=20, initial=false, absolute_max_spots=408, counter=0, min_size=1, top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0, auto_load = false, window_width = $(window).width();
 
 		// clears out the cache for this spot_id
 		this.build_cache_tables(spot_id);
