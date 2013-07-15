@@ -101,12 +101,24 @@ block scripts
 	script(type='text/x-handlebars-template', id='kitespot-template')
 		{{#each results}}
 		li(name='feed', id='spot-{{ spotId }}').feed
-			h3
-				a(href='/main/spots/view/{{ spotId }}') {{ name }}
-			{{#if cover_image}}
-			p
-				img(src='{{ cover_image }}').multiple-borders.preview_image_main
-			{{/if}}
+			.row-fluid
+				.span9
+					h3
+						a(href='/main/spots/view/{{ spotId }}') {{ name }}
+				.span2.pull-right
+					.span12
+						h3
+							.span3
+								span
+									i.icon-repeat.hidden-roller.reload-feed(data-feed-id='{{ spotId }}')
+							.span1
+							.span3
+								span.btn-group
+									.btn-hidden.btn.dropdown-toggle(data-toggle='dropdown', href='#')
+										.caret
+									ul.dropdown-menu(role='menu', aria-labelledby='dropdownMenu')
+										li
+											a(href='#', action='/subscribe/spot/{{ spotId }}', data-attr='{{ spotId }}', method='DELETE', tabindex='-1').subscribe.remove-feed Stop Watching
 			.active_weather
 				h4 Loading Forecast...
 			div(id='kitegraph-{{ spotId }}-loader')
@@ -119,3 +131,8 @@ block scripts
 				| You aren't watching any spots! 
 			a(href='/main/spots') Check out some spots in your area.
 		{{/each}}
+	script(type='text/x-handlebars-template', id='kitespot-feed-default')
+		li.feed(name='feed')
+			p
+				| You aren't watching any spots! 
+			a(href='/main/spots') Check out some spots in your area.

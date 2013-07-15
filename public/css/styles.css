@@ -94,7 +94,22 @@ body {
     min-height: 50px;
 }
 
-.bottom-bar {
+.content_feed ul.dropdown-menu .divider {
+    border-bottom: 1px solid #ffffff !important;
+    padding: 0;
+}
+
+.content_feed ul.dropdown-menu li {
+    padding: 0 !important;
+    border-bottom: none !important;
+}
+
+.btn-hidden {
+    opacity: 50%;
+    border: none;
+}
+
+.bottom-bar, .bottom-bar.stretch {
     max-width: 1200px;
     margin: auto;
 }
@@ -103,6 +118,14 @@ body {
     min-height: 20px;
 }
 
+.hidden-roller {
+    color: #DEDEDE;
+}
+
+.hidden-roller:hover {
+    color: #000;
+    cursor: pointer;
+}
 
 .content_feed .header {
     border-radius: 8px 8px 0 0;
@@ -381,7 +404,7 @@ label.error {
 }
 
 .spot-preview .scroll-pane {
-    width: 800px;
+    width: 655px;
 }
 
 /**

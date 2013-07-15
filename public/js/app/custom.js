@@ -1573,7 +1573,7 @@ var correctedViewportW = (function (win, docElem) {
 				success: function(response) {
 					if (method == "PUT") {
 						_$local.mapfunc.updatemarkerinfo(spot_id, true);
-						$(that).html("Un-Watch");
+						$(that).html("Stop Watching");
 						$(that).removeClass("btn-success").addClass("btn-warning");
 						$(that).attr('method', 'DELETE');
 					} else {
@@ -1657,6 +1657,36 @@ var correctedViewportW = (function (win, docElem) {
 				}
 			}
 		}
+		
+		$(".remove-feed").live("click", function(e) {
+			var $that, feed_id;
+			$that = $(this);
+			feed_id = $that.attr('data-attr');
+			$(".feed#spot-" + feed_id).fadeOut(400, function(){
+				$(this).remove();
+				if ($(".spot_container").children().length == 0) {
+					var source = $("#kitespot-feed-default").html();
+					var template = Handlebars.compile(source);
+					$(".spot_container").html(template({}));
+				}
+			});
+			
+		});
+		
+		$(".reload-feed").live("click", function(e) {
+			e.preventDefault();
+			var feed_id, $that;
+			$that = $(this);
+			feed_id = $that.attr('data-feed-id');
+			$("#kitegraph-" + feed_id).html("<i class='icon-spinner icon-spin icon-large'></i> Updating the kitescore feed (this may take a moment)...");
+			$.ajax({
+				url: '/score/10day/' + feed_id + '?force=true',
+				type: 'GET',
+				success: function() {
+					loadKitescore(feed_id, '#kitescore_spot');
+				}
+			})
+		});
 		
 		$(".add-comment").live("click", function(e) {
 			e.preventDefault();
