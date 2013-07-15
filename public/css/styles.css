@@ -95,6 +95,8 @@ body {
 }
 
 .bottom-bar {
+    max-width: 1200px;
+    margin: auto;
 }
 
 .top_spacer {
