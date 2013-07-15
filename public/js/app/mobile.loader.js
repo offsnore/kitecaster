@@ -262,19 +262,21 @@
 	    		txt_header.attr({'font':'10px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
 	    		txt_header.rotate(-90, sleft+(x_width/2), 35);
     		}
-    		
-    		if (xa[i] !== 'undefined') {
+
+			// Handle the bar splits and date infos    		
+    		if (xa[i] !== 'undefined') {    		
     			if (typeof xa[i].timestamp !== 'undefined') {
+    				xa[i].datestamp = xa[i].datestamp.replace(/\-/g, '/');
     				var date_timestamp = xa[i].datestamp + " " + xa[i].timestamp;
-    				var date_time = new Date(Date.parse(date_timestamp));
+    				xa[i].date_timestamp = date_timestamp;
+    				xa[i].parsed = Date.parse(date_timestamp);
+    				var date_time = new Date(xa[i].parsed);
     				xa[i].hour = date_time.getHours();
-    			}		
+    			}
 	    		if ((xa[i].ampm == "AM" && xa[i].hour == "0" || xa[i].ampm == "AM" && xa[i].hour == "1") || (xa[i].ampm == "PM" && xa[i].hour == "1" || xa[i].ampm == "PM" && xa[i].hour == "0")) {
 		    		var bar = r.rect((sleft-2), 0, 4, stop);
 		    		bar.attr({fill: '#000'});
-		    		
 		    		var date_text_source = "", date_text = "";
-		    		
 		    		if (typeof moment == 'function') {
 			    		date_text_source = moment(date_time).format("MMMM Do YYYY");
 		    		} else {
