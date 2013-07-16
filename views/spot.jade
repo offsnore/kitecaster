@@ -87,6 +87,7 @@ block script_include
 		window._$local['load_map'] = true;
 		window._$local['mapzoom'] = 8;
 	script(type='text/javascript', src='//maps.googleapis.com/maps/api/js?key=#{google_api_key}&sensor=true&libraries=places')
+	script(language='JavaScript', src='/js/lib/moment.min.js')
 
 block scripts
 	script(type='text/x-handlebars-template', id='spots-support')

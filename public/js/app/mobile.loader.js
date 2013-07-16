@@ -12,7 +12,7 @@
             obj.addClass('scroll-pane');
             
             $('.kitegraph').bind("scroll", function(e){
-            
+
             	var that = $(this);
             
                 var max_left = parseInt(this.scrollWidth) - parseInt(this.clientWidth);
@@ -141,6 +141,10 @@
 		var y = [], z=[], x=[], i=0, pixel_width_length=25, max_size=20, initial=false, absolute_max_spots=384, counter=0, min_size=1, sub_set = 4,
 		top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0, auto_load = false, window_width = $(window).width();
 
+		if (typeof jQuery("#" + spot_id)[0] === 'undefined') {
+			return false;
+		}
+
 		// clears out the cache for this spot_id
 		this.build_cache_tables(spot_id);
 
@@ -156,8 +160,6 @@
 		}
 
 		var data = this.parse_set(data, sub_set);
-
-//		console.log(sub_set);
 
 		x = data[0]; y = data[1]; z = data[2]; za = data[3]; xa = data[4];
 		var picture_width = ((pixel_width_length * parseInt(max_spots)) / sub_set) + 10;
@@ -292,6 +294,7 @@
 		    		var bar = r.rect((sleft-2), 0, 4, stop);
 		    		bar.attr({fill: '#000'});
 		    		var date_text_source = "", date_text = "";
+
 		    		if (typeof moment == 'function') {
 			    		date_text_source = moment(date_time).format("dddd MMMM Do");
 		    		} else {
