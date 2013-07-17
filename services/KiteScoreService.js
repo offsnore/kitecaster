@@ -36,11 +36,11 @@ var HOURLY_1DAY = "hourly", HOURLY_7DAY = "7day", HOURLY_10DAY = "10day";
 var logger = new (winston.Logger)({
                 transports: [
                         new winston.transports.Console({timestamp:true}),
-                        new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/kitescore_service_server.log') })
+                        new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/kitescore_service.log') })
                 ],
                 exceptionHandlers: [
                     new winston.transports.Console({timestamp:true}),
-                    new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/kitescore_service_server.log') })
+                    new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/kitescore_service.log') })
                 ]
         });
         
@@ -332,7 +332,7 @@ app.buildKiteScore = function(model, spot, windData, callback) {
       }
       
       // TODO: change score based on wind direction. generic search (query for location) without a spot cannot account for specific wind direction.
-      if (spot) {
+      //if (spot) {
          //logger.debug('wind dir: ' + JSON.stringify(wdir));
          // wunderground
          if (wdir.dir ) {
@@ -372,7 +372,7 @@ app.buildKiteScore = function(model, spot, windData, callback) {
          kiteScore -= ( 2 * Math.floor(kiteScoreSubtraction) ); 
          
 //         kiteScore -= ( kiteScoreSubtraction ); 
-      }
+     // }
       
       var floorScore = Math.floor(kiteScore);
       returnData['epoch'] = data.time.epoch;
@@ -399,15 +399,39 @@ var runCache = true;
 var spotsBody;
 // precache weather related data for spots, in seconds
 app.startPrecache = function(callback, interval) {
-   app.runSpotCache();
-   app.runSpotWeatherCache();
-   var secondsInterval;
-   if (interval) 
-      secondsInterval = interval * 1000;
-   // 15 minute default
-   else secondsInterval = 60 * 60 * 1000; 
-   setInterval(app.runSpotCache, secondsInterval);
-   setInterval(app.runSpotWeatherCache, secondsInterval);
+   async.waterfall([
+      function(callback) 
+      {
+         console.log('calling runSpotCache'.red);
+         app.runSpotCache(function(err, result) {
+            callback(null, 'done');   
+         });      
+         console.log('calling back runSpotCache'.red);
+         
+      },
+      function(err, callback) {
+         console.log('calling runSpotWeatherCache'.red);
+         app.runSpotWeatherCache(null, function(err, result){
+            callback(null, 'done');                   
+         });
+         console.log('calling back runSpotWeatherCache'.red);
+
+      },
+      function(err, callback) {
+         var secondsInterval;
+         if (interval) 
+            secondsInterval = interval * 1000;
+         // 15 minute default
+         else secondsInterval = 60 * 60 * 1000; 
+         setInterval(app.runSpotCache, secondsInterval);
+         setInterval(app.runSpotWeatherCache, secondsInterval);     
+      }   
+   ], function (err ,resp){
+      console.log('async series run response: ' + JSON.stringify(resp));
+   });
+   
+   
+  
  
    
 }
@@ -436,12 +460,15 @@ app.runIndividualSpotCache = function(spot_id, callback) {
 }
 
 
-app.runSpotCache = function() {
+app.runSpotCache = function(callback) {
 	var queryParams = {
 		count : true
 	};
     // get all spots, store in redis   
 	parse.getObjects('Spot', queryParams , function(err, response, body, success) {
+	   console.log('Im here! body length: '.red + body.results.length);
+	   var size = body.results.length;
+	   var processed = 0;
 		body.results.forEach(function(spot) {
 			var spotId = spot.spotId;
 			spot['lastUpdated'] = new Date().toUTCString();
@@ -451,11 +478,18 @@ app.runSpotCache = function() {
 					logger.debug('Expire set for spot ' + redisSpotId + ', expires: ' + expireTimeSpot / 60 + ' minutes');
 				});
 			});
+			console.log('processed: ' + ++processed);
+			if (processed == size){
+   			callback(null, processed);
+				console.log('leaving runSpotCache'.red);
+			}
 		});
+
+
 	});
 }
 
-app.runSpotWeatherCache = function(spot_id) {
+app.runSpotWeatherCache = function(spot_id, callback) {
    var spotLookupQuery = "spot:*";
    var weatherSpotKey = "weather:spot:"
    logger.debug('running runSpotWeatherCache, run count: ' + appCounter++);
@@ -464,11 +498,16 @@ app.runSpotWeatherCache = function(spot_id) {
 	   var spotLookupQuery = "spot:" + spot_id;
    }
    
+   
+   
+   
    /// vvvv Cut the chord from callback jungle below
    client.keys(spotLookupQuery, function(err, replies) {
       if (err) {
          logger.error('Error: ' + err);
       } else  {
+         var size = replies.length;
+         var processed = 0;
          replies.forEach(function(key) {
             logger.debug('got spot id: ' + key); 
             client.get(key, function(err, reply) {
@@ -498,6 +537,7 @@ app.runSpotWeatherCache = function(spot_id) {
                            logger.debug('redis key set for ' + redisWeatherKey + ', replies: ' + replies);
                            if (replies === "OK") {                     
                               // run kite scores for saved spots' weather
+                              
                               if (jsonSpot && defaultModel && weather) {
                                  logger.debug('building kitescores for weather cache: types: ' + typeof weather + ' model: ' + typeof defaultModel + ', spot: ' + typeof jsonSpot) ;
                                                       
@@ -508,9 +548,11 @@ app.runSpotWeatherCache = function(spot_id) {
                                         logger.debug('redisScoresKey ' + redisScoresKey + ' set, reply: ' + replies);
                                         client.expire(redisScoresKey, expireTimeWeather, function(err, reply) {
                                            logger.debug('Redis scores key set to expire: ' + redisScoresKey + ': ' + expireTimeWeather / 60 + ' minutes');
+                                           
                                         });
+                                        processed++;
                                      });
-                                    
+                                     
                                  });
          
                               }

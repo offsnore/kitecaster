@@ -30,11 +30,11 @@ var options = {
 var logger = new (winston.Logger)({
 		transports: [
 			new winston.transports.Console({timestamp:true}),
-			new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/kitescore_server.log') })
+			new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/kitescore_api_server.log') })
 		],
 		exceptionHandlers: [
 		   new winston.transports.Console({timestamp:true}),
-			new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/kitescore_server.log') })
+			new winston.transports.File({ timestamp:true, filename: require('path').resolve(__dirname, '../logs/kitescore_api_server.log') })
 		] 
 	});
 
