@@ -1,0 +1,111 @@
+extends raw-layout
+
+block content
+	.kitegraph(id='kitegraph-#{spot_id}').raw-pane
+		div(id='kitegraph-#{spot_id}-loader')
+			i.icon-spinner.icon-spin.icon-large 
+			|   Loading...
+
+block content_header
+	.spot_name
+
+block head_include
+	link(rel='stylesheet', type='text/css', href='/css/colorbox.css')
+
+block script_include
+	script(src='/js/lib/jquery.colorbox.min.js', type='text/javascript')
+	script(src='/js/lib/handlebars.js', type='text/javascript')
+	script(src='/js/app/handlebars.helper.js', type='text/javascript')
+	script(src='/js/lib/moment.min.js', type='text/javascript')
+	script(src='/js/lib/raphael.min.js')
+	script(src='/js/lib/g-raphael.min.js')
+	script(src='/js/lib/g-dot.min.js')
+	script(src='/js/app/mobile.loader.js')
+	script(type='text/javascript')
+		window._$spot_url = '#{spot_url}';
+		window._$kite_url = '#{spot_url}';
+		window._$spot_id  = '#{spot_id}';
+
+block scripts
+	script(type='text/x-handlebars-template', id='spotweather-template')
+		h4 Forecast
+		.current
+			h5.current_header
+				| Currently:
+			.current_weather
+				i(class='{{ currently.icon }}')
+				{{ currently.summary }} {{ currently.temperature }}&deg;F with wind speeds at {{ currently.windSpeed }} MPH.
+				{{ hourly.summary }}
+		.daily
+			h5.daily_header
+				| For the Day: 
+			.daily_weather
+				{{ daily.summary }}
+		p
+			{{details}}
+		{{#if avghumidity}}
+		h5 Avg Humidity: {{avghumidity}} %
+		{{/if}}
+		{{#if maxhumidity}}
+		h5 Max Humidity: {{maxhumidity}} %
+		{{/if}}
+		{{#if maxwind}}
+		h5 Max Wind: {{maxwind.degrees}} {{maxwind.dir}} {{maxwind.kph}} kph / {{maxwind.mph}} mph	
+		{{/if}}
+
+	script(type='text/x-handlebars-template', id='spotsview-photo-template')
+		{{#this}}
+		{{#ifCond type "photo"}}
+		a(href='{{ photo }}').gallery1
+			img(src='{{ photo }}').small64x.img-rounded
+		{{/ifCond}}
+		{{/this}}
+
+	script(type='text/x-handlebars-template', id='spotsview-comment-template')
+		{{#unless this.length}}
+		|Sign into your account and comment on this spot!
+		{{else}}
+		|There have been {{this.length}} comments left. Sign into your account to see these!
+		{{/unless}}
+
+	script(type='text/x-handlebars-template', id='spotview-template')
+		form(action='/spot/{{ spotId }}', id='saveSpot', method='post', enctype="multipart/form-data").form-horizontal.ajax-send
+			input(type='hidden', name='spotName', id='spotName', value='{{ name }}')
+			input(type='hidden', name='spotId', id='spotId', value='{{ spotId }}')
+			div(id='spot-{{ spotId }}')
+				div.control-group
+					label.control-label(for='input_location') Current Weather Forecast
+					div.controls
+						.active_weather
+							i.icon-spinner.icon-spin.icon-large 
+							|   Loading...
+				div.control-group
+					label.control-label(for='input_location') KitingScore
+					div.controls
+						div(id='kitegraph-{{ spotId }}').kitegraph
+				div.control-group
+					label.control-label(for='input_description') Brief Description
+					div.controls
+						{{description}}
+				div.control-group
+					label.control-label Ideal Wind Directions
+					div.controls
+						h3.list 
+							{{looper wind_directions ","}}
+				.control-group
+					label.control-label(for='people-saying') Photos Taken Here:
+					.controls
+						.photos
+							div(id='photos-loader')
+								i.icon-spinner.icon-spin.icon-large 
+								|   Loading...
+				.control-group
+					label.control-label(for='people-saying') Comments:							
+					.controls
+						ul.comments(id='comment-loader')
+							li
+								i.icon-spinner.icon-spin.icon-large 
+								|   Loading...
+				div.control-group
+					div.controls
+						div.warning_msg
