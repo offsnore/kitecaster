@@ -138,6 +138,8 @@ app.post('/main/spots/new/save', routes.newSpotSave);
 
 app.get('/main/p/*/*\.html', routes.viewPublicSpot);
 
+app.get('/main/r/*/*\.html', routes.viewPublicRawSpot);
+
 app.get('/main/spots/view/*', routes.viewSpot);
 app.get('/main/spots/edit/*', routes.editSpot);
 //app.post('/main/spots/edit/*', routes.editSpotSave);

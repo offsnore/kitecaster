@@ -403,6 +403,11 @@ label.error {
     background: #f8f8f8;
 }
 
+.raw-pane.scroll-pane {
+    width: 100%;
+    overflow: visible !important;
+}
+
 .spot-preview .scroll-pane {
     width: 655px;
 }

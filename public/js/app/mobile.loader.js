@@ -58,6 +58,9 @@
 	                            var start = $(this).attr('data-last-point');
 	                            var end = parseInt($(this).attr('data-last-point')) + 72;
 	                            var max = parseInt($(this).attr('data-max-point'));
+	                            
+	                            console.log(start, end);
+	                            
 	                            // we dont want to contine past max
 	                            if (start >= max) {
 		                            return true;
@@ -138,6 +141,7 @@
     };
 
     $.fn.data_loader.buildslide = function(data, spot_id, start_spot, max_spots, graph_object, wind_object) {
+
 		var y = [], z=[], x=[], i=0, pixel_width_length=25, max_size=20, initial=false, absolute_max_spots=384, counter=0, min_size=1, sub_set = 4,
 		top_padding=0, padding=4, gutter=20, position=0, radius=20, left_side=0, top_side=0, auto_load = false, window_width = $(window).width();
 
@@ -149,7 +153,7 @@
 		this.build_cache_tables(spot_id);
 
 		var cache_obj = {};
-		cache_obj[spot_id] = data;			
+		cache_obj[spot_id] = data;
 		_$local.spot_cache.push(cache_obj);
 
 		if (!start_spot) {
@@ -159,11 +163,13 @@
 			max_spots = 108;
 		}
 
+		var max_spots = 384;
+
 		var data = this.parse_set(data, sub_set);
 
 		x = data[0]; y = data[1]; z = data[2]; za = data[3]; xa = data[4];
 		var picture_width = ((pixel_width_length * parseInt(max_spots)) / sub_set) + 10;
-		
+
 		if (graph_object === undefined) {
 			var b = Raphael(spot_id, picture_width, 120);
 			initial = true;
@@ -199,7 +205,8 @@
     			continue;
 			}
 
-    		if ((counter + max_spots) >= absolute_max_spots) {
+    		if (max_spots !== absolute_max_spots && (counter + max_spots) >= absolute_max_spots) {
+    			console.log('skip');
 	    		continue;
     		}
 
@@ -346,5 +353,10 @@
 
 		$("#" + spot_id + ".scroll-pane").data_loader();
     }
+
+    $.fn.data_loader.buildslide.settings = {
+	    'absolute_max_spots': 384,
+	    'picture_width': 120,
+    };
     
 })(jQuery);

@@ -595,6 +595,49 @@ exports.viewPublicSpot = function(req, res) {
 };
 
 
+/**
+ * editSpot()
+ * Spots Page for Application
+ * @purpose Added in Dynamic Content from NodeJS to Jade Template Wrapper
+ */
+exports.viewPublicRawSpot = function(req, res) {
+	var nconf = getSettings();
+
+	var session_id, profile_image, geo_location, localdata, user_id, session_id, params = {};
+
+	geo_location = lookup.geolookup.getCurrent(req);
+
+	var queryParams = require('url').parse(req.url).query
+	var query = req.url.split("/");
+
+	var myRespEx = /\d+/g.exec(query[(query.length-1)]);
+	var spot_id = myRespEx[0];
+
+	var objectId = spot_id;
+	if (objectId == '') {
+		errorPage(res, "We were unable to locate this spot (missing ID).");
+	}
+
+	params = {
+		spot_url: nconf.get('api:spot:frontend_url'),
+		spot_id: objectId,
+		google_api_key: nconf.get('api:google:api_key'),
+		title: nconf.get('site:frontend:title'),
+	    dateNow: function() {
+	        var dateNow = new Date();
+	        var dd = dateNow.getDate();
+	        var monthSingleDigit = dateNow.getMonth() + 1,
+	            mm = monthSingleDigit < 10 ? '0' + monthSingleDigit : monthSingleDigit;
+	        var yy = dateNow.getFullYear().toString().substr(2);
+	
+	        return (mm + '/' + dd + '/' + yy);
+	    }
+	}
+	res.render('raw-viewspot', params);
+
+};
+
+
 exports.mainSitemap = function(req, res) {
 	var nconf = getSettings();
     var params = {};
