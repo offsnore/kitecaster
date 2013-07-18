@@ -3,7 +3,7 @@ extends public-main-layout
 block content
 	.container
 		.row-fluid.blog-page
-			.span2
+			.span2.visible-desktop
 			.span8
 				.content_page
 					.body
@@ -48,7 +48,7 @@ block scripts
 				{{ hourly.summary }}
 		.daily
 			h5.daily_header
-				| For the Day: 
+				| Outlook: 
 			.daily_weather
 				{{ daily.summary }}
 		p
@@ -75,7 +75,8 @@ block scripts
 		{{#unless this.length}}
 		|Sign into your account and comment on this spot!
 		{{else}}
-		|There have been {{this.length}} comments left. Sign into your account to see these!
+		|There have been {{this.length}} comments left. 
+		a(href='/main/register') Sign into your account to see these!
 		{{/unless}}
 
 	script(type='text/x-handlebars-template', id='spotview-template')

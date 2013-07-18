@@ -61,6 +61,25 @@ h1 i, h2 i, h3 i, h4 i, h5 i {
 	overflow-y: hidden;
 }
 
+/** Table Horz. **/
+@media only screen and (min-width: 768px) and (max-width: 959px) {
+	.scroll-pane {
+		width: 440px;
+	}
+}
+/** landscape phone to portrait tablet **/
+@media only screen and (max-width: 767px) {
+	.scroll-pane { width: 100%; max-width: 600px; }
+	.spot_container .control-label { display: none; }
+	.spot_container .control-group .controls { margin-left: 0px; }
+}
+
+@media only screen and (max-width: 480px) {
+	.scroll-pane { width: 350px; }
+	.spot_container .control-label { display: none; }
+	.spot_container .control-group .controls { margin-left: 0px; }
+}
+
 .graph-image {
     width: 2430px;
     height: 300px;
