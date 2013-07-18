@@ -32,6 +32,7 @@ var correctedViewportW = (function (win, docElem) {
 
 	if (typeof _$local == 'undefined') {
 		_$local = {
+			load_graph: false,
 			ignore_geo: false,
 			ignore_mapload: false,
 			load_spot: false,
@@ -836,7 +837,7 @@ var correctedViewportW = (function (win, docElem) {
 		
 		function loadKitescore(spot_id, override_id, override) {
 			var spot = spot_id || _$spot_id;
-			if (!spot) {
+			if (!spot || _$local.load_graph === false) {
 				return false;
 			}
 			if (!override) {
@@ -1680,11 +1681,13 @@ var correctedViewportW = (function (win, docElem) {
 			$that = $(this);
 			feed_id = $that.attr('data-feed-id');
 			$("#kitegraph-" + feed_id).html("<i class='icon-spinner icon-spin icon-large'></i> Updating the kitescore feed (this may take a moment)...");
+			_$local.load_graph = true;
 			$.ajax({
 				url: '/score/10day/' + feed_id + '?force=true',
 				type: 'GET',
 				success: function() {
 					loadKitescore(feed_id, '#kitescore_spot');
+					_$local.load_graph = false;
 				}
 			})
 		});

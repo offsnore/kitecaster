@@ -121,10 +121,8 @@ block scripts
 											a(href='#', action='/subscribe/spot/{{ spotId }}', data-attr='{{ spotId }}', method='DELETE', tabindex='-1').subscribe.remove-feed Stop Watching
 			.active_weather
 				h4 Loading Forecast...
-			div(id='kitegraph-{{ spotId }}-loader')
-				i.icon-spinner.icon-spin.icon-large 
-				|   Loading...
-			div(id='kitegraph-{{ spotId }}').kitegraph
+			div(id='kitegraph-{{ spotId }}').kitegraph-image.scroll-pane
+				img(src='/media/raw/spot-{{ spotId }}-auto.png').graph-image
 		{{ else }}
 		li.feed(name='feed')
 			p

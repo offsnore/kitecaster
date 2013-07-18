@@ -56,8 +56,17 @@ h1 i, h2 i, h3 i, h4 i, h5 i {
 
 .scroll-pane {
 	width: 550px;
-	overflow: scroll;
+	height: 245px;
+	overflow-x: scroll;
+	overflow-y: hidden;
 }
+
+.graph-image {
+    width: 2430px;
+    height: 300px;
+    max-width: inherit !important;
+}
+
 
 /*Block headline*/
 .heading {

@@ -33,6 +33,11 @@ ul.comments, ul.comments li, ul.comments li p {
     margin: 2px;
 }
 
+.graph-image {
+    width: 2430px;
+    height: 300px;
+    max-width: inherit !important;
+}
 
 .link-like {
     color: #00b7ff;
