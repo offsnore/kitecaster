@@ -83,7 +83,7 @@ h1 i, h2 i, h3 i, h4 i, h5 i {
 .graph-image {
     width: 2430px;
     height: 300px;
-    max-width: inherit !important;
+    max-width: 2430px !important;
 }
 
 
