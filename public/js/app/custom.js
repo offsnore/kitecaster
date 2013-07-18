@@ -1123,10 +1123,10 @@ var correctedViewportW = (function (win, docElem) {
 				if (status.hasClass("icon-plus-sign")) {
 					status.removeClass('icon-plus-sign').addClass('icon-minus-sign');
 					loader.removeClass("hidden");
-					loader.html("<div id='kitegraph-" + spot_id + "' class='kitegraph'><i class='icon-spinner icon-spin icon-large'></i> Loading...</div>");
+					loader.html("<div id='kitegraph-" + spot_id + "' class='kitegraph scroll-pane'><img src='/media/raw/spot-" + spot_id + "-auto.png' class='graph-image' /></div>");
 					loader.prepend(jQuery("<div></div>").html("<a href='/main/spots/view/" + spot_id + "' class='btn btn-info'>View</a> <a action='/subscribe/spot/" + spot_id + "' data-attr='" + spot_id + "' method='PUT' class='btn btn-success subscribe'>Watch</a>"));
 //					loadKitescore(spot_id, '#spot-' + spot_id, true);
-					loadKitescore(spot_id, '#kitescore_spot');
+//					loadKitescore(spot_id, '#kitescore_spot');
 					$.ajax({
 						data: {
 							userId: _$session_id

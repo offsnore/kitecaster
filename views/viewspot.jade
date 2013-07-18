@@ -263,10 +263,8 @@ block scripts
 				div.control-group
 					label.control-label(for='input_location') Outlook
 					div.controls
-						div(id='kitegraph-{{ spotId }}-loader')
-							i.icon-spinner.icon-spin.icon-large 
-							|   Loading...
-						div(id='kitegraph-{{ spotId }}').kitegraph
+						div(id='kitegraph-{{ spotId }}').kitegraph-image.scroll-pane
+							img(src='/media/raw/spot-{{ spotId }}-auto.png').graph-image
 				div.control-group
 					label.control-label(for='input_location') Current Weather Forecast
 					div.controls
