@@ -248,6 +248,14 @@ h1, h2, h3, h4, h5 {
     margin: 0 2px;
 }
 
+.preview_title {
+    font-size: 16px;
+}
+
+.status_opener {
+    margin-right: 5px;
+}
+
 .icon-plus-sign.icon-2x, .icon-plus-sign.icon-1x {
     background-position: 14px 14px;
 }
