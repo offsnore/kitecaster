@@ -14,6 +14,10 @@ ol, ul {
     list-style: none;
 }
 
+.navbar-handler.hidden-desktop {
+    padding: 10px;
+}
+
 #map-canvas.fill > img {
     max-width: none;
 }
