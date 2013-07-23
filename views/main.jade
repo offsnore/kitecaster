@@ -106,12 +106,12 @@ block scripts
 					h3
 						a(href='/main/spots/view/{{ spotId }}') {{ name }}
 				.span2.pull-right
-					.span12
+					.span12.hidden-phone
 						h3
 							.span3
 								span
 									i.icon-repeat.hidden-roller.reload-feed(data-feed-id='{{ spotId }}')
-							.span1
+							.span3.hidden-desktop
 							.span3
 								span.btn-group
 									.btn-hidden.btn.dropdown-toggle(data-toggle='dropdown', href='#')
@@ -121,10 +121,14 @@ block scripts
 											a(href='#', action='/subscribe/spot/{{ spotId }}', data-attr='{{ spotId }}', method='DELETE', tabindex='-1').subscribe.remove-feed Stop Watching
 			.active_weather
 				h4 Loading Forecast...
-			div(id='kitegraph-{{ spotId }}-loader')
-				i.icon-spinner.icon-spin.icon-large 
-				|   Loading...
-			div(id='kitegraph-{{ spotId }}').kitegraph
+			div(id='kitegraph-{{ spotId }}').kitegraph-image.scroll-pane
+				img(src='/media/raw/spot-{{ spotId }}-auto.png').graph-image
+			.span12.visible-phone
+				br
+				.btn-group
+					.btn.reload-feed(data-feed-id='{{ spotId }}') Reload Graph
+				&nbsp;
+				a(href='#', action='/subscribe/spot/{{ spotId }}', data-attr='{{ spotId }}', method='DELETE', tabindex='-1').btn.btn-warning.pull-right.subscribe.remove-feed Stop Watching
 		{{ else }}
 		li.feed(name='feed')
 			p

@@ -32,6 +32,7 @@ var correctedViewportW = (function (win, docElem) {
 
 	if (typeof _$local == 'undefined') {
 		_$local = {
+			load_graph: false,
 			ignore_geo: false,
 			ignore_mapload: false,
 			load_spot: false,
@@ -836,7 +837,7 @@ var correctedViewportW = (function (win, docElem) {
 		
 		function loadKitescore(spot_id, override_id, override) {
 			var spot = spot_id || _$spot_id;
-			if (!spot) {
+			if (!spot || _$local.load_graph === false) {
 				return false;
 			}
 			if (!override) {
@@ -1122,10 +1123,10 @@ var correctedViewportW = (function (win, docElem) {
 				if (status.hasClass("icon-plus-sign")) {
 					status.removeClass('icon-plus-sign').addClass('icon-minus-sign');
 					loader.removeClass("hidden");
-					loader.html("<div id='kitegraph-" + spot_id + "' class='kitegraph'><i class='icon-spinner icon-spin icon-large'></i> Loading...</div>");
+					loader.html("<div id='kitegraph-" + spot_id + "' class='kitegraph scroll-pane'><img src='/media/raw/spot-" + spot_id + "-auto.png' class='graph-image' /></div>");
 					loader.prepend(jQuery("<div></div>").html("<a href='/main/spots/view/" + spot_id + "' class='btn btn-info'>View</a> <a action='/subscribe/spot/" + spot_id + "' data-attr='" + spot_id + "' method='PUT' class='btn btn-success subscribe'>Watch</a>"));
 //					loadKitescore(spot_id, '#spot-' + spot_id, true);
-					loadKitescore(spot_id, '#kitescore_spot');
+//					loadKitescore(spot_id, '#kitescore_spot');
 					$.ajax({
 						data: {
 							userId: _$session_id
@@ -1680,11 +1681,13 @@ var correctedViewportW = (function (win, docElem) {
 			$that = $(this);
 			feed_id = $that.attr('data-feed-id');
 			$("#kitegraph-" + feed_id).html("<i class='icon-spinner icon-spin icon-large'></i> Updating the kitescore feed (this may take a moment)...");
+			_$local.load_graph = true;
 			$.ajax({
 				url: '/score/10day/' + feed_id + '?force=true',
 				type: 'GET',
 				success: function() {
 					loadKitescore(feed_id, '#kitescore_spot');
+					_$local.load_graph = false;
 				}
 			})
 		});

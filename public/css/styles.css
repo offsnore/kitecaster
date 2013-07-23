@@ -14,6 +14,10 @@ ol, ul {
     list-style: none;
 }
 
+.navbar-handler.hidden-desktop {
+    padding: 10px;
+}
+
 #map-canvas.fill > img {
     max-width: none;
 }
@@ -33,6 +37,11 @@ ul.comments, ul.comments li, ul.comments li p {
     margin: 2px;
 }
 
+.graph-image {
+    width: 2430px;
+    height: 300px;
+    max-width: inherit !important;
+}
 
 .link-like {
     color: #00b7ff;
@@ -241,6 +250,14 @@ h1, h2, h3, h4, h5 {
 
 .spacer {
     margin: 0 2px;
+}
+
+.preview_title {
+    font-size: 16px;
+}
+
+.status_opener {
+    margin-right: 5px;
 }
 
 .icon-plus-sign.icon-2x, .icon-plus-sign.icon-1x {
