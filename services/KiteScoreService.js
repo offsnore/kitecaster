@@ -334,43 +334,44 @@ app.buildKiteScore = function(model, spot, windData, callback) {
       // TODO: change score based on wind direction. generic search (query for location) without a spot cannot account for specific wind direction.
       //if (spot) {
          //logger.debug('wind dir: ' + JSON.stringify(wdir));
-         // wunderground
-         if (wdir.dir ) {
-            var dir = wdir.dir;
-            windDirDegrees = parseInt(compassDegrees[dir]);
-         } 
-         // forecast.io
-         else {
-            windDirDegrees = wdir;
-         }
-         var windDirDegrees;         
+         
+      // wunderground
+      if (wdir.dir ) {
+         var dir = wdir.dir;
+         windDirDegrees = parseInt(compassDegrees[dir]);
+      } 
+      // forecast.io
+      else {
+         windDirDegrees = wdir;
+      }
+      var windDirDegrees;         
 /*
-         logger.debug('degree mapping: ' + windDirDegrees);
-         logger.debug(wdir.dir  +':' + speed + ', score: ' + kiteScore );
-         logger.debug('spot wind dirs: ' + JSON.stringify(spot.wind_directions));
+      logger.debug('degree mapping: ' + windDirDegrees);
+      logger.debug(wdir.dir  +':' + speed + ', score: ' + kiteScore );
+      logger.debug('spot wind dirs: ' + JSON.stringify(spot.wind_directions));
 */
-         
-         var closestDir = 360, closestDiff = 360;
-         spot.wind_directions.forEach(function(direction) {
-            var spotWindDegree = compassDegrees[direction];
+      
+      var closestDir = 360, closestDiff = 360;
+      spot.wind_directions.forEach(function(direction) {
+         var spotWindDegree = compassDegrees[direction];
 
-            var diff = Math.abs(spotWindDegree - windDirDegrees);
+         var diff = Math.abs(spotWindDegree - windDirDegrees);
 /*             console.log('Subtracting spot diegree of ' + spotWindDegree + ' from wind report degrees of ' + windDirDegrees + ' to get diff: ' + diff); */
-            // get minimum difference
-            if ( diff <  closestDiff) { 
+         // get minimum difference
+         if ( diff <  closestDiff) { 
 /*                console.log('Found closer dir, resetting closest from ' + closestDir + ' to ' + spotWindDegree + ' because diff is ' + diff);                */
-               closestDir = spotWindDegree;
-               closestDiff = diff;
-            }
+            closestDir = spotWindDegree;
+            closestDiff = diff;
+         }
 /*             console.log('Spot direction: '.red + direction + '. Wind direction: ' + windDirDegrees +  '. Compass degree: ' + spotWindDegree + '. difference: ' + diff + '. closest dir: ' + closestDir + '. closests diff: ' + closestDiff); */
-         })
-         var closestDifference = Math.abs(closestDir - windDirDegrees);
-         // normalize the difference into 1/8 points to subtract from kitescore
-         var kiteScoreSubtraction = closestDifference / 45;
+      })
+      var closestDifference = Math.abs(closestDir - windDirDegrees);
+      // normalize the difference into 1/8 points to subtract from kitescore
+      var kiteScoreSubtraction = closestDifference / 45;
 /*          logger.debug('taking off ' + kiteScoreSubtraction + ' because the closest wind dir is ' + closestDir + ' and wind degree is ' + windDirDegrees); */
-         data['kitescore_orig'] = kiteScore;
-         kiteScore -= ( 2 * Math.floor(kiteScoreSubtraction) ); 
-         
+      data['kitescore_orig'] = kiteScore;
+      kiteScore -= ( 2 * Math.floor(kiteScoreSubtraction) ); 
+      
 //         kiteScore -= ( kiteScoreSubtraction ); 
      // }
       
@@ -378,7 +379,7 @@ app.buildKiteScore = function(model, spot, windData, callback) {
       returnData['epoch'] = data.time.epoch;
       returnData['wdir'] = wdir;
       returnData['wspd'] = speed;
-      returnData['wdir_compass'] = getBearingDirection(data.wdir);
+      returnData['wdir_compass'] = getBearingDirection(wdir);
       returnData['timestamp'] = data.time.civil;
       returnData['ampm'] = data.time.ampm;
       returnData['datestamp'] = data.time.mon_padded + '-' + data.time.mday_padded + '-' + data.time.year;
