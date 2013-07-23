@@ -399,7 +399,7 @@ app.buildKiteScore = function(model, spot, windData, callback) {
    });
    callback(null, scores);
 }
-
+ 
 var cacheRunCount = 0; 
 var runCache = true;
 var spotsBody;
