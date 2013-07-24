@@ -316,6 +316,8 @@
 	    		}
     		}
 
+    		var icon = r.image(xa[i].icon_url, (sleft + (x_width / 2)) - 10, 120, 25, 25);
+
     		var txt = r.text(sleft+(x_width/2), (starting_point + bottom_padding), obj_val);
     		txt.attr({'font':'12px Fontin-Sans, Arial', fill: '#000', stroker: 'none'});
 
