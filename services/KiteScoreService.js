@@ -187,7 +187,7 @@ app.current_weather = function(lat, lon, callback){
 // the API might return data in different format. This if for handling the hourly response
 app.processHourly = function(hourly, callback) {
    var windData = [];
-   
+
    // wundernode
    if (hourly.hourly_forecast) {
       logger.debug ('Running wundernode data ingest');
@@ -197,6 +197,8 @@ app.processHourly = function(hourly, callback) {
          wind.wdir = hour.wdir.degrees;
          wind.wspd = hour.wspd.english;
          wind.wx   = hour.wx;
+         wind.temp = hour.temp;
+         wind.icon_url = hour.icon_url;
          windData.push(wind);
       });
       
@@ -267,8 +269,7 @@ app.buildKiteScore = function(model, spot, windData, callback) {
       var kiteScore = 0;
     //console.log('WindData.ForeEach data: ' + JSON.stringify(data)); 
       var speed = 0;
-      if (typeof data.wspd === 'object') 
-      {
+      if (typeof data.wspd === 'object') {
          speed = parseInt(data.wspd.english);
       } else {
          speed = parseInt(data.wspd);
@@ -286,9 +287,7 @@ app.buildKiteScore = function(model, spot, windData, callback) {
       var hour, time;
       if (data.FCTTIME) {
          data.time = data.FCTTIME;
-//         hour  = data.time.hour;
          delete data.FCTTIME;
-      } else {
       }
    
       var rangeEnd = -1; 
@@ -331,10 +330,6 @@ app.buildKiteScore = function(model, spot, windData, callback) {
          // @note - this should be a nice error, with a console.log // thorw new causes node.js to die :P
       }
       
-      // TODO: change score based on wind direction. generic search (query for location) without a spot cannot account for specific wind direction.
-      //if (spot) {
-         //logger.debug('wind dir: ' + JSON.stringify(wdir));
-         
       // wunderground
       if (wdir.dir ) {
          var dir = wdir.dir;
@@ -345,42 +340,35 @@ app.buildKiteScore = function(model, spot, windData, callback) {
          windDirDegrees = wdir;
       }
       var windDirDegrees;         
-/*
-      logger.debug('degree mapping: ' + windDirDegrees);
-      logger.debug(wdir.dir  +':' + speed + ', score: ' + kiteScore );
-      logger.debug('spot wind dirs: ' + JSON.stringify(spot.wind_directions));
-*/
       
       var closestDir = 360, closestDiff = 360;
       spot.wind_directions.forEach(function(direction) {
          var spotWindDegree = compassDegrees[direction];
 
          var diff = Math.abs(spotWindDegree - windDirDegrees);
-/*             console.log('Subtracting spot diegree of ' + spotWindDegree + ' from wind report degrees of ' + windDirDegrees + ' to get diff: ' + diff); */
          // get minimum difference
          if ( diff <  closestDiff) { 
-/*                console.log('Found closer dir, resetting closest from ' + closestDir + ' to ' + spotWindDegree + ' because diff is ' + diff);                */
             closestDir = spotWindDegree;
             closestDiff = diff;
          }
-/*             console.log('Spot direction: '.red + direction + '. Wind direction: ' + windDirDegrees +  '. Compass degree: ' + spotWindDegree + '. difference: ' + diff + '. closest dir: ' + closestDir + '. closests diff: ' + closestDiff); */
       })
       var closestDifference = Math.abs(closestDir - windDirDegrees);
       // normalize the difference into 1/8 points to subtract from kitescore
       var kiteScoreSubtraction = closestDifference / 45;
-/*          logger.debug('taking off ' + kiteScoreSubtraction + ' because the closest wind dir is ' + closestDir + ' and wind degree is ' + windDirDegrees); */
       data['kitescore_orig'] = kiteScore;
-      kiteScore -= ( 2 * Math.floor(kiteScoreSubtraction) ); 
-      
-//         kiteScore -= ( kiteScoreSubtraction ); 
-     // }
+      kiteScore -= ( 2 * Math.floor(kiteScoreSubtraction) );
       
       var floorScore = Math.floor(kiteScore);
       returnData['epoch'] = data.time.epoch;
       returnData['wdir'] = wdir;
       returnData['wspd'] = speed;
-      returnData['temp_c'] = data.temp.metric;
-      returnData['temp_f'] = data.temp.english;
+
+      // incase weather breaks
+      if (data.temp) {
+          returnData['temp_c'] = data.temp.metric;
+          returnData['temp_f'] = data.temp.english;
+      }
+
       returnData['condition'] = data.condition;
       returnData['icon'] = data.icon;
       returnData['icon_url'] = data.icon_url;
@@ -504,9 +492,6 @@ app.runSpotWeatherCache = function(spot_id, callback) {
 	   var spotLookupQuery = "spot:" + spot_id;
    }
    
-   
-   
-   
    /// vvvv Cut the chord from callback jungle below
    client.keys(spotLookupQuery, function(err, replies) {
       if (err) {
@@ -515,12 +500,12 @@ app.runSpotWeatherCache = function(spot_id, callback) {
          var size = replies.length;
          var processed = 0;
          replies.forEach(function(key) {
-            logger.debug('got spot id: ' + key); 
+//            logger.debug('got spot id: ' + key); 
             client.get(key, function(err, reply) {
                var jsonSpot = JSON.parse(reply);
 
                try {
-               		console.log('Got spot geoloc for cache: ' + jsonSpot.location.latitude + ', ' + jsonSpot.location.longitude);
+//               		console.log('Got spot geoloc for cache: ' + jsonSpot.location.latitude + ', ' + jsonSpot.location.longitude);
                } catch (err) {
                   logger.error('Error doing something: ' + err);
                }
@@ -531,14 +516,18 @@ app.runSpotWeatherCache = function(spot_id, callback) {
                var lon = jsonSpot.location.longitude;
                var spotId = jsonSpot.spotId;
                var redisWeatherKey = weatherSpotKey + spotId;
-               logger.debug('Pulling weather for lat ' + lat + ', lon: ' + lon);
+
+//               logger.debug('Pulling weather for lat ' + lat + ', lon: ' + lon);
                var latLonQuery = lat + ',' + lon;
+
                 wunder.hourly10day(latLonQuery, function(err, response) {
-                  logger.debug('Got weather for latlon query: ' + latLonQuery);
+//                  logger.debug('Got weather for latlon query: ' + latLonQuery);
                   if ( response != null ) {
                      var weather = JSON.parse(response);
+                     
                      app.processHourly(weather, function(err, hourly){
                         var weatherStr = JSON.stringify(hourly);
+
                         client.set(redisWeatherKey,  weatherStr,function(err, replies) {
                            logger.debug('redis key set for ' + redisWeatherKey + ', replies: ' + replies);
                            if (replies === "OK") {                     
@@ -546,7 +535,7 @@ app.runSpotWeatherCache = function(spot_id, callback) {
                               
                               if (jsonSpot && defaultModel && weather) {
                                  logger.debug('building kitescores for weather cache: types: ' + typeof weather + ' model: ' + typeof defaultModel + ', spot: ' + typeof jsonSpot) ;
-                                                      
+
                                  app.buildKiteScore(defaultModel, jsonSpot, weather, function(err, scores) {
                                     //console.log('Got kitescores for data: ' + JSON.stringify(scores));
                                     var redisScoresKey = "scores:10day:spot:" + jsonSpot.spotId;
@@ -554,7 +543,6 @@ app.runSpotWeatherCache = function(spot_id, callback) {
                                         logger.debug('redisScoresKey ' + redisScoresKey + ' set, reply: ' + replies);
                                         client.expire(redisScoresKey, expireTimeWeather, function(err, reply) {
                                            logger.debug('Redis scores key set to expire: ' + redisScoresKey + ': ' + expireTimeWeather / 60 + ' minutes');
-                                           
                                         });
                                         processed++;
                                      });
@@ -567,14 +555,10 @@ app.runSpotWeatherCache = function(spot_id, callback) {
                         });   
                      });
                      
-/*
-                     logger.debug('jsonSpot: ' + JSON.stringify(jsonSpot));
-                     logger.debug('defaultModel: ' + JSON.stringify(defaultModel));
-                     logger.debug('weather: ' +weatherStr);
-*/
-                     
                   }
-                  else logger.error('response was null, error: ' + err);
+                  else {
+                    logger.error('response was null, error: ' + err);  
+                  } 
                       
                   
                 });
