@@ -325,7 +325,7 @@ app.buildKiteScore = function(model, spot, windData, callback) {
       } else if (speed > windHighMax) {
          kiteScore = TOO_MUCH;
       } else {
-         console.log('WHy is I here, speed is: '.red + speed + ', type: ' + typeof speed + '. source: ' + JSON.stringify(data.wspd) + '. parsed: '  + parseInt(data.wspd));
+         console.log('Why is I here, speed is: '.red + speed + ', type: ' + typeof speed + '. source: ' + JSON.stringify(data.wspd) + '. parsed: '  + parseInt(data.wspd));
          throw new Error('WTF happened, no kite score determined');
          // @note - this should be a nice error, with a console.log // thorw new causes node.js to die :P
       }
@@ -483,6 +483,7 @@ app.runSpotCache = function(callback) {
 	});
 }
 
+// Runs assuming spots are cached in redis
 app.runSpotWeatherCache = function(spot_id, callback) {
    var spotLookupQuery = "spot:*";
    var weatherSpotKey = "weather:spot:"
@@ -492,88 +493,92 @@ app.runSpotWeatherCache = function(spot_id, callback) {
 	   var spotLookupQuery = "spot:" + spot_id;
    }
    
+
+   // Set the model (this should be personalized later
+   var model = defaultModel;
+   
+      
    /// vvvv Cut the chord from callback jungle below
    client.keys(spotLookupQuery, function(err, replies) {
+      var redisWeatherKey = null;
       if (err) {
          logger.error('Error: ' + err);
       } else  {
          var size = replies.length;
          var processed = 0;
          replies.forEach(function(key) {
-//            logger.debug('got spot id: ' + key); 
-            client.get(key, function(err, reply) {
-               var jsonSpot = JSON.parse(reply);
+         console.log('building kitescores for key: ' + key);
+         // iterating over an individual spot to build its cache
+         async.waterfall([
+            // step 1: get the spot
+            function(callback) {
+               client.get(key, function(err, spot) {               
 
-               try {
-//               		console.log('Got spot geoloc for cache: ' + jsonSpot.location.latitude + ', ' + jsonSpot.location.longitude);
-               } catch (err) {
-                  logger.error('Error doing something: ' + err);
-               }
-               if (typeof jsonSpot !== 'object') {
-                    return false;
-               }
-               var lat = jsonSpot.location.latitude;
-               var lon = jsonSpot.location.longitude;
-               var spotId = jsonSpot.spotId;
-               var redisWeatherKey = weatherSpotKey + spotId;
-
-//               logger.debug('Pulling weather for lat ' + lat + ', lon: ' + lon);
+                  callback(null, spot);
+               })
+            },
+            // step 2: parse spot string to json, pull weather
+            function(spotStr, callback) {
+               var spot = JSON.parse(spotStr);
+               var lat = spot.location.latitude;
+               var lon = spot.location.longitude;
                var latLonQuery = lat + ',' + lon;
-
-                wunder.hourly10day(latLonQuery, function(err, response) {
-//                  logger.debug('Got weather for latlon query: ' + latLonQuery);
-                  if ( response != null ) {
-                     var weather = JSON.parse(response);
-                     
-                     app.processHourly(weather, function(err, hourly){
-                        var weatherStr = JSON.stringify(hourly);
-
-                        client.set(redisWeatherKey,  weatherStr,function(err, replies) {
-                           logger.debug('redis key set for ' + redisWeatherKey + ', replies: ' + replies);
-                           if (replies === "OK") {                     
-                              // run kite scores for saved spots' weather
-                              
-                              if (jsonSpot && defaultModel && weather) {
-                                 logger.debug('building kitescores for weather cache: types: ' + typeof weather + ' model: ' + typeof defaultModel + ', spot: ' + typeof jsonSpot) ;
-
-                                 app.buildKiteScore(defaultModel, jsonSpot, weather, function(err, scores) {
-                                    //console.log('Got kitescores for data: ' + JSON.stringify(scores));
-                                    var redisScoresKey = "scores:10day:spot:" + jsonSpot.spotId;
-                                     client.set(redisScoresKey, JSON.stringify(scores), function(err, replies) {
-                                        logger.debug('redisScoresKey ' + redisScoresKey + ' set, reply: ' + replies);
-                                        client.expire(redisScoresKey, expireTimeWeather, function(err, reply) {
-                                           logger.debug('Redis scores key set to expire: ' + redisScoresKey + ': ' + expireTimeWeather / 60 + ' minutes');
-                                        });
-                                        processed++;
-                                     });
-                                     
-                                 });
-         
-                              }
-                           }
-                           
-                        });   
-                     });
-                     
-                  }
-                  else {
-                    logger.error('response was null, error: ' + err);  
-                  } 
-                      
-                  
-                });
-               
-               /*    
-               app.pullWeather(HOURLY_1DAY, lat, lon, function(err, weather) {
-                  
-   client.set(redisKey, weather, function(err, reply) {
-                     logger.debug('Weather stored in redis for key: ' + redisKey);
-                  });
-   
+               wunder.hourly10day(latLonQuery, function(err, response) {
+                  callback(null, spot, response);              
                });
-   */
-            });
-                    
+            },
+            // step 3: convert the weather data into wind hourly data array
+            function( spot, weather, callback) {
+               var jsonWeather = JSON.parse(weather); 
+               app.processHourly(jsonWeather, function(err, hourly) {
+                  if (err) {
+                     logger.warn('Error processing hourly: ' + err + ', input: ' + JSON.stringify(hourly));
+                     callback(err);
+                  }
+                  callback(null, spot, hourly);
+               });
+            },
+            // step 4 [optional]: store weather in redis. (why?) comment that sheet out!
+            function(spot, hourly, callback) {
+               var weatherStr = JSON.stringify(hourly);
+               var  redisWeatherKey = weatherSpotKey + spot.spotId;
+               client.set(redisWeatherKey,  weatherStr,function(err, replies) {
+                  logger.debug('redis key set for ' + redisWeatherKey + ', replies: ' + replies);
+                  callback(null, spot, hourly);
+               });
+            },
+            // step 5: build the kitescore from the hourly data
+            function (spot, hourlies, callback) {
+               app.buildKiteScore(model, spot, hourlies, function(err, scores) {                  
+                  callback(null,spot,  scores);  
+               });
+
+            },
+            // step 6: cache scores in redis
+            function( spot, scores, callback) {
+               //console.log('Got kitescores for data: ' + JSON.stringify(scores));
+               var redisScoresKey = "scores:10day:spot:" + spot.spotId;
+               if (err) {
+                   logger.error("Error building kitescores");
+                   callback(err);
+                }
+               else {
+                  var scoresStr = JSON.stringify(scores);
+                  client.set(redisScoresKey, scoresStr, function(err, replies) {
+                      logger.debug('redisScoresKey ' + redisScoresKey + ' set, reply: ' + replies);
+                      client.expire(redisScoresKey, expireTimeWeather, function(err, reply) {
+                         logger.debug('Redis scores key set to expire: ' + redisScoresKey + ': ' + expireTimeWeather / 60 + ' minutes');
+                      });
+                      processed++;
+                   });               
+                   callback(null, spot, scores);
+                }
+            } 
+         
+         ], function( err, spot, scores){
+               logger.debug("Score successfully processed for spot " + spot.spotId + ": " + scores.length);
+               callback(null, scores);
+            });                          
          });
       }
    });
