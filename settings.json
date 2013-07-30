@@ -42,7 +42,7 @@
 	"redis" : {
 		"expire_time": {
 		    "default" : 900,
-		    "spot" : 3600,
+		    "spot" : 72000,
 		    "weather" :  3600
 		 }
 	},
@@ -54,7 +54,7 @@
 			"wunderground": "d423b6a14c833613",     
 			"debug": false,
 			"rate" : {
-   			"minute" : 25,
+   			"minute" : 5,
    			"hour" : 500,
    			"day" : 5000
 			}

@@ -2,17 +2,15 @@ var restify = require('restify'),
     nconf = require('nconf'),
     validate = require('jsonschema').validate,
     Parse = require('kaiseki'),
-    //winston = require('winston'),
     redis = require("redis"),
     client = redis.createClient(),
     colors = require('colors'),
-    //jsonify = require("redis-jsonify"),
-   // client = redis.createClient(),
     Datastore = require('./DataStore'),
     async = require('async'),
     winston = require('winston'),
     SpotService = require('./SpotService'),
     ModelService = require('./ModelService'),
+    SessionFinderService = require('./SessionFinderService'),
     wundernode = require('wundernode'),
     Forecast = require('forecast.io');
 
@@ -572,8 +570,13 @@ app.runSpotWeatherCache = function(spot_id, callback) {
                       processed++;
                    });               
                    callback(null, spot, scores);
+                },
+                // step 7: pass scores to sesson finder service
+                function(spot, scores, callback) {
+                   
                 }
-            } 
+            },
+               
          
          ], function( err, spot, scores){
                logger.debug("Score successfully processed for spot " + spot.spotId + ": " + scores.length);
