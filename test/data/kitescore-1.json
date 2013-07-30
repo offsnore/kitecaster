@@ -1,0 +1,36 @@
+[
+   {
+      "wspd" : "19",
+      "closest_spot_direction_degrees" : "225",
+      "icon_url" : "http://icons-ak.wxug.com/i/c/k/nt_tstorms.gif",
+      "temp_f" : "77",
+      "wdir" : "210",
+      "epoch" : "1375066800",
+      "lastUpdated" : "Mon, 29 Jul 2013 02:02:21 GMT",
+      "datestamp" : "07-28-2013",
+      "ampm" : "PM",
+      "wdir_compass" : "SSW",
+      "closest_spot_direction" : "SW",
+      "timestamp" : "10:00 PM",
+      "kitescore_subtraction" : "0.3333333333333333",
+      "temp_c" : "25",
+      "kiteScore" : "10"
+   },
+   {
+      "wspd" : "18",
+      "closest_spot_direction_degrees" : "225",
+      "icon_url" : "http://icons-ak.wxug.com/i/c/k/nt_tstorms.gif",
+      "temp_f" : "78",
+      "wdir" : "210",
+      "epoch" : "1375070400",
+      "lastUpdated" : "Mon, 29 Jul 2013 02:02:21 GMT",
+      "datestamp" : "07-28-2013",
+      "ampm" : "PM",
+      "wdir_compass" : "SSW",
+      "closest_spot_direction" : "SW",
+      "timestamp" : "11:00 PM",
+      "kitescore_subtraction" : "0.3333333333333333",
+      "temp_c" : "26",
+      "kiteScore" : "10"
+   }
+]
