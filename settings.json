@@ -54,7 +54,7 @@
 			"wunderground": "d423b6a14c833613",     
 			"debug": false,
 			"rate" : {
-   			"minute" : 5,
+   			"minute" : 50,
    			"hour" : 500,
    			"day" : 5000
 			}
