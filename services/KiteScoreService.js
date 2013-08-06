@@ -570,13 +570,25 @@ app.runSpotWeatherCache = function(spot_id, callback) {
                       processed++;
                    });               
                    callback(null, spot, scores);
-                },
-                // step 7: pass scores to sesson finder service
-                function(spot, scores, callback) {
-                   
                 }
+                
             },
-               
+            // step 7: pass scores to sesson finder service
+                function(spot, scores, callback) {
+                  var redisSessionFinderKey = "sessionfinder:spot:" + spot.spotId;         
+                  SessionFinderService.buildSessionSearch(spot, scores, function(err, spotSessionData){
+/*
+                      console.log('Got session finder data for spot: ' + spot.spotId);
+                      console.log("session finder data: " + JSON.stringify(spotSessionData));
+*/
+                      client.set(redisSessionFinderKey, JSON.stringify(spotSessionData), function(err, reply) {
+                         logger.debug(redisSessionFinderKey + ': data set: ' + reply);
+                         client.expire(redisSessionFinderKey, expireTimeWeather, function(err, reply) {
+                            logger.debug('Redis scores key set to expire: ' + redisSessionFinderKey + ': ' + expireTimeWeather / 60 + ' minutes');
+                         });
+                      });
+                  });
+                }   
          
          ], function( err, spot, scores){
                logger.debug("Score successfully processed for spot " + spot.spotId + ": " + scores.length);
