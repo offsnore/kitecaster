@@ -1,0 +1,51 @@
+extends layout
+
+block content
+	div(align='center')
+		table(bgcolor='#FFFFFF', width='560')
+			tr
+				td
+				td.header.container(style='padding: 0 10px;')
+					h2 KiteCaster.com
+				td
+		hr(width='560', style='height: 8px; border: 0; background-color: #72c02c;')
+		table(width='560')
+			tr
+				td
+					h5 Active Reports from Jenny@KiteCaster.com
+	
+		table(width='560')
+			tr
+				td
+				td.container(bgcolor='#FFFFFF')
+					.content
+						table
+							tr
+								td
+									div(style='background-color: #ecf8ff; padding: 10px;')
+										h3 A note from us..
+										p Hey there, Jenny here (in case you didn't know, I'm a computer built by KiteCaster - so don't try and Facebook BFF me - I only date other machines and I've got my eye on a Cluster from Google). Anyway! I was searching around our database and came up with a selection of some great times at your favorite spots - you probably want to check them out! <br /><br />Also, You can always check for favoriable conditions at your favorite spots on your main account page. Happy Kiting! - Jenny
+									br
+									h3 Check out the Hot Spots I've found for you!
+									p 
+										!= parsed
+									br
+									br
+				td
+	
+		table(width='560')
+			tr
+				td
+				td.container
+					div(align='center')
+						table
+							tr
+								td.center
+									p
+										a(href='http://www.kitecaster.com/terms.html?_utm=email') Terms of Use
+										= ' | '
+										a(href='http://www.kitecaster.com/privacy-policy.html?_utm=email') Privacy
+										= ' | '
+										a(href='http://www.kitecaster.com/unsubscribe.html?_utm=email&email=#{email}')
+											unsubscribe Unsubscribe
+				td

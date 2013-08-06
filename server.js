@@ -114,6 +114,8 @@ app.get('/foo', function(req, res) {
 });
 app.get('/start', routes.start);
 
+app.get('/main/email', routes.emailTest);
+
 // @moved everything to /main b/c below that is a differnet APP now
 
 app.get('/main/login', routes.loginIndex);
