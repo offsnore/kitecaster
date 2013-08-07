@@ -541,9 +541,10 @@ app.runSpotWeatherCache = function(spot_id, callback) {
                                     var redisScoresKey = "scores:10day:spot:" + jsonSpot.spotId;
                                      client.set(redisScoresKey, JSON.stringify(scores), function(err, replies) {
                                         logger.debug('redisScoresKey ' + redisScoresKey + ' set, reply: ' + replies);
-                                        client.expire(redisScoresKey, expireTimeWeather, function(err, reply) {
+                                        /* sick of this ssh33t expiring! And, why expire at the weather expire time? garargh!
+					client.expire(redisScoresKey, expireTimeWeather, function(err, reply) {
                                            logger.debug('Redis scores key set to expire: ' + redisScoresKey + ': ' + expireTimeWeather / 60 + ' minutes');
-                                        });
+                                        });*/
                                         processed++;
                                      });
                                      
