@@ -1,0 +1,78 @@
+extends layout
+
+block content
+	div(align='center')
+		table(bgcolor='#FFFFFF', width='560')
+			tr
+				td
+				td.header.container(style='padding: 0 10px;')
+					h2 KiteCaster.com
+				td
+		hr(width='560', style='height: 8px; border: 0; background-color: #72c02c;')
+		table(width='560')
+			tr
+				td
+					h5 Welcome to KiteCaster.com!
+
+		table(width='560')
+			tr
+				td
+				td.container
+					div(align='center')
+						table
+							tr
+								td.center
+									p
+									h3 Welcome #{name} to KiteCaster!
+									h6 We want to Thank you for joining our little service - we really hope you enjoy our hard work to provide you with tools that make your kiteboarding life easier.
+									p Also, We want to give you a quick overview of our service. There are three main sections, 
+										ol 
+											li Main page - where you can see your list of favorite spots. <br />
+											li Spot section - This allows you to view and follow spots around the world at a glance! (Hint: If you follow a spot, it'll show up on your main page) <br />
+											li Profile - pretty self-explanitory, upload a photo of yourself - add your kiting preferences - tailor the service to your likes. <br />
+	
+		table(width='560')
+			tr
+				td
+				td.container(bgcolor='#FFFFFF')
+					.content
+						table
+							tr
+								td
+									if (parsed)
+										h3 If you've got a few minutes...
+										div(style='background-color: #ecf8ff; padding: 10px;')
+											h3 Check out the Hot Spots I've found near you!
+											p We took a few moments and noticed your were near spots
+											p
+												a(href='#') Maui Spot Name
+												| You should come and check it out!
+										br
+										p 
+											!= parsed
+										br
+										br
+									else
+										h3 If you've got a few minutes...
+										div(style='background-color: #ecf8ff; min-width: 550px; padding: 10px;')
+											h3 
+												a(href='http://www.kitecaster.com/main/login') Log into your account!
+											p We have a bunch of great spots, near you!
+				td
+	
+		table(width='560')
+			tr
+				td
+				td.container
+					div(align='center')
+						table
+							tr
+								td.center
+									p
+										a(href='http://www.kitecaster.com/terms.html?_utm=email') Terms of Use
+										= ' | '
+										a(href='http://www.kitecaster.com/privacy-policy.html?_utm=email') Privacy
+										= ' | '
+										a(href='http://www.kitecaster.com/unsubscribe.html?_utm=email&email=#{email}')
+											unsubscribe Unsubscribe
+				td

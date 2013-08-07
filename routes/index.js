@@ -50,6 +50,10 @@ exports.test = function(req, res){
   res.render('test', { title: 'Test Page Demos' });
 };
 
+exports.emailTest = function(res, res) {
+	res.render('email/daily', {parsed: {}, email: 'kylejeske@gmail.com'});
+};
+
 exports.registerIndex = function(req, res) {
 	var queryParams = require('url').parse(req.url, true).query
 	var params = {
