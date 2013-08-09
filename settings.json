@@ -74,6 +74,7 @@
 		"development": true
 	},
 	"session" : {
-		"cookiename" : "__utmza"
+		"cookiename" : "__utmza",
+		"maxage" : 1209600000
 	}
 }

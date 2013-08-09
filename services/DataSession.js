@@ -140,7 +140,7 @@ app.registerUser = function(req, res, callback_method) {
 };
 
 app.setlogincookie = function(res, obj) {
-	res.cookie(nconf.get('session:cookiename'), JSON.stringify(obj), { maxAge: 9000000, httpOnly: true});
+	res.cookie(nconf.get('session:cookiename'), JSON.stringify(obj), { maxAge: nconf.get('session:maxage'), httpOnly: true});
 }
 
 app.logout = function(res, callback) {
