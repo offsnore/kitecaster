@@ -1,6 +1,6 @@
 {
 	"env" : {
-		"port" : "7000"
+		"port" : "6000"
 	},
 	"parse" : {
 		"appId": "NxEj8t7POeTJEnm3CizoU1MQZlNexcQpHTxgWhwa",
@@ -12,25 +12,25 @@
 			"key" : "72308924b8266c64af429db50d4796fb"
 		},
 		"spot": {
-			"frontend_url" : "local.kitecaster.com",
-			"port" : "7501",
-			"refreshSeconds" : 7200
+			"frontend_url" : "www.kitecaster.com",
+			"port" : "6501",
+			"refreshSeconds" : 1500
 		},
 		"model": {
-			"port" : "7504"
+			"port" : "6504"
 		},
 		"kite" : {
-			"frontend_url" : "local.kitecaster.com",
-			"port" : "7508"
+			"frontend_url" : "www.kitecaster.com",
+			"port" : "6508"
 		},
 		"user" : {
-			"port" : "7509"
+			"port" : "6509"
 		},
 		"kitescore": {
-			"port" : "7503",
+			"port" : "6503",
 			"expiration_time" : 7200,
 			"start_cache" : true,
-			"refreshSeconds" : 7200
+			"refreshSeconds" : 3600
 		},
 		"google": {
 			"api_key": "AIzaSyDBD7vGX-y9pO8PP8bHCOQlKztjWzcJNf8"
@@ -41,9 +41,9 @@
 	},
 	"redis" : {
 		"expire_time": {
-		    "default" : 900,
-		    "spot" : 72000,
-		    "weather" :  3600
+		    "default" : 7200,
+		    "spot" : 12000,
+		    "weather" :  7200
 		 }
 	},
 	"spot" : {
@@ -54,7 +54,7 @@
 			"wunderground": "d423b6a14c833613",     
 			"debug": false,
 			"rate" : {
-   			"minute" : 50,
+   			"minute" : 25,
    			"hour" : 500,
    			"day" : 5000
 			}
@@ -71,7 +71,7 @@
         },
 		"fakedSession": "abcd383393",
 		"fakeip": "8.8.8.8",
-		"development": true
+		"development": false
 	},
 	"session" : {
 		"cookiename" : "__utmza",
