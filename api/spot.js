@@ -263,40 +263,32 @@
 	
 	server.get('/spot-image/:id', function(req, res) {
 
-		var id = parseInt(req.params.id);
-
+        var query, picture_path, id, spot_id, running = 0, picture_path = "", script_path = "";
         var syncExec = require("exec-plan").ExecPlan;
+
+		id = parseInt(req.params.id);
+        spot_id = id;
 
         syncPlan = new syncExec();
         
         syncPlan.on("execerror", function(err, strerr) {
             console.log(err);
             console.log(strerr);
-        });
-        
+        });        
         syncPlan.on("complete", function(stdout) {
-            var running = 0;
-            console.log(stdout);
-            console.log("set complete");
+            running = 0;
+            res.send(JSON.stringify({'status':'executed', 'url':'http://www.kitecaster.com/media/raw/spot-' + spot_id + '-auto.png'}));
         });
-        
         syncPlan.on("finished", function() {
-            var running = 0;
-            console.log("set finished");
+            running = 0;
         });
-
-        var query, picture_path;
-        spot_id = id;
 
         // @NOTE - This path must be relative to the FIRST LEVEL, /var/http/www.kitecaster/ <- first would be the first level
         picture_path = require('path').resolve('./public/media/raw/');
         script_path = require('path').resolve(__dirname + '/../crons/scripts/graph_generate.js');
         query = "phantomjs " + script_path + " http://www.kitecaster.com/main/r/system-generated/spot-" + spot_id + ".html " + picture_path + "/spot-" + spot_id + "-auto.png";
         syncPlan.add(query);
-
         syncPlan.execute();
-
-        res.send("{'status':'executed'}");
         
 	});
 

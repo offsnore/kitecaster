@@ -41,6 +41,7 @@ var correctedViewportW = (function (win, docElem) {
 			discover_radius: 100,
 			mapzoom: 11,
 			spot: {},
+			graph: {},
 			map: {},
 			geolocal: {},
 			getGeolocation: function(){},
@@ -386,6 +387,10 @@ var correctedViewportW = (function (win, docElem) {
 					initialize();					
 				}
 			});
+		}
+
+		_$local.graph.fc = function(s, c) {
+			if (typeof c === 'undefined') c = function(){}; var u = "/spot-image/" + s; $.ajax({type: "GET", url: u, success: function(d){ c(JSON.parse(d)); } });
 		}
 
 	}
@@ -823,6 +828,7 @@ var correctedViewportW = (function (win, docElem) {
 		
 
 		function subscribe_spot(data) {
+			_$local.graph.fc(data.id);
 			$.ajax({
 				type: 'PUT',
 				dataType: 'json',
@@ -833,7 +839,6 @@ var correctedViewportW = (function (win, docElem) {
 				})
 			});
 		}
-
 		
 		function loadKitescore(spot_id, override_id, override) {
 			var spot = spot_id || _$spot_id;
