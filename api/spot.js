@@ -260,6 +260,45 @@
 	   //res.send(updateSpotSchema);
 	   res.send(api);
 	});
+	
+	server.get('/spot-image/:id', function(req, res) {
+
+		var id = parseInt(req.params.id);
+
+        var syncExec = require("exec-plan").ExecPlan;
+
+        syncPlan = new syncExec();
+        
+        syncPlan.on("execerror", function(err, strerr) {
+            console.log(err);
+            console.log(strerr);
+        });
+        
+        syncPlan.on("complete", function(stdout) {
+            var running = 0;
+            console.log(stdout);
+            console.log("set complete");
+        });
+        
+        syncPlan.on("finished", function() {
+            var running = 0;
+            console.log("set finished");
+        });
+
+        var query, picture_path;
+        spot_id = id;
+
+        // @NOTE - This path must be relative to the FIRST LEVEL, /var/http/www.kitecaster/ <- first would be the first level
+        picture_path = require('path').resolve('./public/media/raw/');
+        script_path = require('path').resolve(__dirname + '/../crons/scripts/graph_generate.js');
+        query = "phantomjs " + script_path + " http://www.kitecaster.com/main/r/system-generated/spot-" + spot_id + ".html " + picture_path + "/spot-" + spot_id + "-auto.png";
+        syncPlan.add(query);
+
+        syncPlan.execute();
+
+        res.send("{'status':'executed'}");
+        
+	});
 
 	/**
 	 * API: /Spot
