@@ -11,6 +11,7 @@ var restify = require('restify'),
     colors = require('colors'),
     async = require('async'),
     winston = require('winston'),
+    _ = require('underscore'),
     moment = require('moment');
 
 var app = module.exports;
@@ -28,12 +29,14 @@ app.buildSessionSearch = function(spot, scores, callback) {
 /*      console.log('Iterating over score: ' + JSON.stringify(score)); */
      var dateStr = score.datestamp + score.timestamp;
      var date = moment(dateStr, "MM-DD-YYYYhh:mm a");
-     var hour = parseInt(date.format("HH"));
-     if (hour > 6 && hour < 21) {
+     var hour = parseInt(date.format("H"));
+     console.log('Hour: ' + hour);
+     if (hour >= 7 && hour <= 21) {
         var scoreObj = {
            'hour' : hour,
            'score' : score.kiteScore
         }
+        console.log(JSON.stringify(scoreObj));
         if (dayScoresMap[score.datestamp] == null) {
          dayScoresMap[score.datestamp] = {};
         }
@@ -80,7 +83,7 @@ var testSpot = {
 
 var testScores = [ 
    {
-   epoch: "1375066800",
+   epoch: "1375466800",
    wdir: "210",
    wspd: 19,
    temp_c: "25",
@@ -88,6 +91,23 @@ var testScores = [
    icon_url: "http://icons-ak.wxug.com/i/c/k/nt_tstorms.gif",
    wdir_compass: "SSW",
    timestamp: "3:00 PM",
+   ampm: "PM",
+   datestamp: "07-28-2013",
+   closest_spot_direction_degrees: 225,
+   closest_spot_direction: "SW",
+   kiteScore: 7,
+   lastUpdated: "Mon, 29 Jul 2013 02:02:21 GMT",
+   kitescore_subtraction: 0.3333333333333333
+   },
+   {
+   epoch: "1375066800",
+   wdir: "210",
+   wspd: 19,
+   temp_c: "25",
+   temp_f: "77",
+   icon_url: "http://icons-ak.wxug.com/i/c/k/nt_tstorms.gif",
+   wdir_compass: "SSW",
+   timestamp: "8:00 AM",
    ampm: "PM",
    datestamp: "07-28-2013",
    closest_spot_direction_degrees: 225,
