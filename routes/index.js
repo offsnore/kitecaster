@@ -177,7 +177,7 @@ exports.mainIndex = function(req, res) {
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){		
 		if (body.length == 0) {
-			return kickOut(res, "Please login again, it seems your session has expired.");
+			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
 		}
 
 		var profile_image;
@@ -265,7 +265,7 @@ exports.discoverSpot = function(req, res) {
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){		
 		if (body.length == 0) {
-			return kickOut(res, "Please login again, it seems your session has expired.");
+			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
 		}
 		var localdata = body[0];
 		var user_id = localdata.objectId;
@@ -345,7 +345,7 @@ exports.mainSpot = function(req, res) {
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
-			return kickOut(res, "Please login again, it seems your session has expired.");
+			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
 		}
 
 		localdata = body[0];		
@@ -412,7 +412,7 @@ exports.newSpot = function(req, res) {
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
-			return kickOut(res, "Please login again, it seems your session has expired.");
+			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
 		}
 		localdata = body[0];		
 		user_id = localdata.objectId;
@@ -486,7 +486,7 @@ exports.viewSpot = function(req, res) {
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
-			return kickOut(res, "Please login again, it seems your session has expired.");
+			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
 		}
 		localdata = body[0];
 		user_id = localdata.objectId;
@@ -496,7 +496,7 @@ exports.viewSpot = function(req, res) {
 		}
 		var objectId = req.params[0];
 		if (objectId == '') {
-			errorPage(res, "We were unable to locate this spot (missing ID).");
+			errorPage(res, "Damn, we lost this spot. Or at least can't find it without an ID! (missing that ID)");
 		}
 
 		// get Session Details
@@ -576,7 +576,7 @@ exports.viewPublicSpot = function(req, res) {
 
 	var objectId = spot_id;
 	if (objectId == '') {
-		errorPage(res, "We were unable to locate this spot (missing ID).");
+		errorPage(res, "Damn, we lost this spot. Or at least can't find it without an ID! (missing that ID)");
 	}
 
 	params = {
@@ -619,7 +619,7 @@ exports.viewPublicRawSpot = function(req, res) {
 
 	var objectId = spot_id;
 	if (objectId == '') {
-		errorPage(res, "We were unable to locate this spot (missing ID).");
+		errorPage(res, "Damn, we lost this spot. Or at least can't find it without an ID! (missing that ID)");
 	}
 
 	params = {
@@ -672,13 +672,13 @@ exports.editSpot = function(req, res) {
 	geo_location = lookup.geolookup.getCurrent(req);
 	objectId = req.params[0];
 	if (objectId == '') {
-		errorPage(res, "We were unable to locate this spot (missing ID).");
+		errorPage(res, "Damn, we lost this spot. Or at least can't find it without an ID! (missing that ID)");
 	}
 
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
-			return kickOut(res, "Please login again, it seems your session has expired.");
+			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
 		}
 		localdata = body[0];
 		user_id = localdata.objectId;
@@ -744,7 +744,7 @@ exports.editSpotSave = function(req, res) {
 	}
 	var objectId = req.params[0];
 	if (objectId == '') {
-		errorPage(res, "We were unable to locate this spot (missing ID).");
+		errorPage(res, "Damn, we lost this spot. Or at least can't find it without an ID! (missing that ID)");
 	}
 	// get Session Details
 	var session_id = nconf.get('site:fakedSession');
@@ -830,7 +830,7 @@ exports.mainProfile = function(req, res) {
 	var session_id, profile_image;
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
-			return kickOut(res, "Please login again, it seems your session has expired.");
+			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
 		}
 		var localdata = body[0];		
 		var user_id = localdata.objectId;
@@ -931,12 +931,12 @@ exports.mainProfileSave = function(req, res) {
 	var geo_location = lookup.geolookup.getCurrent(req);
 	var objectId = req.params[0];
 	if (objectId == '') {
-		errorPage(res, "We were unable to locate this spot (missing ID).");
+		errorPage(res, "Damn, we lost this spot. Or at least can't find it without an ID! (missing that ID)");
 	}
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
-			return kickOut(res, "Please login again, it seems your session has expired.");
+			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
 		}
 		var localdata = body[0];		
 		var user_id = localdata.objectId;
