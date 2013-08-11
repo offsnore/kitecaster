@@ -12,15 +12,9 @@
 			"key" : "72308924b8266c64af429db50d4796fb"
 		},
 		"spot": {
-<<<<<<< Updated upstream
-			"frontend_url" : "www.kitecaster.com",
-			"port" : "6501",
-			"refreshSeconds" : 1500
-=======
 			"frontend_url" : "local.kitecaster.com",
 			"port" : "7501",
 			"refreshSeconds" : 1800
->>>>>>> Stashed changes
 		},
 		"model": {
 			"port" : "6504"
@@ -48,11 +42,7 @@
 	"redis" : {
 		"expire_time": {
 		    "default" : 7200,
-<<<<<<< Updated upstream
 		    "spot" : 12000,
-=======
-		    "spot" : 72000,
->>>>>>> Stashed changes
 		    "weather" :  7200
 		 }
 	},
