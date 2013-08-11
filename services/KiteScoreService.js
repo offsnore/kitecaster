@@ -521,43 +521,17 @@ app.runSpotWeatherCache = function(spot_id, callback) {
                var lat = spot.location.latitude;
                var lon = spot.location.longitude;
                var latLonQuery = lat + ',' + lon;
-
-                wunder.hourly10day(latLonQuery, function(err, response) {
-//                  logger.debug('Got weather for latlon query: ' + latLonQuery);
-                  if ( response != null ) {
-                     var weather = JSON.parse(response);
-                     
-                     app.processHourly(weather, function(err, hourly){
-                        var weatherStr = JSON.stringify(hourly);
-
-                        client.set(redisWeatherKey,  weatherStr,function(err, replies) {
-                           logger.debug('redis key set for ' + redisWeatherKey + ', replies: ' + replies);
-                           if (replies === "OK") {                     
-                              // run kite scores for saved spots' weather
-                              
-                              if (jsonSpot && defaultModel && weather) {
-                                 logger.debug('building kitescores for weather cache: types: ' + typeof weather + ' model: ' + typeof defaultModel + ', spot: ' + typeof jsonSpot) ;
-
-                                 app.buildKiteScore(defaultModel, jsonSpot, weather, function(err, scores) {
-                                    //console.log('Got kitescores for data: ' + JSON.stringify(scores));
-                                    var redisScoresKey = "scores:10day:spot:" + jsonSpot.spotId;
-                                     client.set(redisScoresKey, JSON.stringify(scores), function(err, replies) {
-                                        logger.debug('redisScoresKey ' + redisScoresKey + ' set, reply: ' + replies);
-                                        /* sick of this ssh33t expiring! And, why expire at the weather expire time? garargh!
-					client.expire(redisScoresKey, expireTimeWeather, function(err, reply) {
-                                           logger.debug('Redis scores key set to expire: ' + redisScoresKey + ': ' + expireTimeWeather / 60 + ' minutes');
-                                        });*/
-                                        processed++;
-                                     });
-                                     
-                                 });
-         
-                              }
-                           }
-                           
-                        });   
-                     });
-                     
+               wunder.hourly10day(latLonQuery, function(err, response) {
+                  callback(null, spot, response);              
+               });
+            },
+            // step 3: convert the weather data into wind hourly data array
+            function( spot, weather, callback) {
+               var jsonWeather = JSON.parse(weather); 
+               app.processHourly(jsonWeather, function(err, hourly) {
+                  if (err) {
+                     logger.warn('Error processing hourly: ' + err + ', input: ' + JSON.stringify(hourly));
+                     callback(err);
                   }
                   callback(null, spot, hourly);
                });
