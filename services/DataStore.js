@@ -69,14 +69,14 @@ app.find = app.getCurrent = function(db, key, callback) {
 }
 
 app.file = function(filename, callback) {
-	var parseApp = new ParseObject(nconf.get('parse:appId'), nconf.get('parse:restKey'));	
+	var parseApp = new ParseObject(nconf.get('parse:appId'), nconf.get('parse:restKey'));
 
 	fs.exists(filename, function(exists){
 		if (!exists) {
 			console.log("Unable to find file: " + filename);
 		} else {
 			parseApp.uploadFile(filename, function(err, res, body, success) {
-				callback(body.url, body.name);
+				callback(body.url, body.name, body, res);
 			});
 		}
 	});

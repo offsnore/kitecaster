@@ -668,9 +668,11 @@
 						continue;
 					}
 					var file_path = file.path;
-					Datastore.records.file(file_path, function(url){
+					Datastore.records.file(file_path, function(url, name, object){
+    					var photo_name = "", body_url = "";
 						if (url) {
-							var body_url= url;
+							body_url= url;
+							photo_name = name;
 						}
 	
 						var new_object = {
@@ -688,6 +690,10 @@
     						userId: user_object_id,
     						comment: "",
     						photo: body_url,
+    						photoFile: {
+        						name: photo_name,
+        						__type: "File"
+    						},
     						parent: true,
     						child: false,
     						type: "photo"
