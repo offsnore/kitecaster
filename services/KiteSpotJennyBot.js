@@ -35,7 +35,7 @@ app.getHotSpots = function(callback) {
 				}
 			};
 		
-			console.log("looping through " + user_id + " to get spots");
+			console.log("looping through " + user_id + "(" + obj.email + ") to get spots");
 		
 			datastore.records.object("Subscribe", query_params, function(err, response, data){
 				data.forEach(function(item, i, obj){
