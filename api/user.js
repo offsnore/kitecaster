@@ -268,6 +268,7 @@
     	}
 
     	var user_object_id = queryParts.session_id;
+    	var upload_dir = require('path').resolve(__dirname, '../public/media');
 
 		var form = new formidable.IncomingForm({ uploadDir: require('path').resolve(__dirname, '../public/media'), keepExtensions: true }), files = [], fields = [];
 
@@ -295,24 +296,52 @@
 						continue;
 					}
 					var file_path = file.path;
-					Datastore.records.file(file_path, function(url){
-						if (url) {
-							var body_url= url;
-						}
-						
-						Datastore.records.objectupdate('Profiles', user_object_id, {'profile_image': body_url}, function(err, response){
-    						if (err) {
-        						res.writeHead(409, { 'Content-Type': 'application/json' });
-        						res.end(JSON.stringify({'error': err}));
-    						} else {
-        			            res.writeHead(200, { 'Content-Type': 'application/json' });
-        			            res.end(JSON.stringify({
-        				            success: true,
-        				            url: body_url
-        			            }));        						
+
+					var original_name = file.name;
+					var small_name = file.name.replace(".", ".small.");
+					
+                    var im = require('imagemagick');
+                    im.resize({
+                        srcPath: file.path,
+                        dstPath: upload_dir + "/" + small_name,
+                        width:   250,
+                        filter: 'Lagrange',
+                        strip: true,
+                        format: 'jpg'
+                    }, function(err, stdout, stderr){
+                        if (err) throw err
+    
+                        file_path = upload_dir + "/" + small_name;
+    
+    
+    					Datastore.records.file(file_path, function(url, name, object){
+    						if (url) {
+    							var body_url= url;
+    							photo_name = name;
     						}
-						});
-					});
+    
+                            var obj = {
+                                'profile_image': body_url,
+                                profile_photo: {
+                                    name: photo_name,
+                                    __type: "File"
+                                }
+                            };
+    						
+    						Datastore.records.objectupdate('Profiles', user_object_id, obj, function(err, response){
+        						if (err) {
+            						res.writeHead(409, { 'Content-Type': 'application/json' });
+            						res.end(JSON.stringify({'error': err}));
+        						} else {
+            			            res.writeHead(200, { 'Content-Type': 'application/json' });
+            			            res.end(JSON.stringify({
+            				            success: true,
+            				            url: body_url
+            			            }));        						
+        						}
+    						});
+    					});
+                    });
 					
 					// @todo - Make this unique ID be used instead of the FileName and save the file details to the 'Parse.com' DB
 					//var file_new_path = require('path').resolve(__dirname, '../public/media') + '/' + file.name;

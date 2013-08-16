@@ -642,6 +642,8 @@
     	var spot_object_id = queryParts.spot_id;
     	var user_id = queryParts.user_id;
 
+    	var upload_dir = require('path').resolve(__dirname, '../public/media');
+
 		var form = new formidable.IncomingForm({ uploadDir: require('path').resolve(__dirname, '../public/media'), keepExtensions: true }), files = [], fields = [];
 
 		form.on('field', function(field, value){
@@ -668,51 +670,69 @@
 						continue;
 					}
 					var file_path = file.path;
-					Datastore.records.file(file_path, function(url, name, object){
-    					var photo_name = "", body_url = "";
-						if (url) {
-							body_url= url;
-							photo_name = name;
-						}
-	
-						var new_object = {
-    						spotId: parseInt(spot_object_id),
-							userPointer: {
-								"__type":"Pointer",
-								"className":"User",
-								"objectId": user_object_id
-							},
-							profilePointer: {
-								"__type":"Pointer",
-								"className":"Profiles",
-								"objectId": user_id
-							},
-    						userId: user_object_id,
-    						comment: "",
-    						photo: body_url,
-    						photoFile: {
-        						name: photo_name,
-        						__type: "File"
-    						},
-    						parent: true,
-    						child: false,
-    						type: "photo"
-						};
-						
-						Datastore.records.createobject('SpotNews', new_object, function(err, response){
-    						if (err) {
-        						res.writeHead(409, { 'Content-Type': 'application/json' });
-        						res.end(JSON.stringify({'error': err}));
-    						} else {
-        			            res.writeHead(200, { 'Content-Type': 'application/json' });
-        			            res.end(JSON.stringify({
-        				            success: true,
-        				            url: body_url
-        			            }));        						
+
+					var original_name = file.name;
+					var small_name = file.name.replace(".", ".small.");
+					
+                    var im = require('imagemagick');
+                    im.resize({
+                        srcPath: file.path,
+                        dstPath: upload_dir + "/" + small_name,
+                        width:   500,
+                        filter: 'Lagrange',
+                        strip: true,
+                        format: 'jpg'
+                    }, function(err, stdout, stderr){
+                        if (err) throw err
+    
+                        file_path = upload_dir + "/" + small_name;
+
+    					Datastore.records.file(file_path, function(url, name, object){
+        					var photo_name = "", body_url = "";
+    						if (url) {
+    							body_url= url;
+    							photo_name = name;
     						}
-						}, false);
-						
-					});
+    	
+    						var new_object = {
+        						spotId: parseInt(spot_object_id),
+    							userPointer: {
+    								"__type":"Pointer",
+    								"className":"User",
+    								"objectId": user_object_id
+    							},
+    							profilePointer: {
+    								"__type":"Pointer",
+    								"className":"Profiles",
+    								"objectId": user_id
+    							},
+        						userId: user_object_id,
+        						comment: "",
+        						photo: body_url,
+        						photoFile: {
+            						name: photo_name,
+            						__type: "File"
+        						},
+        						parent: true,
+        						child: false,
+        						type: "photo"
+    						};
+    						
+    						Datastore.records.createobject('SpotNews', new_object, function(err, response){
+        						if (err) {
+            						res.writeHead(409, { 'Content-Type': 'application/json' });
+            						res.end(JSON.stringify({'error': err}));
+        						} else {
+            			            res.writeHead(200, { 'Content-Type': 'application/json' });
+            			            res.end(JSON.stringify({
+            				            success: true,
+            				            url: body_url
+            			            }));        						
+        						}
+    						}, false);
+    						
+    					});
+    				});
 				}
 			}
 		});
