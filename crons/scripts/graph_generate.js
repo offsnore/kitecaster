@@ -11,6 +11,6 @@ if (args.length <= 2) {
 var page = require('webpage').create();
 page.open(URL, function () {
     page.render(FILENAME);
-    console.log("Generated Image.");
+    console.log("Generated Image " + FILENAME + " " + new Date());
     phantom.exit();
 });
