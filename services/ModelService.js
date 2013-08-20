@@ -66,8 +66,7 @@ ModelService.getModel = function(id, callback) {
                client.set(redisKey,  JSON.stringify(bodyJson[0]), function (err, response, body, success) {
                   client.expire(redisKey, redisExpireTime, function (err, replies) {
                      console.log('expire set for ' + redisKey + ' to ' + redisExpireTime + ' seconds.');
-                  });
-   
+                  });   
                });
                callback(null, bodyJson);
             }

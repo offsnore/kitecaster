@@ -9,8 +9,8 @@ block content
 					.span4
 						.alert
 							button(type='button', class='close', data-dismiss='alert') &times;
-							h3| An error occured:
-							h4 #{msg}
+							h3| Whoops, that didn't go well
+							h4 Feel free to try again
 					.span4
 			if(txt)
 				.row-fluid
@@ -38,6 +38,9 @@ block content
 								.control-group
 									.controls
 										input(type='submit', class='btn btn-success', value='Sign In')
-										|  or 
-										a.btn.btn-info(href='/main/register') Create an Account
+										span.spacer										
+										span(class="login") or
+										span.spacer	
+										//a(href='/main/register', class="register") Register
+										a.btn.btn-info(href='/main/register', class="login_register") Create an Account
 				.span4

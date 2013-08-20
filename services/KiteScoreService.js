@@ -564,9 +564,9 @@ app.runSpotWeatherCache = function(spot_id, callback) {
                   var scoresStr = JSON.stringify(scores);
                   client.set(redisScoresKey, scoresStr, function(err, replies) {
                       logger.debug('redisScoresKey ' + redisScoresKey + ' set, reply: ' + replies);
-                      client.expire(redisScoresKey, expireTimeWeather, function(err, reply) {
+                      /*client.expire(redisScoresKey, expireTimeWeather, function(err, reply) {
                          logger.debug('Redis scores key set to expire: ' + redisScoresKey + ': ' + expireTimeWeather / 60 + ' minutes');
-                      });
+                      });*/
                       processed++;
                    });               
                    callback(null, spot, scores);
