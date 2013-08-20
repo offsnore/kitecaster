@@ -417,12 +417,14 @@ exports.newSpot = function(req, res) {
 		localdata = body[0];		
 		user_id = localdata.objectId;
 		session_id = localdata.UserPointer.objectId;
-		if (!profile_image) {
-    		profile_image = nconf.get('site:default:image');
+
+		if (!localdata.profile_image) {
+    		localdata.profile_image = nconf.get('site:default:image');
 		}
+
 		params = {
 			spot_data: queryParams,
-            profile_image: profile_image,
+            profile_image: localdata.profile_image,
             userdata: localdata,
 			session_id: session_id,
 			spot_id: 0,
