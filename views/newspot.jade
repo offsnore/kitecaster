@@ -55,7 +55,7 @@ block content
 									| Create a new Spot
 							.body
 								p.spacer
-								form(method='PUT', data-redirect='/main/spots', data-post-parse="subscribe_spot", parse-json="true", action='/spot', enctype="multipart/form-data").form-horizontal.ajax-send
+								form(method='PUT', data-redirect-link='/main/spots', data-post-parse="update_spot_details", parse-json="true", action='/spot', enctype="multipart/form-data").form-horizontal.ajax-send
 									input(type='hidden', name='belongsTo', value='#{session_id}')
 									input(type='hidden', name='location', value='')
 									input(type='hidden', name='lat', id='lat', value='#{spot_data.lat}')

@@ -827,7 +827,16 @@ var correctedViewportW = (function (win, docElem) {
 		}
 		
 
-		function subscribe_spot(data) {
+		function update_spot_details(data) {
+			subscribe_spot(data, function(){
+				window.location.href = "/main/spots";
+			});
+		}
+
+		function subscribe_spot(data, callback) {
+			if (typeof callback === 'undefined') {
+				callback = function(){};
+			}
 			_$local.graph.fc(data.id);
 			$.ajax({
 				type: 'PUT',
@@ -837,6 +846,8 @@ var correctedViewportW = (function (win, docElem) {
 				data: JSON.stringify({
 					userId: _$session_id
 				})
+			}).success(function(){
+				callback();
 			});
 		}
 		
