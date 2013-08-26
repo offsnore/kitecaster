@@ -182,7 +182,6 @@ h2.head_title {
 }
 
 .profile .header {
-/*    background-image: url('../images/bw1024.jpg'); */
     background: #e9eef1;
     min-height: 150px;
     background-size: cover;
@@ -190,6 +189,59 @@ h2.head_title {
     -webkit-box-shadow: #afb1b0 0 1px 0;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
+}
+
+.forecast_feed {
+    margin-top: 1em;
+}
+
+.forecast_feed .body .loader {
+    padding: 1em;
+}
+
+.forecast_feed .body .info {
+    margin-left: 1.5em;
+}
+
+.forecast_feed .header {
+    border-radius: 8px 8px 0 0;
+    background: #333a3b;
+    color: #fff;
+    padding: 15px;
+    font-size: 15px;
+}
+
+.forecast_feed .header .name h3 {
+    color: #FFF;
+}
+
+.forecast_feed .body {
+    background: #f9f9f9;
+    border: solid 1px #dfe0e2;
+    color: #676c6f;
+    font-weight: normal;
+    text-shadow: 0 1px 1px #fff;
+    box-shadow: #e4e4e4 0 1px 1px;
+    border-radius: 0 0 4px 4px;
+}
+
+
+.content_feed .header {
+    border-radius: 8px 8px 0 0;
+    background: #333a3b;
+    color: #fff;
+    padding: 15px;
+    font-size: 15px;
+}
+
+.content_feed .body {
+    background: #f9f9f9;
+    border: solid 1px #dfe0e2;
+    color: #676c6f;
+    font-weight: normal;
+    text-shadow: 0 1px 1px #fff;
+    box-shadow: #e4e4e4 0 1px 1px;
+    border-radius: 0 0 4px 4px;
 }
 
 .status_opener {

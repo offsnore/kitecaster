@@ -14,6 +14,7 @@
 	,   Weather = require('../services/KiteScoreService')
 	,   Datastore = require('../services/DataStore')
 	,   Datasession = require('../services/DataSession')
+	,   JennyBot = require('../services/KiteSpotJennyBot')
 	,   logger = require('winston');
 	    
 	redisSpotIdKey = 'counter:spot:id';
@@ -126,6 +127,18 @@
 		}
 	};
 
+	var forecastsGetSchema = {
+		"id": "/ForecastsGetSchema",
+		"type": "object",
+		"properties": {
+			"user_id": {
+				"type": "string",
+				"required" : true
+			},
+		}
+	};
+
+
 	var updateProfileSchema = {
 		"id": "/UpdateProfileSchema",
 		"type": "object",
@@ -154,6 +167,43 @@
 		}
 	};
 	
+	server.get('user/forecasts', function(req, res) {
+		var id = req.params.user_id;
+		var data = "";
+		var data = require('url').parse(req.url, true).query;
+		var json, valid;
+		json = data;
+		valid = validate(json, forecastsGetSchema);
+		if (valid.length > 0 ) {
+			res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
+			return;
+		} else {
+    		var id = data.user_id;
+    		console.log(id + " .. looking for details..");
+
+            JennyBot.getHotSpots(id, false, function(data){ 
+                console.log(arguments);
+//                res.send("hi");
+            })
+
+    		/**
+			var queryParams = {
+					where: json,
+					order: '-createdAt',
+					limit: 1
+				};
+			Datastore.records.object("Location", queryParams, function(err, response, body, success) {
+				if (body.length == 0) {
+					obj = {};
+				} else {
+					obj = body;
+				}
+				res.send(obj);
+			});
+			**/
+		}
+	});
+
 	server.get('user/location', function(req, res) {
 		var id = req.params.userId;
 		var data = "";

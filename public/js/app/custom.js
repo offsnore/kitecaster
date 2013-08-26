@@ -392,6 +392,23 @@ var correctedViewportW = (function (win, docElem) {
 		_$local.graph.fc = function(s, c) {
 			if (typeof c === 'undefined') c = function(){}; var u = "/spot-image/" + s; $.ajax({type: "GET", url: u, success: function(d){ c(JSON.parse(d)); } });
 		}
+		
+		_$local.load_forecasted = function() {
+			var obj = null, source = null, template = null;
+			$.ajax({
+				url: "/user/forecasts",
+				data: {
+					user_id: _$user_id
+				},
+				type: "GET",
+				success: function(data) {
+					obj = $("#forecast-window");
+					source = obj.html();
+					template = Handlebars.compile(source);
+					$("#forecast-data").html(template(data));
+				}
+			})
+		}
 
 	}
 
