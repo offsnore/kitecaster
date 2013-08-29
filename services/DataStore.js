@@ -455,13 +455,13 @@ base.setobject = function(db, query, object, expires, callback) {
 base.getlocalobject = function(db, query, callback) {
 	var client = redis.createClient();
 	client.on('error', function(err) {
-		console.log("error event: " + JSON.stringify(err));
+		console.log("error event: " + err);
 	});
 	var hashkey = base.createkey(db, query);
 	client.get(hashkey, function(err, reply) {
 		var reply = JSON.parse(reply);		
 		if (err) {
-			console.log("error occured: "+JSON.stringify(err));
+			console.log("error occured: " + err);
 		} else {
 			if (!reply) {
 				// if there is no data, expire the key
