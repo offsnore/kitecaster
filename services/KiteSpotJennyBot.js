@@ -8,6 +8,7 @@ var datastore = require('./DataStore')
 	,	redis = require('redis')
 	,	colors = require('colors')
 	,	jade = require('jade')
+	,   async = require('async')
 	,	fs = require('fs');
 
 nconf.argv()
@@ -17,62 +18,237 @@ nconf.argv()
 var client = redis.createClient();
 var app = module.exports;
 
-app.getHotSpots = function(callback) {
-	var force = false;
+app.getHotSpots = function(user_id, process, method_callback) {
+	var force = false, d_results = [];
+
+	if (typeof method_callback !== 'function') {
+    	var method_callback = function(){};
+	}
+
+	if (!process) {
+    	process = false;
+	}
 
 	var query_params = {
-		'where': {"UserPointer":{"__type":"Pointer","className":"_User","objectId": 'xmkIMtFLKe'}}
+		'where': {"UserPointer":{"__type":"Pointer","className":"_User","objectId": user_id}}
 	};
 
 	datastore.records.object("Profiles", query_params, function(err, response, data){
 
-		data.forEach(function(obj) {
-			var user_id = obj.UserPointer.objectId;
+    	if (data.length == 0) {
+        	method_callback();
+        	return false;
+    	}
 
-			var query_params = {
-				'where': {
-					userId: user_id
-				}
-			};
-		
-			console.log("looping through " + user_id + "(" + obj.email + ") to get spots");
-		
-			datastore.records.object("Subscribe", query_params, function(err, response, data){
-				data.forEach(function(item, i, obj){
-					var spotId = item.spotId;
-					var qp = {
-						'where': {
-							spotId: parseInt(spotId)
-						}
-					};
-					datastore.records.object("Spot", qp, function(err, response, data){
-						var flagged_time = new Array();
-					    for(var i in data) {
-					        var obj = data[i];
-					        console.log(obj.spotId);
-					        var redis10DayKey = "scores:10day:spot:" + obj.spotId;
-					        var flagged = false, dark = false;
-							client.get(redis10DayKey, function(err, reply) {
-								if (reply && force === false) {
-									var obj_data = JSON.parse(reply);
-									finder.buildSessionSearch({ spotId: obj.spotId }, obj_data, function(err, results){
-										console.log('Ran session search building on test spot and dummy data. Got Result, wooeey!!');
-										app.processHotSpot(obj, results);
-									});
-								} else {
-									console.log("not found, bail.");
-								}
-							});
-					    }
-					});
-		
-				});
-			});
+    	var obj = data[0];
+    	
+		var user_id = obj.UserPointer.objectId;
 
+		var query_params = {
+			'where': {
+				userId: user_id
+			}
+		};
+	
+		console.log("looping through " + user_id + "(" + obj.email + ") to get spots");
+
+		process = false;
+
+		async.waterfall([
+            function(callback_ext) {
+                var d_res = [];
+                datastore.records.object("Subscribe", query_params, function(err, response, data){
+                	d_data = data;
+                	callback_ext(null, d_data);
+                });
+            },
+            function(data, callback_ext) {
+
+                async.waterfall([
+                    function(callback_ext_a) {
+                        var max = (parseInt(data.length) - 1), counter = 0, c_data = [], a_data = [];
+        				data.forEach(function(item, i, obj){
+        					var spotId = item.spotId;
+        					var qp = {
+        						'where': {
+        							spotId: parseInt(spotId)
+        						}
+        					};
+                            datastore.records.object("Spot", qp, function(err, response, data){
+                                for(var i in data) {
+                                    var obj = data[i];
+                                    a_data.push(obj);
+                                }
+                                counter += 1;
+                				if (counter == max) {
+                                    callback_ext_a(null, a_data);            				
+                				}
+                            });
+        				})
+        				        				
+        				// Add check for no max - return false
+                    },
+                    function(data, callback_ext_a) {
+                        var a_data = {}, counter = 0, max = (data.length - 1);
+                        data.forEach(function(item, i, obj){
+        					var spotId = item.spotId;
+        					var qp = {
+        						'where': {
+        							spotId: parseInt(spotId)
+        						}
+        					};
+                            datastore.records.object("Spot", qp, function(err, response, data){
+                                a_data[spotId] = data;                                
+                                if (counter == max) {
+                                    callback_ext_a(null, a_data);
+                                }
+                                counter += 1;
+                            })
+                        })
+                    },
+                    function(data, callback_ext_a) {
+                        var a_data = [], counter = 0, spots = [], max = (Object.keys(data).length - 1);
+                        for(var i in data) {
+                            var obj = data[i];
+                            var spotId = obj[0].spotId;
+                            spots.push(spotId);
+                            var redis10DayKey = "scores:10day:spot:" + spotId;
+                            var flagged = false, dark = false;
+                        	client.get(redis10DayKey, function(err, reply) {
+                        		if (reply && force === false) {
+                            		a_data.push(JSON.parse(reply));
+                        		} else {
+                            		a_data.push({});
+                        		}
+//                        		console.log(counter, max, spotId);
+                            	if (counter == max) {
+                                	callback_ext_a(null, data, a_data, spots);
+                            	}
+                            	counter += 1;
+                        	});
+                        }
+                    },
+                    function(data, a_data, spots, callback_ext_a) {
+                        var process = false, d_results = [];
+
+                        if (spots.length !== a_data.length) {
+                            console.log("the lenth of spos & a_data doesnt match, we cant continue.");
+                            return true;
+                        }
+                        
+                        var max = (spots.length - 1), counter = 0;
+                        
+                        for (var i in spots) {
+                            var spot_id = spots[i];
+                            var org_data = a_data[i];
+                            finder.buildSessionSearch({ spotId: spot_id }, org_data, function(err, results){
+                            	if (process !== false) {
+                            	    console.log('Ran session search building on test spot and dummy data. Got Result, wooeey!!');
+//                					app.processHotSpot(obj, results);
+                            	} else {
+                            		console.log('processin..');
+                            		d_results.push([obj, results]);
+                            	}
+                            });
+                            if (counter == max) {
+                                // send to the original waterfall
+                                callback_ext(null, d_results);                                
+                            }
+                            counter += 1;
+                        }
+
+                    }
+                ])
+
+            }, function(data) {
+                method_callback(data);
+            }
+		]);
+
+				/*
+
+		async.waterfall([
+			function(callback){
+				var d_results = [];
+//					var d_data = [], c_data = [];
+				console.log('callback 1-1');
+				async.waterfall([
+					function(callback_ext) {
+						var d_data = [];
+						console.log('callback 2-1');
+	        			datastore.records.object("Subscribe", query_params, function(err, response, data){
+	        				d_data = data;
+	        				callback_ext(null, d_data);
+		        		});
+		        	},
+		        	function(d_data, callback_ext) {
+		        		var c_data = [];
+                        var counter = 0;
+                        var max = (d_data.length ? (d_data.length - 1) : 0);
+//							console.log('callback 2-2', d_data);
+        				d_data.forEach(function(item, i, obj){
+        					var spotId = item.spotId;
+        					var qp = {
+        						'where': {
+        							spotId: parseInt(spotId)
+        						}
+        					};
+                            datastore.records.object("Spot", qp, function(err, response, data){
+                                for(var i in data) {
+                                    var obj = data[i];
+                                    var redis10DayKey = "scores:10day:spot:" + obj.spotId;
+                                    var flagged = false, dark = false;
+                                	client.get(redis10DayKey, function(err, reply) {
+                                		if (reply && force === false) {
+                                			c_data.push(JSON.parse(reply));
+                                		}
+                                	});
+                                }
+                                counter++;
+	                        });
+                        	if (counter == max) {
+                            	callback_ext(null, d_data, c_data);
+                        	}
+	                    });
+		        	},
+		        	function(d_data, c_data, callback_ext) {
+						console.log('callback 2-3');
+		        		org_data = [];
+		        		if (typeof c_data !== 'undefined') {
+			        		var org_data = c_data[0];				        		
+		        		}
+		        		if (typeof org_data === 'undefined') {
+        					callback_ext(null, []);
+			        		return true;
+		        		}
+		        		if (org_data.length < 1) {
+		        			callback_ext(null, []);
+		        			return true;
+		        		}
+            			finder.buildSessionSearch({ spotId: obj.spotId }, org_data, function(err, results){
+            				if (process !== false) {
+            				    console.log('Ran session search building on test spot and dummy data. Got Result, wooeey!!');
+//                					app.processHotSpot(obj, results);
+            				} else {
+            					console.log('processin..');
+            					d_results.push([obj, results]);
+            				}
+            				callback_ext(null, d_results);
+            				callback(null, d_results);
+            			});
+		        	}
+				])
+				callback(null, true);
+			}
+		], function() {
+			console.log('callback 1-2');
+			//	method_callback(d_results);					
 		});
 	
+				*/
 	});
 
+/*
 	return false;
 
 	var spot_id = 127;
@@ -108,6 +284,7 @@ app.getHotSpots = function(callback) {
 			});
 	    }
 	});
+*/
 }
 
 var flagged = new Array();
@@ -234,6 +411,6 @@ app.sendEmail = function(from_address, to_address, subject, content, replyto_add
 
 //app.sendWelcomeEmail("Andrew Anderson", "picasandrew@gmail.com");
 //app.sendWelcomeEmail("Kyle Jeske", "kylejeske@gmail.com");
-app.getHotSpots(function(){ 
-	console.log('yo');
-})
+//app.getHotSpots('xmkIMtFLKe', false, function(data){ 
+//	console.log('yo');
+//})

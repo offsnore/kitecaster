@@ -39,6 +39,15 @@ block content
 										li
 											i.icon-location-arrow.icon-correct
 											span.location_description Loading...
+						.forecast_feed
+							.header
+								.name
+									| Your forecasted spots
+							.body
+								.info#forecast-data
+									.loader
+										i.icon-spinner.icon-spin.icon-large 
+										|   Loading...
 					.span8
 						.content_feed
 							.header
@@ -75,6 +84,15 @@ block head_include
 	script(language='JavaScript', src='/js/app/jquery.scroller.js')
 
 block scripts
+	script(type='text/x-handlebars-template', id='forecast-window')
+		{{#each this}}
+		.well
+			| Yo!
+		{{else}}
+		.info
+			h4 No forecasts were found.
+		{{/each}}
+
 	script(type='text/x-handlebars-template', id='spots-error-template')
 		.well.alert
 			h3 Oops, it seems there was an error loading this section. Please sit tight while we try and reload the section in a few moments.
