@@ -98,7 +98,6 @@ app.getHotSpots = function(user_id, process, method_callback) {
         						}
         					};
                             datastore.records.object("Spot", qp, function(err, response, data){
-                                console.log(counter, max);
                                 a_data[spotId] = data;                                
                                 if (counter == max) {
                                     callback_ext_a(null, a_data);
@@ -108,24 +107,61 @@ app.getHotSpots = function(user_id, process, method_callback) {
                         })
                     },
                     function(data, callback_ext_a) {
-                        var a_data = [], counter = 0, max = (data.length - 1);
+                        var a_data = [], counter = 0, spots = [], max = (Object.keys(data).length - 1);
                         for(var i in data) {
                             var obj = data[i];
-                            console.log(obj);
-/*
-                            var redis10DayKey = "scores:10day:spot:" + obj.spotId;
+                            var spotId = obj[0].spotId;
+                            spots.push(spotId);
+                            var redis10DayKey = "scores:10day:spot:" + spotId;
                             var flagged = false, dark = false;
                         	client.get(redis10DayKey, function(err, reply) {
                         		if (reply && force === false) {
-                        			c_data.push(JSON.parse(reply));
+                            		a_data.push(JSON.parse(reply));
+                        		} else {
+                            		a_data.push({});
                         		}
+//                        		console.log(counter, max, spotId);
+                            	if (counter == max) {
+                                	callback_ext_a(null, data, a_data, spots);
+                            	}
+                            	counter += 1;
                         	});
-*/
                         }
-//                        console.log(data);
+                    },
+                    function(data, a_data, spots, callback_ext_a) {
+                        var process = false, d_results = [];
+
+                        if (spots.length !== a_data.length) {
+                            console.log("the lenth of spos & a_data doesnt match, we cant continue.");
+                            return true;
+                        }
+                        
+                        var max = (spots.length - 1), counter = 0;
+                        
+                        for (var i in spots) {
+                            var spot_id = spots[i];
+                            var org_data = a_data[i];
+                            finder.buildSessionSearch({ spotId: spot_id }, org_data, function(err, results){
+                            	if (process !== false) {
+                            	    console.log('Ran session search building on test spot and dummy data. Got Result, wooeey!!');
+//                					app.processHotSpot(obj, results);
+                            	} else {
+                            		console.log('processin..');
+                            		d_results.push([obj, results]);
+                            	}
+                            });
+                            if (counter == max) {
+                                // send to the original waterfall
+                                callback_ext(null, d_results);                                
+                            }
+                            counter += 1;
+                        }
+
                     }
                 ])
 
+            }, function(data) {
+                method_callback(data);
             }
 		]);
 
