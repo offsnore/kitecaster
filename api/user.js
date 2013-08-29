@@ -182,8 +182,9 @@
     		console.log(id + " .. looking for details..");
 
             JennyBot.getHotSpots(id, false, function(data){ 
-                console.log(arguments);
+//                console.log(arguments);
 //                res.send("hi");
+                res.json(data);
             })
 
     		/**

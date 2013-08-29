@@ -40,83 +40,95 @@ app.getHotSpots = function(user_id, process, method_callback) {
         	return false;
     	}
 
-		data.forEach(function(obj) {
-			var user_id = obj.UserPointer.objectId;
+    	var obj = data[0];
+    	
+		var user_id = obj.UserPointer.objectId;
 
-			var query_params = {
-				'where': {
-					userId: user_id
-				}
-			};
-		
-			console.log("looping through " + user_id + "(" + obj.email + ") to get spots");
+		var query_params = {
+			'where': {
+				userId: user_id
+			}
+		};
+	
+		console.log("looping through " + user_id + "(" + obj.email + ") to get spots");
 
-			process = false;
+		process = false;
 
-			async.waterfall([
-				function(callback){
-				
-					var d_data = [], c_data = [];
-				
-					async.waterfall([
-						function(callback) {
-		        			datastore.records.object("Subscribe", query_params, function(err, response, data){
-		        				d_data = data;
-		        				callback();
-			        		});
-			        	},
-			        	function(callback) {			        	
-	        				d_data.forEach(function(item, i, obj){
-	        					var spotId = item.spotId;
-	        					var qp = {
-	        						'where': {
-	        							spotId: parseInt(spotId)
-	        						}
-	        					};
-	                            datastore.records.object("Spot", qp, function(err, response, data){
-	                                for(var i in data) {
-	                                    var obj = data[i];
-	                                    var redis10DayKey = "scores:10day:spot:" + obj.spotId;
-	                                    var flagged = false, dark = false;
-	                                	client.get(redis10DayKey, function(err, reply) {
-	                                		if (reply && force === false) {
-	                                			c_data.push(JSON.parse(reply));
-	                                		}
-	                                	});
-	                                }
-	                                callback();
-		                        });
-		                    });
-			        	},
-			        	function(callback) {
-			        		org_data = [];
-			        		if (typeof c_data !== 'undefined') {
-				        		var org_data = c_data[0];				        		
-			        		}
-			        		if (typeof org_data === 'undefined') {
-				        		return true;
-			        		}
-			        		if (org_data.length < 1) {
-			        			callback();
-			        			return true;
-			        		}
-                			finder.buildSessionSearch({ spotId: obj.spotId }, org_data, function(err, results){
-                				if (process !== false) {
-                				    console.log('Ran session search building on test spot and dummy data. Got Result, wooeey!!');
+		async.waterfall([
+			function(callback){
+				var d_results = [];
+//					var d_data = [], c_data = [];
+				console.log('callback 1-1');
+				async.waterfall([
+					function(callback_ext) {
+						var d_data = [];
+						console.log('callback 2-1');
+	        			datastore.records.object("Subscribe", query_params, function(err, response, data){
+	        				d_data = data;
+	        				callback_ext(null, d_data);
+		        		});
+		        	},
+		        	function(d_data, callback_ext) {
+		        		var c_data = [];
+                        var counter = 0;
+                        var max = (d_data.length ? (d_data.length - 1) : 0);
+//							console.log('callback 2-2', d_data);
+        				d_data.forEach(function(item, i, obj){
+        					var spotId = item.spotId;
+        					var qp = {
+        						'where': {
+        							spotId: parseInt(spotId)
+        						}
+        					};
+                            datastore.records.object("Spot", qp, function(err, response, data){
+                                for(var i in data) {
+                                    var obj = data[i];
+                                    var redis10DayKey = "scores:10day:spot:" + obj.spotId;
+                                    var flagged = false, dark = false;
+                                	client.get(redis10DayKey, function(err, reply) {
+                                		if (reply && force === false) {
+                                			c_data.push(JSON.parse(reply));
+                                		}
+                                	});
+                                }
+                                counter++;
+	                        });
+                        	if (counter == max) {
+                            	callback_ext(null, d_data, c_data);
+                        	}
+	                    });
+		        	},
+		        	function(d_data, c_data, callback_ext) {
+						console.log('callback 2-3');
+		        		org_data = [];
+		        		if (typeof c_data !== 'undefined') {
+			        		var org_data = c_data[0];				        		
+		        		}
+		        		if (typeof org_data === 'undefined') {
+        					callback_ext(null, []);
+			        		return true;
+		        		}
+		        		if (org_data.length < 1) {
+		        			callback_ext(null, []);
+		        			return true;
+		        		}
+            			finder.buildSessionSearch({ spotId: obj.spotId }, org_data, function(err, results){
+            				if (process !== false) {
+            				    console.log('Ran session search building on test spot and dummy data. Got Result, wooeey!!');
 //                					app.processHotSpot(obj, results);
-                				} else {
-                					console.log('processin..');
-                					d_results.push([obj, results]);
-                				}
-                			});
-			        	}
-					])
-					callback();
-				}, function() {
-//					method_callback(d_results);					
-				}
-			]);
-
+            				} else {
+            					console.log('processin..');
+            					d_results.push([obj, results]);
+            				}
+            				callback_ext(null, d_results);
+            				callback(null, d_results);
+            			});
+		        	}
+				])
+			}
+		], function() {
+			console.log('callback 1-2');
+			//	method_callback(d_results);					
 		});
 	
 	});
