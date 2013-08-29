@@ -55,6 +55,83 @@ app.getHotSpots = function(user_id, process, method_callback) {
 		process = false;
 
 		async.waterfall([
+            function(callback_ext) {
+                var d_res = [];
+                datastore.records.object("Subscribe", query_params, function(err, response, data){
+                	d_data = data;
+                	callback_ext(null, d_data);
+                });
+            },
+            function(data, callback_ext) {
+
+                async.waterfall([
+                    function(callback_ext_a) {
+                        var max = (parseInt(data.length) - 1), counter = 0, c_data = [], a_data = [];
+        				data.forEach(function(item, i, obj){
+        					var spotId = item.spotId;
+        					var qp = {
+        						'where': {
+        							spotId: parseInt(spotId)
+        						}
+        					};
+                            datastore.records.object("Spot", qp, function(err, response, data){
+                                for(var i in data) {
+                                    var obj = data[i];
+                                    a_data.push(obj);
+                                }
+                                counter += 1;
+                				if (counter == max) {
+                                    callback_ext_a(null, a_data);            				
+                				}
+                            });
+        				})
+        				        				
+        				// Add check for no max - return false
+                    },
+                    function(data, callback_ext_a) {
+                        var a_data = {}, counter = 0, max = (data.length - 1);
+                        data.forEach(function(item, i, obj){
+        					var spotId = item.spotId;
+        					var qp = {
+        						'where': {
+        							spotId: parseInt(spotId)
+        						}
+        					};
+                            datastore.records.object("Spot", qp, function(err, response, data){
+                                console.log(counter, max);
+                                a_data[spotId] = data;                                
+                                if (counter == max) {
+                                    callback_ext_a(null, a_data);
+                                }
+                                counter += 1;
+                            })
+                        })
+                    },
+                    function(data, callback_ext_a) {
+                        var a_data = [], counter = 0, max = (data.length - 1);
+                        for(var i in data) {
+                            var obj = data[i];
+                            console.log(obj);
+/*
+                            var redis10DayKey = "scores:10day:spot:" + obj.spotId;
+                            var flagged = false, dark = false;
+                        	client.get(redis10DayKey, function(err, reply) {
+                        		if (reply && force === false) {
+                        			c_data.push(JSON.parse(reply));
+                        		}
+                        	});
+*/
+                        }
+//                        console.log(data);
+                    }
+                ])
+
+            }
+		]);
+
+				/*
+
+		async.waterfall([
 			function(callback){
 				var d_results = [];
 //					var d_data = [], c_data = [];
@@ -125,12 +202,14 @@ app.getHotSpots = function(user_id, process, method_callback) {
             			});
 		        	}
 				])
+				callback(null, true);
 			}
 		], function() {
 			console.log('callback 1-2');
 			//	method_callback(d_results);					
 		});
 	
+				*/
 	});
 
 /*
