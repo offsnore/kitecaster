@@ -39,7 +39,7 @@ block content
 										li
 											i.icon-location-arrow.icon-correct
 											span.location_description Loading...
-						.forecast_feed
+						.forecast_feed.hidden
 							.header
 								.name
 									| Your forecasted spots
@@ -72,6 +72,7 @@ block script_include
 		window._$user_id = '#{user_id}';
 		window._$session_id = '#{session_id}';
 		window._$spot_id = false;
+		window._private_beta = '#{private_beta}';
 		if (#{first_login} != false) {
 			jQuery(document).ready(function(){
 				_$local.upload_location();
@@ -87,7 +88,8 @@ block scripts
 	script(type='text/x-handlebars-template', id='forecast-window')
 		{{#each this}}
 		.well
-			| Yo!
+			ul
+				{{#dumpThis this}}{{/dumpThis}}
 		{{else}}
 		.info
 			h4 No forecasts were found.

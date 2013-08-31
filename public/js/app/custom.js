@@ -394,6 +394,7 @@ var correctedViewportW = (function (win, docElem) {
 		}
 		
 		_$local.load_forecasted = function() {
+    		$(".forecast_feed").removeClass('hidden');
 			var obj = null, source = null, template = null;
 			$.ajax({
 				url: "/user/forecasts",
@@ -1642,6 +1643,27 @@ var correctedViewportW = (function (win, docElem) {
 				}
 				return hlist;
 			});
+			Handlebars.registerHelper("dumpThis", function(data, options) {
+    			var spot_data = data[1] || {};
+    			var html = "", spot_id = null;
+    			if (typeof spot_data === 'undefined') {
+        			return true;
+    			}
+    			var max_length = Object.keys(spot_data).length, counter = 0;
+    			for (var i in spot_data) {
+    			     if (i == "spot_id") {
+        			     var spot_id = spot_data[i];
+    			     }
+    			     counter += 1;
+    			     if (counter < max_length) {
+        			     continue;
+    			     }
+                    if (typeof spot_data[i].maxScore !== 'undefined') {
+                        html += "<li>At spot: " + spot_id + " your best time is at hour " + spot_data[i].maxScore.hour + "</li>";
+                    }
+    			}
+    			return new Handlebars.SafeString(html);
+			})
 		}
 				
 		
@@ -1776,6 +1798,10 @@ var correctedViewportW = (function (win, docElem) {
 		}
 
 		final_callback();
+
+		if (_private_beta === "true") {
+    		_$local.load_forecasted();
+		}
 
 	});
 

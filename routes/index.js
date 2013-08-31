@@ -183,14 +183,16 @@ exports.mainIndex = function(req, res) {
 		var profile_image;
 		var localdata = body[0];
 		
-		var user_id = localdata.objectId;
+		var user_id = localdata.UserPointer.objectId;
 		var session_id = localdata.UserPointer.objectId;
+		var private_beta = localdata.private_beta || false;
 				
 		if (!localdata.profile_image) {
     		localdata.profile_image = nconf.get('site:default:image');
 		}
 
 		var params = {
+		    private_beta: private_beta,
 			first_login: first_login,
 			user_id: user_id,
 			session_id: session_id,
