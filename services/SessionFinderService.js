@@ -30,13 +30,13 @@ app.buildSessionSearch = function(spot, scores, callback) {
      var dateStr = score.datestamp + score.timestamp;
      var date = moment(dateStr, "MM-DD-YYYYhh:mm a");
      var hour = parseInt(date.format("H"));
-     console.log('Hour: ' + hour);
+     //console.log('Hour: ' + hour);
      if (hour >= 7 && hour <= 21) {
         var scoreObj = {
            'hour' : hour,
            'score' : score.kiteScore
         }
-        console.log(JSON.stringify(scoreObj));
+        //console.log(JSON.stringify(scoreObj));
         if (dayScoresMap[score.datestamp] == null) {
          dayScoresMap[score.datestamp] = {};
         }
@@ -237,8 +237,10 @@ var testScores = [
    }
 ];
 
+/**
 app.buildSessionSearch(testSpot, testScores, function(err, results){
    console.log('Ran session search building on test spot and dummy data. Got Result, wooeey!!');
-   console.log(JSON.stringify(results));
+   //console.log(JSON.stringify(results));
 });
+**/
 
