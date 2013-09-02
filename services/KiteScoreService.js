@@ -589,6 +589,8 @@ app.runSpotWeatherCache = function(spot_id, callback) {
                          });*/
                       });
                   });
+		  logger.debug('returning from session finder service block. Missed a callback before');
+		  callback(null, spot, scores); // Someone forgot the callback!
                 }   
          
          ], function( err, spot, scores){
