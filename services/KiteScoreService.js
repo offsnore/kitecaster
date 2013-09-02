@@ -354,7 +354,10 @@ app.buildKiteScore = function(model, spot, windData, callback) {
       // normalize the difference into 1/8 points to subtract from kitescore
       var kiteScoreSubtraction = closestDifference / 45;
       data['kitescore_orig'] = kiteScore;
-      kiteScore -= ( 2 * Math.floor(kiteScoreSubtraction) );
+      if (spot.wind_directions.length != null && spot.wind_directions.length > 0) {
+         // handle the case where no wind direction is specified, so any direction 'works'
+         kiteScore -= ( 2 * Math.floor(kiteScoreSubtraction) );
+      }
       
       var floorScore = Math.floor(kiteScore);
       returnData['epoch'] = data.time.epoch;
@@ -442,9 +445,9 @@ app.runIndividualSpotCache = function(spot_id, callback) {
 			spot['lastUpdated'] = new Date().toUTCString();
 			var redisSpotId = "spot:" + spotId;        
 			client.set(redisSpotId, JSON.stringify(spot), function(err, replies) {
-				client.expire(redisSpotId, expireTimeSpot, function(err, reply) {
+				/*client.expire(redisSpotId, expireTimeSpot, function(err, reply) {
 					logger.debug('Expire set for spot redis key \'' + redisSpotId + '\', expires: ' + expireTimeSpot / 60 + ' minutes');
-				});
+				});*/
 			});
 		});
 		callback(err, body);
@@ -589,6 +592,7 @@ app.runSpotWeatherCache = function(spot_id, callback) {
                          });*/
                       });
                   });
+                  callback(null, spot, scores)
                 }   
          
          ], function( err, spot, scores){
