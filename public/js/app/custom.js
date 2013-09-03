@@ -1799,7 +1799,7 @@ var correctedViewportW = (function (win, docElem) {
 
 		final_callback();
 
-		if (_private_beta === "true") {
+		if (typeof _private_beta !== 'undefined' && _private_beta === "true") {
     		_$local.load_forecasted();
 		}
 
