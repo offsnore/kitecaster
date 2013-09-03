@@ -16,7 +16,7 @@ var   cronJob = require('cron').CronJob
 try {
     var job = new cronJob({
 //      cronTime: '00 00 06 * * *',
-      cronTime: '00 00 00 * * *',
+      cronTime: '00 00 13 * * *',
       onTick: function() {
           Jenny.getHotSpots();
       },

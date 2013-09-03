@@ -48,7 +48,7 @@ try {
                     // @NOTE - This path must be relative to the FIRST LEVEL, /var/http/www.kitecaster/ <- first would be the first level
                     picture_path = require('path').resolve('./public/media/raw/');
                     script_path = require('path').resolve(__dirname + '/scripts/graph_generate.js');
-                    query = "phantomjs " + script_path + " http://local.kitecaster.com/main/r/system-generated/spot-" + spot_id + ".html " + picture_path + "/spot-" + spot_id + "-auto.png";
+                    query = "phantomjs " + script_path + " http://www.kitecaster.com/main/r/system-generated/spot-" + spot_id + ".html " + picture_path + "/spot-" + spot_id + "-auto.png";
                     syncPlan.add(query);
                 }
                 syncPlan.execute();

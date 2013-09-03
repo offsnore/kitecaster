@@ -354,7 +354,16 @@ app.buildKiteScore = function(model, spot, windData, callback) {
       // normalize the difference into 1/8 points to subtract from kitescore
       var kiteScoreSubtraction = closestDifference / 45;
       data['kitescore_orig'] = kiteScore;
+      if (spot.wind_directions.length != null && spot.wind_directions.length === 0) {
+         // handle the case where no wind direction is specified, so any direction 'works'         
+         kiteScoreSubtraction = 0;
+/*          console.log('There be no wind directions, so setting subtraction to 0 and closest dir to wdir: '.red + wdir + ', closest dir: ' + closestDir); */
+         closestDir = wdir;
+         closestDiff = 0;
+      }
+      
       kiteScore -= ( 2 * Math.floor(kiteScoreSubtraction) );
+      
       
       var floorScore = Math.floor(kiteScore);
       returnData['epoch'] = data.time.epoch;
@@ -442,9 +451,9 @@ app.runIndividualSpotCache = function(spot_id, callback) {
 			spot['lastUpdated'] = new Date().toUTCString();
 			var redisSpotId = "spot:" + spotId;        
 			client.set(redisSpotId, JSON.stringify(spot), function(err, replies) {
-				client.expire(redisSpotId, expireTimeSpot, function(err, reply) {
+				/*client.expire(redisSpotId, expireTimeSpot, function(err, reply) {
 					logger.debug('Expire set for spot redis key \'' + redisSpotId + '\', expires: ' + expireTimeSpot / 60 + ' minutes');
-				});
+				});*/
 			});
 		});
 		callback(err, body);
@@ -527,7 +536,12 @@ app.runSpotWeatherCache = function(spot_id, callback) {
             },
             // step 3: convert the weather data into wind hourly data array
             function( spot, weather, callback) {
+               try {
                var jsonWeather = JSON.parse(weather); 
+               } catch (err) {
+                  logger.warn('Error parsing weather: ' + weather);
+                  callback(err);
+               }
                app.processHourly(jsonWeather, function(err, hourly) {
                   if (err) {
                      logger.warn('Error processing hourly: ' + err + ', input: ' + JSON.stringify(hourly));
@@ -589,11 +603,15 @@ app.runSpotWeatherCache = function(spot_id, callback) {
                          });*/
                       });
                   });
-		  logger.debug('returning from session finder service block. Missed a callback before');
-		  callback(null, spot, scores); // Someone forgot the callback!
+                  callback(null, spot, scores)
                 }   
          
          ], function( err, spot, scores){
+               if (err) {
+                  logger.error('Error building scores: ' + err);
+                  
+                  callback(err);
+               }
                logger.debug("Score successfully processed for spot " + spot.spotId + ": " + scores.length);
                callback(null, scores);
             });                          
@@ -601,6 +619,7 @@ app.runSpotWeatherCache = function(spot_id, callback) {
       }
    });
 }
+
 
 
 
