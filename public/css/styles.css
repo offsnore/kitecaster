@@ -195,12 +195,20 @@ h2.head_title {
     margin-top: 1em;
 }
 
+.forecast_feed .forecast_item {
+}
+
+.forecast_feed .forecast_item ul {
+    margin-left: 0;
+    padding-left: 0;
+}
+
 .forecast_feed .body .loader {
     padding: 1em;
 }
 
 .forecast_feed .body .info {
-    margin-left: 1.5em;
+    margin: .5em;
 }
 
 .forecast_feed .header {

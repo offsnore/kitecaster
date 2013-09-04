@@ -111,7 +111,8 @@ app.getHotSpots = function(user_id, process, method_callback) {
                         for(var i in data) {
                             var obj = data[i];
                             var spotId = obj[0].spotId;
-                            spots.push(spotId);
+                            var spotName = obj[0].name;
+                            spots.push({id: spotId, name: spotName});
                             var redis10DayKey = "scores:10day:spot:" + spotId;
                             var flagged = false, dark = false;
                         	client.get(redis10DayKey, function(err, reply) {
@@ -120,7 +121,6 @@ app.getHotSpots = function(user_id, process, method_callback) {
                         		} else {
                             		a_data.push({});
                         		}
-//                        		console.log(counter, max, spotId);
                             	if (counter == max) {
                                 	callback_ext_a(null, data, a_data, spots);
                             	}
@@ -141,6 +141,8 @@ app.getHotSpots = function(user_id, process, method_callback) {
                         for (var i in spots) {
                             var spot_id = spots[i];
                             var org_data = a_data[i];
+//                            console.log(org_data);
+                            
                             finder.buildSessionSearch({ spotId: spot_id }, org_data, function(err, results){
                             	if (process !== false) {
                             	    console.log('Ran session search building on test spot and dummy data. Got Result, wooeey!!');

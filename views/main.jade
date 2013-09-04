@@ -87,9 +87,9 @@ block head_include
 block scripts
 	script(type='text/x-handlebars-template', id='forecast-window')
 		{{#each this}}
-		.well
+		.well.forecast_item
 			ul
-				{{#dumpThis this}}{{/dumpThis}}
+				{{#forecastItem this}}{{/forecastItem}}
 		{{else}}
 		.info
 			h4 No forecasts were found.
