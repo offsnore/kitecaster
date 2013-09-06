@@ -394,8 +394,43 @@ var correctedViewportW = (function (win, docElem) {
 		}
 		
 		_$local.load_forecasted = function() {
-    		$(".forecast_feed").removeClass('hidden');
 			var obj = null, source = null, template = null;
+
+    		// private function (gets the top 3 places for today)
+    		function get_top_three(data) {
+        		var today = null, forecast = [], top = [];
+        		today = moment().format("MM-DD-YYYY");
+        		for (var i in data) {
+            		var obj = data[i][1];
+            		for (var x in obj) {
+                		if (typeof obj[x].maxScore === 'undefined') {
+                    		continue;
+                		}
+                		if (x !== today) {
+                    		continue;
+                		}
+                		obj[x].spot_data = data[i][1].spot_id;
+                        obj[x].date_stamp = x;
+                		if (top.length > 0) {
+                    		for (var y in top) {
+                    		  console.log(obj[x].maxScore.score, top[y].maxScore.score);
+                                if (top.length >= 3 && obj[x].maxScore.score > top[y].maxScore.score) {
+                                    top.splice(y, 1);
+                                    top.push(obj[x]);
+                                } else if (top.length < 3) {                                    
+                                    top.push(obj[x]);
+                                }
+                    		}
+                		} else {
+                    		top.push(obj[x]);
+                		}
+            		}
+        		}        		
+        		forecast = top;
+        		return forecast;
+    		}
+
+    		$(".forecast_feed").removeClass('hidden');
 			$.ajax({
 				url: "/user/forecasts",
 				data: {
@@ -403,6 +438,7 @@ var correctedViewportW = (function (win, docElem) {
 				},
 				type: "GET",
 				success: function(data) {
+				    data.today = get_top_three(data);
 					obj = $("#forecast-window");
 					source = obj.html();
 					template = Handlebars.compile(source);
@@ -410,7 +446,6 @@ var correctedViewportW = (function (win, docElem) {
 				}
 			})
 		}
-
 	}
 
 	$(document).ready(function($){	
@@ -1643,7 +1678,7 @@ var correctedViewportW = (function (win, docElem) {
 				}
 				return hlist;
 			});
-			Handlebars.registerHelper("forecastItem", function(data, options) {
+			Handlebars.registerHelper("forecastItem_legacy", function(data, options) {			
     			var spot_data = data[1] || {};
     			var html = "", spot_id = null;
     			if (typeof spot_data === 'undefined') {
@@ -1665,6 +1700,23 @@ var correctedViewportW = (function (win, docElem) {
     			}
     			return new Handlebars.SafeString(html);
 			})
+			Handlebars.registerHelper("forecastItem", function(data, options) {			
+    			var spot_data = data.spot_data || {};
+    			var html = "", spot_id = null;
+    			if (typeof spot_data === 'undefined') {
+        			return true;
+    			}
+    			
+    			console.log(spot_data, data);
+    			
+    			var max_length = Object.keys(spot_data).length, counter = 0, best_time = "";
+                if (typeof data.maxScore !== 'undefined') {
+                    best_time = (data.maxScore.hour < 12 ? data.maxScore.hour + " AM " : (data.maxScore.hour - 12) + " PM ");
+                    html += "<li>At <a href='/main/spots/view/" + spot_data.id + "'>" + spot_data.name + "</a> your best time is at " + best_time + "<br /><a href='/main/spots/view/" + spot_data.id + "'>See More</a></li>";
+                }
+    			return new Handlebars.SafeString(html);
+			})
+
 		}
 				
 		

@@ -42,9 +42,18 @@ block content
 						.forecast_feed.hidden
 							.header
 								.name
-									| Your forecasted spots
+									| Daily Forecast
 							.body
 								.info#forecast-data
+									.loader
+										i.icon-spinner.icon-spin.icon-large 
+										|   Loading...
+						.forecast_feed.hidden
+							.header
+								.name
+									| Weekly Forecast
+							.body
+								.info#forecast-week-data
 									.loader
 										i.icon-spinner.icon-spin.icon-large 
 										|   Loading...
@@ -86,7 +95,7 @@ block head_include
 
 block scripts
 	script(type='text/x-handlebars-template', id='forecast-window')
-		{{#each this}}
+		{{#each this.today}}
 		.well.forecast_item
 			ul
 				{{#forecastItem this}}{{/forecastItem}}
