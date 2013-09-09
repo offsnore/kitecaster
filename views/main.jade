@@ -51,7 +51,7 @@ block content
 						.forecast_feed.hidden
 							.header
 								.name
-									| Weekly Forecast
+									| Extended Forecast
 							.body
 								.info#forecast-week-data
 									.loader
@@ -99,6 +99,17 @@ block scripts
 		.well.forecast_item
 			ul
 				{{#forecastItem this}}{{/forecastItem}}
+		{{else}}
+		.info
+			h4 No forecasts were found.
+		{{/each}}
+	script(type='text/x-handlebars-template', id='forecast-week-window')
+		{{#consoleDump this}}{{/consoleDump}}
+
+		{{#each this}}
+		.well.forecast_item
+			ul
+				{{#forecastWeekItem this}}{{/forecastWeekItem}}
 		{{else}}
 		.info
 			h4 No forecasts were found.

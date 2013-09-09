@@ -397,11 +397,20 @@ var correctedViewportW = (function (win, docElem) {
 			var obj = null, source = null, template = null;
 
     		// private function (gets the top 3 places for today)
-    		function get_top_three(data) {
+    		function get_top_three(data, only_spot_data) {
+        		if (typeof only_spot_data === 'undefined') {
+            		var only_spot_data = false;
+        		}
         		var today = null, forecast = [], top = [];
         		today = moment().format("MM-DD-YYYY");
         		for (var i in data) {
             		var obj = data[i][1];
+
+            		if (only_spot_data === true) {
+                		obj.spot_data = data[i][1].spot_id;
+                		continue;
+            		}
+
             		for (var x in obj) {
                 		if (typeof obj[x].maxScore === 'undefined') {
                     		continue;
@@ -409,11 +418,10 @@ var correctedViewportW = (function (win, docElem) {
                 		if (x !== today) {
                     		continue;
                 		}
-                		obj[x].spot_data = data[i][1].spot_id;
+                		obj[x].spot_data = data[i][1].spot_id;                		
                         obj[x].date_stamp = x;
                 		if (top.length > 0) {
                     		for (var y in top) {
-                    		  console.log(obj[x].maxScore.score, top[y].maxScore.score);
                                 if (top.length >= 3 && obj[x].maxScore.score > top[y].maxScore.score) {
                                     top.splice(y, 1);
                                     top.push(obj[x]);
@@ -425,7 +433,12 @@ var correctedViewportW = (function (win, docElem) {
                     		top.push(obj[x]);
                 		}
             		}
-        		}        		
+        		}
+        		
+        		if (only_spot_data === true) {
+            		return data;
+        		}
+        		    		
         		forecast = top;
         		return forecast;
     		}
@@ -438,11 +451,19 @@ var correctedViewportW = (function (win, docElem) {
 				},
 				type: "GET",
 				success: function(data) {
+				    // daily
 				    data.today = get_top_three(data);
 					obj = $("#forecast-window");
 					source = obj.html();
 					template = Handlebars.compile(source);
 					$("#forecast-data").html(template(data));
+
+					// Weekly
+				    data = get_top_three(data, true)
+					obj_week = $("#forecast-week-window");
+					source_week = obj_week.html();
+					template_week = Handlebars.compile(source_week);
+					$("#forecast-week-data").html(template_week(data));
 				}
 			})
 		}
@@ -1707,14 +1728,39 @@ var correctedViewportW = (function (win, docElem) {
         			return true;
     			}
     			
-    			console.log(spot_data, data);
-    			
     			var max_length = Object.keys(spot_data).length, counter = 0, best_time = "";
                 if (typeof data.maxScore !== 'undefined') {
                     best_time = (data.maxScore.hour < 12 ? data.maxScore.hour + " AM " : (data.maxScore.hour - 12) + " PM ");
                     html += "<li>At <a href='/main/spots/view/" + spot_data.id + "'>" + spot_data.name + "</a> your best time is at " + best_time + "<br /><a href='/main/spots/view/" + spot_data.id + "'>See More</a></li>";
                 }
     			return new Handlebars.SafeString(html);
+			})
+			Handlebars.registerHelper("forecastWeekItem", function(data, options) {	
+
+    			var html = "", running_avg = 0;
+    			var spot_data = data[1].spot_data || {};
+                var days = data[1] || {};
+                var max_days = Object.keys(days).length || 0;
+                
+                var running_top = 0, running_day = 0;
+                
+                for (var i in days) {
+                    running_avg += days[i].average || 0;
+                    if (days[i].average > running_top) {
+                        running_top = days[i].average;
+                        running_day = i;
+                    }
+                }
+                
+                running_avg = parseFloat(running_avg) / max_days;
+                running_avg = parseFloat(running_avg).toFixed(2)
+                
+                html += "<li>At <a href='/main/spot/view/" + spot_data.id + "'> " + spot_data.name + " </a> the average kitescore over the next " + max_days + " days is " + running_avg + ". With the best wind on " + running_day + " with a kitescore average of " + parseFloat(running_top).toFixed(2) + ".<br /><a href='/main/spots/view/" + spot_data.id + "'>See More</a></li>";
+                
+                return new Handlebars.SafeString(html);
+			})
+			Handlebars.registerHelper("consoleDump", function(data, options) {
+    			console.log(data);
 			})
 
 		}
