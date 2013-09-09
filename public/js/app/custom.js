@@ -1755,7 +1755,7 @@ var correctedViewportW = (function (win, docElem) {
                 running_avg = parseFloat(running_avg) / max_days;
                 running_avg = parseFloat(running_avg).toFixed(2)
                 
-                html += "<li>At <a href='/main/spot/view/" + spot_data.id + "'> " + spot_data.name + " </a> the average kitescore over the next " + max_days + " days is " + running_avg + ". With the best wind on " + running_day + " with a kitescore average of " + parseFloat(running_top).toFixed(2) + ".<br /><a href='/main/spots/view/" + spot_data.id + "'>See More</a></li>";
+                html += "<li>At <a href='/main/spot/view/" + spot_data.id + "'> " + spot_data.name + " </a> the average kitescore over the next " + max_days + " days is " + running_avg + ". With the best wind on " + running_day + " with a kitescore average of " + parseFloat(running_top).toFixed(2) + " for the day.<br /><a href='/main/spots/view/" + spot_data.id + "'>See More</a></li>";
                 
                 return new Handlebars.SafeString(html);
 			})
