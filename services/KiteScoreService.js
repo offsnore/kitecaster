@@ -135,7 +135,8 @@ var wundegroundAPI = nconf.get('weather:apis:wunderground'),
     rateHour = 	nconf.get('weather:apis:rate:hour'),
     rateDay = 	nconf.get('weather:apis:rate:day'),
     expireTimeSpot = nconf.get('redis:expire_time:spot'),
-    expireTimeWeather = nconf.get('redis:expire_time:weather');
+    expireTimeWeather = nconf.get('redis:expire_time:weather'),
+    currentWeatherMode = nconf.get('api:kitescore:current_weather_api');
 
 var wunder = new wundernode(wundegroundAPI, wunderDebug, rateMinute, 'minute');
 
@@ -157,18 +158,24 @@ app.current_weather = function(lat, lon, callback){
 			var res = res.body;
 			callback(err, res);
 		} else {
-			forecast.get(lat, lon, function (err, res, data) {
-				if (err) throw err;
-				if (typeof data != 'undefined') {
-					var obj = {};
-					obj.forecast = data;
-					Datastore.setobject(db, q, obj, 3600, function(){
-						callback(err, obj);
-					});
-				} else {
-					callback(err, {});
-				}
-			});
+		   if (currentWeatherMode === 'wunderground') {
+   		   wunder.conditions(q, function(err, obj) {
+               
+   		   });
+		   } else {
+   			forecast.get(lat, lon, function (err, res, data) {
+   				if (err) throw err;
+   				if (typeof data != 'undefined') {
+   					var obj = {};
+   					obj.forecast = data;
+   					Datastore.setobject(db, q, obj, 3600, function(){
+   						callback(err, obj);
+   					});
+   				} else {
+   					callback(err, {});
+   				}
+   			});
+			}
 			/*
 			wunder.forecast(q, function(err, obj){
 				var obj = JSON.parse(obj);

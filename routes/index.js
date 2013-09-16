@@ -177,7 +177,7 @@ exports.mainIndex = function(req, res) {
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){		
 		if (body.length == 0) {
-			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
+			return kickOut(res, "Looks like the case of an expired session. Shake those bits!");
 		}
 
 		var profile_image;
@@ -267,7 +267,7 @@ exports.discoverSpot = function(req, res) {
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){		
 		if (body.length == 0) {
-			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
+			return kickOut(res, "Looks like the case of an expired session. Shake those bits!");
 		}
 		var localdata = body[0];
 		var user_id = localdata.objectId;
@@ -347,7 +347,7 @@ exports.mainSpot = function(req, res) {
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
-			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
+			return kickOut(res, "Looks like the case of an expired session. Shake those bits!");
 		}
 
 		localdata = body[0];		
@@ -414,7 +414,7 @@ exports.newSpot = function(req, res) {
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
-			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
+			return kickOut(res, "Looks like the case of an expired session. Shake those bits!");
 		}
 		localdata = body[0];		
 		user_id = localdata.objectId;
@@ -490,7 +490,7 @@ exports.viewSpot = function(req, res) {
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
-			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
+			return kickOut(res, "Looks like the case of an expired session. Shake those bits!");
 		}
 		localdata = body[0];
 		user_id = localdata.objectId;
@@ -682,7 +682,7 @@ exports.editSpot = function(req, res) {
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
-			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
+			return kickOut(res, "Looks like the case of an expired session. Shake those bits!");
 		}
 		localdata = body[0];
 		user_id = localdata.objectId;
@@ -834,7 +834,7 @@ exports.mainProfile = function(req, res) {
 	var session_id, profile_image;
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
-			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
+			return kickOut(res, "Looks like the case of an expired session. Shake those bits!");
 		}
 		var localdata = body[0];		
 		var user_id = localdata.objectId;
@@ -940,7 +940,7 @@ exports.mainProfileSave = function(req, res) {
 	// this is how we get User Data ..
 	Datasession.getuser(req, function(err, response, body){
 		if (body.length == 0) {
-			return kickOut(res, "Boss says you expired dude, sorry to hear. Maybe try logging in again :).");
+			return kickOut(res, "Looks like the case of an expired session. Shake those bits!");
 		}
 		var localdata = body[0];		
 		var user_id = localdata.objectId;
