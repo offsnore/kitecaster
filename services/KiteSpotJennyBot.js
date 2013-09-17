@@ -375,17 +375,19 @@ app.sendWelcomeEmail = function(name, to_email) {
     var params = {
     	'email': to_email,
 	    'name': name,
-	    'parsed': ""
+	    'parsed': "<h1>oh noes!</h1>"
     };
     var content = layout(params);
     var replyto_address = "noreply@kitecaster.com";
     var subject = 'Check out a few cool things at KiteCaster.com! (Welcome Email)';
     var from_address = 'Andrew @ KiteCaster Team <andrew@kitecaster.com>';
+    
+   
     app.sendEmail(from_address, to_email, subject, content);
 	
 }
 
-app.sendCustomEmail = function(name, to_emails, subject, content)  {
+app.sendCustomEmail = function(name, to_email, subject, content)  {
    var layout_path = require('path').resolve(__dirname, "../views/email/custom.jade");
    if (typeof to_emails === 'string') {
       var singleEmail = to_emails;
@@ -395,18 +397,16 @@ app.sendCustomEmail = function(name, to_emails, subject, content)  {
    
     var layout = fs.readFileSync(layout_path, 'utf8');
     var layout = jade.compile(layout, {pretty: true, filename: layout_path });
-    to_emails.forEach(function(to_email) {
-       var params = {
-       	'email': to_email,
-   	    'name': name,
-   	    'parsed': content
-       };
-       var content = layout(params);
-       var replyto_address = "noreply@kitecaster.com";
-       var from_address = 'Andrew @ KiteCaster Team <andrew@kitecaster.com>';
-       app.sendEmail(from_address, to_email, subject, content);
-       console.log('done. sent email to ' + to_email  + ", content: " + content);
-    });
+    var params = {
+    	'email': to_email,
+	    'name': name,
+	    'parsed': content
+    };
+    var content = layout(params);
+    var replyto_address = "noreply@kitecaster.com";
+    var from_address = 'Andrew @ KiteCaster Team <andrew@kitecaster.com>';
+    app.sendEmail(from_address, to_email, subject, content);   
+    
 
    
    
@@ -444,4 +444,6 @@ app.sendEmail = function(from_address, to_address, subject, content, replyto_add
 //app.getHotSpots('xmkIMtFLKe', false, function(data){ 
 //	console.log('yo');
 //})
-app.sendCustomEmail("andrew@kitecaster.com", ["picasandrew@gmail.com"], "Hoorarrr! 'to address' should be an array somewheres, yes?", "<div>What's this look like<div>"); 
+
+app.sendCustomEmail("Kyle", "kylejeske@gmail.com", "Red pill or Blue?", "<h5>It's IN the compooter!<h5><br><p>Now how do I align the signature left. And what return chars are you using? my tabs/arrows don't dive with the formatting shown when I reveal that sheet!"); 
+
