@@ -9,6 +9,7 @@ var datastore = require('./DataStore')
 	,	colors = require('colors')
 	,	jade = require('jade')
 	,   async = require('async')
+	,   moment = require('moment')
 	,	fs = require('fs');
 
 nconf.argv()
@@ -309,6 +310,61 @@ app.processHotSpot = function(spot_data, data) {
 	*/
 };
 
+app.parse_daily = function(data) {
+    var html = "";
+    html += "<div class='well forecast_item'><ul>";
+    for (td in data.today) {
+        html += app.daily_forecast(data.today[td]);
+    }
+    html += "</li></div>";
+    return html;
+}
+
+app.daily_forecast = function(data){
+	var spot_data = data.spot_data || {};
+	var html = "", spot_id = null;
+	if (typeof spot_data === 'undefined') {
+		return true;
+	}
+	
+	var max_length = Object.keys(spot_data).length, counter = 0, best_time = "";
+    if (typeof data.maxScore !== 'undefined') {
+        best_time = (data.maxScore.hour < 12 ? data.maxScore.hour + " AM " : (data.maxScore.hour - 12) + " PM ");
+        html += "<li>At <a href='http://www.kitecaster.com/main/spots/view/" + spot_data.id + "'>" + spot_data.name + "</a> your best time is at " + best_time + "<br /><a href='http://www.kitecaster.com/main/spots/view/" + spot_data.id + "'>See More</a></li>";
+    }
+	return html;
+}
+
+
+app.parseDailyEmail = function(email_addy, parsed, callback) {
+    if (typeof callback !== 'function') {
+        var callback = function(){};
+    }
+
+    var layout_path = require('path').resolve(__dirname, "../views/email/daily.jade");
+
+    //@todo - make these come form the Spots ...
+    var emails = [];
+    emails.push(email_addy);
+
+    for (var x in emails) {
+	    var layout = fs.readFileSync(layout_path, 'utf8');
+	    var layout = jade.compile(layout, {pretty: true, filename: layout_path });
+	    var params = {
+	    	'email': emails[x],
+		    'parsed': parsed
+	    };
+	    var content = layout(params);
+	    var replyto_address = "noreply@kitecaster.com";
+	    var subject = 'Check out these hot kiting times! Kitecaster.com';
+	    var from_address = 'Forecaster Jenny <jenny.the.forecaster@kitecaster.com>';
+	    console.log(from_address, emails[x], subject);
+	    app.sendEmail(from_address, emails[x], subject, content);
+    }
+    callback();
+}
+
+
 /**
  * Parsed out important information to reveal actual data that is useful
  */
@@ -324,19 +380,6 @@ app.parseHotInfo = function(name, spot_id, data) {
 		}
 		found_one = true;
 		parsed += "<h5>The best time to go kiting here on " + i + " is " + (max.hour > 12 ? (parseInt(max.hour) - 12) : max.hour) + (max.hour < 12 ? " AM" : " PM") + " - we predict a kiting score of " + max.score + ".</h5><p>\n";
-
-	/** hide this for now
-		for (var b in obj) {
-			if (typeof obj[b].hour === 'undefined') {
-				continue;
-			}
-			parsed += (obj[b].hour > 12 ? (parseInt(obj[b].hour) - 12) : obj[b].hour) + (obj[b].hour < 12 ? " AM" : " PM") + " (score: " + obj[b].score + "), ";
-		}
-		obj.forEach(function(i, item){
-			parsed += obj[item].hour + " (score: " + obj[item].score + "), ";
-		});
-		parsed += "</p>";
-	**/
 	}
 	parsed += "<a href='http://www.kitecaster.com/main/p/" + name + "/spot-" + spot_id + ".html?_utm=email&ct=h2'> Check out the full graph on KiteCaster &raquo;</a></p>\n";
 
@@ -409,6 +452,51 @@ app.sendEmail = function(from_address, to_address, subject, content, replyto_add
 	        }
 	   });
 }
+
+app.get_top_three = function(data, only_spot_data) {
+	if (typeof only_spot_data === 'undefined') {
+		var only_spot_data = false;
+	}
+	var today = null, forecast = [], top = [];
+	today = moment().format("MM-DD-YYYY");
+	for (var i in data) {
+		var obj = data[i][1];
+		if (only_spot_data === true) {
+    		obj.spot_data = data[i][1].spot_id;
+    		continue;
+		}
+		for (var x in obj) {
+    		if (typeof obj[x].maxScore === 'undefined') {
+        		continue;
+    		}
+    		if (x !== today) {
+        		continue;
+    		}
+    		obj[x].spot_data = data[i][1].spot_id;                		
+            obj[x].date_stamp = x;
+    		if (top.length > 0) {
+        		for (var y in top) {
+                    if (top.length >= 3 && obj[x].maxScore.score > top[y].maxScore.score) {
+                        top.splice(y, 1);
+                        top.push(obj[x]);
+                    } else if (top.length < 3) {                                    
+                        top.push(obj[x]);
+                    }
+        		}
+    		} else {
+        		top.push(obj[x]);
+    		}
+		}
+	}
+	
+	if (only_spot_data === true) {
+		return data;
+	}
+	    		
+	forecast = top;
+	return forecast;
+}
+
 
 
 //app.sendWelcomeEmail("Andrew Anderson", "picasandrew@gmail.com");

@@ -10,6 +10,7 @@ forever start api/user.js
 forever start api/spot.js
 forever start frontend/server.js
 forever start crons/graph_images.js
+forever start crons/jenny_forecaster.js
 
 echo "finished starting services..";
 
