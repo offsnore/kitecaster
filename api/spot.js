@@ -870,6 +870,7 @@
 				res.send(err);
 				return;
 			}
+			
 			valid = validate(json, spotSchema);
 			if (valid.length > 0 ) {
 				res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
@@ -881,6 +882,7 @@
 			} else {
 				try {
 					var json = Datastore.creategeopoint(json);
+
 					Datastore.records.createobject("Spot", json, function(err, response){
 						var obj = {
 							status: 'Spot for ' + json.name + ' was been created!',

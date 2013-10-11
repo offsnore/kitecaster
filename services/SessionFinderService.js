@@ -70,7 +70,11 @@ app.buildSessionSearch = function(spot, scores, callback) {
          }
       }
       var avg =  ( scoreSum / count);
-      dayScoresMap[date]['average'] = avg;      
+      try { 
+	dayScoresMap[date]['average'] = avg;      
+	} catch (err) {
+	    console.log('Error setting average for date ' + date + ': ' + err);
+	}
    }   
    callback(null, dayScoresMap);
 };

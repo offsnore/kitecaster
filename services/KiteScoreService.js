@@ -609,12 +609,14 @@ app.runSpotWeatherCache = function(spot_id, callback) {
          ], function( err, spot, scores){
                if (err) {
                   logger.error('Error building scores: ' + err);
-                  
                   callback(err);
+               } else {
+                   logger.debug("Score successfully processed for spot " + spot.spotId + ": " + scores.length);
+                   if (typeof callback === 'function') {
+                       callback(null, scores);
+                   }
                }
-               logger.debug("Score successfully processed for spot " + spot.spotId + ": " + scores.length);
-               callback(null, scores);
-            });                          
+            });
          });
       }
    });
