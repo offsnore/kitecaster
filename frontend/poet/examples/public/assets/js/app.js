@@ -157,3 +157,12 @@ var App = function () {
 
     };
 }();
+
+
+(function($){
+	$(document).ready(function(){
+		$(".form_subscribe").live("click", function(){
+			$(".answer_area").html("<h3>Okay, We'll tell Jenny to back off and stop sending you daily information about your favorite spots.</h3> <br /><br /><h4>You can always turn these back on from your profile!</h4>");
+		});
+	});
+})(jQuery);

@@ -24,6 +24,10 @@ app.get( '/services.html', function(req, res) {
     res.render('services');
 });
 
+app.get( '/unsubscribe.html', function(req, res) {
+    res.render('unsubscribe');
+});
+
 app.get( '/sitemap-frontend.xml', function(req, res) {
     res.render('sitemap-frontend');
 });
