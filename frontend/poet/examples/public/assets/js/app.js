@@ -162,7 +162,20 @@ var App = function () {
 (function($){
 	$(document).ready(function(){
 		$(".form_subscribe").live("click", function(){
-			$(".answer_area").html("<h3>Okay, We'll tell Jenny to back off and stop sending you daily information about your favorite spots.</h3> <br /><br /><h4>You can always turn these back on from your profile!</h4>");
+			var email_addy = $("#unsubscribe_email").val();
+			$(".answer_area").html("<h3>Submitting your request...</h3>");
+			$.ajax({
+				url: '/user/unsubscribe',
+				data: {
+					email: email_addy
+				},
+				success: function(){
+					$(".answer_area").html("<h3>Okay, We'll tell Jenny to back off and stop sending you daily information about your favorite spots.</h3> <br /><br /><h4>You can always turn these back on from your profile!</h4>");					
+				},
+				error: function() {
+					$(".answer_area").html("<h3>Oops! Sorry - something happened in the process of submitting this request. Please reload the page and try again.</h3>");
+				}
+			});
 		});
 	});
 })(jQuery);
