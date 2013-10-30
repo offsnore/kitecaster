@@ -137,6 +137,17 @@
 			},
 		}
 	};
+	
+	var emailUnsubscribeSchema = {
+		"id": "/emailUnsubscribeSchema",
+		"type": "object",
+		"properties": {
+			"email": {
+				"type": "string",
+				"required" : true
+			}
+		}
+	};
 
 
 	var updateProfileSchema = {
@@ -202,6 +213,37 @@
 				res.send(obj);
 			});
 			**/
+		}
+	});
+
+	/**
+	 * Handles turning off the Jenny Daily Alerts
+	 */
+	server.get('user/unsubscribe', function(req, res) {
+		var id = req.params.userId;
+		var data = "";
+		var data = require('url').parse(req.url, true).query;
+		var json, valid;
+		json = data;
+		valid = validate(json, emailUnsubscribeSchema);
+		if (valid.length > 0 ) {
+			res.send(400, 'Error validating spot schema:' + JSON.stringify(valid));
+			return;
+		} else {
+			var queryParams = {
+				where: json
+			};
+			Datastore.records.object("Profiles", queryParams, function(err, response, body, success) {
+				if (body) {
+					body[0].unsubscribed_alerts = true;				
+					var objectId = body[0].objectId;
+					Datastore.records.objectupdate("Profiles", objectId, body[0], function(err, response, body, success){
+						res.set("Content-Type", "application/json");
+						res.end(JSON.stringify({"status":"Your profile has been updated."}));
+						return;
+					});
+				}
+			});
 		}
 	});
 

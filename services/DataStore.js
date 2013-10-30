@@ -148,7 +148,15 @@ app.objectupdate = function(db, objectId, query, callback) {
 
 		parseApp.updateObject(db, objectId, query, function(err, res, body, success) {			
 			if (typeof body.error != 'undefined') {
-				logger.debug("Parse.com responded with an error, ", JSON.stringify(body.error));
+				throw new Exception(JSON.stringify(body.error));
+//				console.log(JSON.stringify(body.error));
+/*
+				if (typeof logger !== 'undfined') {
+					logger.debug("Parse.com responded with an error, ", JSON.stringify(body.error));					
+				} else {
+					console.log("parse.com responsed with an error, ", JSON.stringify(body.error));
+				}
+*/
 				return false;
 			}
 
