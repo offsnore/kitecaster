@@ -13,6 +13,37 @@ var   cronJob = require('cron').CronJob
 
 
 try {
+    var job_overview = new cronJob({
+      cronTime: '00 * * * * *',
+      onTick: function() {
+        var queryParams = {};
+        var running = 0;
+        syncPlan = new syncExec();
+        
+        syncPlan.on("execerror", function(err, strerr) {
+            console.log(err);
+            console.log(strerr);
+        });
+        
+        syncPlan.on("complete", function(stdout) {
+            var running = 0;
+            console.log(stdout);
+            console.log("set complete");
+        });
+        
+        syncPlan.on("finished", function() {
+            var running = 0;
+            console.log("set finished");
+        });
+
+        script_path = require('path').resolve(__dirname + '/scripts/check_phantom_js.sh');
+	syncPlan.add(script_path);
+	syncPlan.execute();
+      },
+      start: true
+    });
+    job_overview.start();
+
     var job = new cronJob({
       cronTime: '00 00 * * * *',
       onTick: function() {

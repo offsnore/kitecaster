@@ -1,0 +1,18 @@
+extends layout_new_single
+
+block content_header
+
+block content
+	.container-fluid.one-page
+		.one-page-inner.one-default
+			.container
+				.row-fluid
+					.span8.answer_area
+						h3 Are you sure you'd like to stop recieving emails from Jenny, KiteCaster's daily information service?
+						h4 If yes, please enter your email address here and we'll take care of that right away:
+						input(type='text', value='', id='unsubscribe_email')
+						br
+						input(type='submit', value='UnSubscribe Me').form_subscribe.btn
+						h5 Note: You may still recieve correspondance from time-to-time about kitecaster, but not from Jenny or on a daily basis.
+
+block content

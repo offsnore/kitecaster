@@ -6,7 +6,7 @@
     "start": "node spot.js"
   },
   "dependencies": {
-	"async": "0.2.x",
+    "async": "0.2.x",
     "restify": "2.3.x",
     "kaiseki": "0.4.x",
     "colors": "0.6.x",
@@ -14,8 +14,7 @@
     "jsonschema": "0.3.x",
     "nconf": "0.6.x",
     "redis":"0.8.x",
-    "wundernode": "0.3.x"
-	
+    "wundernode": "0.3.x"	
   },
   "subdomain": "evalcrux.kitecaster",
   "engines": {

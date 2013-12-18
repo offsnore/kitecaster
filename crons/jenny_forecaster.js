@@ -3,7 +3,7 @@ var   cronJob = require('cron').CronJob
     , syncExecold = require('exec-sync')
     , syncExec = require("exec-plan").ExecPlan
     , Datastore = require('../services/DataStore.js')
-    , Jenny = require('../services/KiteSpotJennyBot.js')
+    , JennyMailer = require('../services/ServiceJennyMailer.js')
     , nconf = require('nconf')
     , sleep = require('sleep')
     ;
@@ -16,9 +16,9 @@ var   cronJob = require('cron').CronJob
 try {
     var job = new cronJob({
 //      cronTime: '00 00 06 * * *',
-      cronTime: '00 00 13 * * *',
+      cronTime: '00 30 09 * * *',
       onTick: function() {
-          Jenny.getHotSpots();
+          JennyMailer.sendEmails();
       },
       start: true
     });
