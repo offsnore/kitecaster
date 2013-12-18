@@ -18,7 +18,7 @@
 			"key" : "72308924b8266c64af429db50d4796fb"
 		},
 		"spot": {
-			"frontend_url" : "local.kitecaster.com",
+			"frontend_url" : "www.kitecaster.com",
 			"port" : "6501",
 			"refreshSeconds" : 1800
 		},
@@ -26,7 +26,7 @@
 			"port" : "6504"
 		},
 		"kite" : {
-			"frontend_url" : "local.kitecaster.com",
+			"frontend_url" : "www.kitecaster.com",
 			"port" : "6508"
 		},
 		"user" : {
