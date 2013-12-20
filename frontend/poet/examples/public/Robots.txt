@@ -1,3 +1,0 @@
-User-Agent *
-Allow: /
-Sitemap: http://www.kitecaster.com/sitemap.xml

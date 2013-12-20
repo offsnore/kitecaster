@@ -18,3 +18,5 @@ logs/appendonly.aof
 node_modules/.DS_Store
 
 node_modules/.DS_Store
+public/*
+public
