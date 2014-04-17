@@ -31,7 +31,7 @@
 			"expiration_time" : 7200,
 			"start_cache" : true,
 			"refreshSeconds" : 3600,
-			"current_weather_api" : "forecast.io"
+			"weather_mode" : "forecast.io"
 		},
 		"google": {
 			"api_key": "AIzaSyDBD7vGX-y9pO8PP8bHCOQlKztjWzcJNf8"
@@ -55,8 +55,8 @@
 			"wunderground": "d423b6a14c833613",     
 			"debug": false,
 			"rate" : {
-   			"minute" : 25,
-   			"hour" : 500,
+   			"minute" : 1,
+   			"hour" : 5,
    			"day" : 5000
 			}
 			

@@ -136,7 +136,7 @@ var wundegroundAPI = nconf.get('weather:apis:wunderground'),
     rateDay = 	nconf.get('weather:apis:rate:day'),
     expireTimeSpot = nconf.get('redis:expire_time:spot'),
     expireTimeWeather = nconf.get('redis:expire_time:weather'),
-    currentWeatherMode = nconf.get('api:kitescore:current_weather_api');
+    weatherMode = nconf.get('api:kitescore:weather_mode');
 
 var wunder = new wundernode(wundegroundAPI, wunderDebug, rateMinute, 'minute');
 
@@ -158,7 +158,7 @@ app.current_weather = function(lat, lon, callback){
 			var res = res.body;
 			callback(err, res);
 		} else {
-		   if (currentWeatherMode === 'wunderground') {
+		   if (weatherMode === 'wunderground') {
    		   wunder.conditions(q, function(err, obj) {
                
    		   });
@@ -221,7 +221,7 @@ app.processHourly = function(hourly, callback) {
       });      
    }
    else {
-      console.log('what the fuck'.red);
+      console.log('Interminable Score? '.red + JSON.stringify(hourly));
       //callback("Unable to determine data source", null);
    }
    
@@ -537,6 +537,7 @@ app.runSpotWeatherCache = function(spot_id, callback) {
                var lat = spot.location.latitude;
                var lon = spot.location.longitude;
                var latLonQuery = lat + ',' + lon;
+
                wunder.hourly10day(latLonQuery, function(err, response) {
                   callback(null, spot, response);              
                });

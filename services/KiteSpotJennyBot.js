@@ -375,7 +375,7 @@ app.sendWelcomeEmail = function(name, to_email) {
     var params = {
     	'email': to_email,
 	    'name': name,
-	    'parsed': "<h1>oh noes!</h1>"
+	    'parsed': ""
     };
     var content = layout(params);
     var replyto_address = "noreply@kitecaster.com";
@@ -404,7 +404,7 @@ app.sendCustomEmail = function(name, to_email, subject, content)  {
     };
     var content = layout(params);
     var replyto_address = "noreply@kitecaster.com";
-    var from_address = 'Andrew @ KiteCaster Team <andrew@kitecaster.com>';
+    var from_address = 'andrew @ Kitecaster <andrew@kitecaster.com>';
     app.sendEmail(from_address, to_email, subject, content);   
     
 
@@ -439,11 +439,10 @@ app.sendEmail = function(from_address, to_address, subject, content, replyto_add
 }
 
 
-//app.sendWelcomeEmail("Andrew Anderson", "picasandrew@gmail.com");
+//app.sendWelcomeEmail("Helio", "heliodorj@gmail.com");
 //app.sendWelcomeEmail("Kyle Jeske", "kylejeske@gmail.com");
 //app.getHotSpots('xmkIMtFLKe', false, function(data){ 
 //	console.log('yo');
 //})
-
-app.sendCustomEmail("Kyle", "kylejeske@gmail.com", "Red pill or Blue?", "<h5>It's IN the compooter!<h5><br><p>Now how do I align the signature left. And what return chars are you using? my tabs/arrows don't dive with the formatting shown when I reveal that sheet!"); 
+app.sendCustomEmail("Helio", "picasandrew@gmail.com", "Red pill or Blue?", "<h5>It's IN the compooter!<h5><br><p>Now how do I align the signature left. And what return chars are you using? my tabs/arrows don't dive with the formatting shown when I reveal that sheet!"); 
 
