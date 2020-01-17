@@ -3,13 +3,13 @@
 		"port" : "6000"
 	},
 	"parse" : {
-		"appId": "NxEj8t7POeTJEnm3CizoU1MQZlNexcQpHTxgWhwa",
-		"master": "2bCmZB3F7qE8VebWUNHUzi1OzZnLivenQmiSGT4M",
-		"restKey": "zeJNClfH1mAaJL2wVELcqdNbFcgkhTTCEyoZ4qaw"
+		"appId": "",
+		"master": "",
+		"restKey": ""
 	},  
 	"api" : {
 		"forecast.io" : {
-			"key" : "72308924b8266c64af429db50d4796fb"
+			"key" : ""
 		},
 		"spot": {
 			"frontend_url" : "local.kitecaster.com",
@@ -33,7 +33,7 @@
 			"refreshSeconds" : 3600
 		},
 		"google": {
-			"api_key": "AIzaSyDBD7vGX-y9pO8PP8bHCOQlKztjWzcJNf8"
+			"api_key": ""
 		}
 	},
 	"test" : {
@@ -51,7 +51,7 @@
 	},
 	"weather" : {
 		"apis" : {
-			"wunderground": "d423b6a14c833613",     
+			"wunderground": "",     
 			"debug": false,
 			"rate" : {
    			"minute" : 25,
