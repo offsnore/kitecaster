@@ -18,8 +18,8 @@ var express = require('express')
 var app = express();
 
 
-var MASTER_KEY = '2bCmZB3F7qE8VebWUNHUzi1OzZnLivenQmiSGT4M';
-var APP_ID = 'NxEj8t7POeTJEnm3CizoU1MQZlNexcQpHTxgWhwa';
+var MASTER_KEY = '';
+var APP_ID = '';
 
 var parseApp = new Parse(APP_ID, MASTER_KEY);
     
