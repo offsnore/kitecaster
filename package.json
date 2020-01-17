@@ -7,7 +7,7 @@
   },
   "dependencies": {
 	"async": "0.2.x",
-    "restify": "2.3.x",
+    "restify": "8.5.x",
     "kaiseki": "0.4.x",
     "colors": "0.6.x",
     "winston": "0.6.x",
